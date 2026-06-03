@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Write(*)",
+      "Read(*)",
+      "Bash(git *)",
+      "Bash(mkdir *)",
+      "Bash(New-Item *)",
+      "Bash(Test-Path *)",
+      "Bash(Add-Content *)",
+      "Bash(Get-Date*)",
+      "Bash(Remove-Item *)",
+      "Bash(powershell.exe *)",
+      "PowerShell($env:HARNESS_DEPLOY_SCRIPT)",
+      "Bash(claude --dangerously-skip-permissions -p *)"
+    ]
+  }
+}

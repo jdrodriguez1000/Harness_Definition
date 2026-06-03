@@ -1,0 +1,4 @@
+1. Preocupacion cuando un agente tiene que construir muchos entregables puede gastar muchos tokens y caer en la fatiga de contexto, lo cual puede hacer que cometa errores. Por ejemplo si un agente tiene que construir 10 entregables, y cada uno requiere 1000 tokens en promedio, estariamos hablando de 10000 tokens en total, lo cual es una cantidad considerable de tokens. Es posible que cada vez que un agente termine de construir un entregable, su contexto vuelva a iniciar desde cero?.
+2. Darle un nombre al harness completo por ejemplo soft, hnss, o cualquier otro que sirva para trabajar mejor, y que se pueda referenciar desde cualquier lugar.
+3. Pasar todo a comandos claude para los agentes que participan en la creacion del harness, para que sea mas facil de mantener y modificar, ejemplo /design, /plan, /develop, /test, /deploy.
+4. 
