@@ -103,13 +103,13 @@ Confirmar que el directorio de trabajo es el correcto. Registrar path absoluto.
 
 **E10-A.2 — Crear jerarquía de carpetas:**
 ```powershell
-foreach ($dir in @('discovery','eval','changes','knowledge','persistence')) {
+foreach ($dir in @('010_discovery','eval','changes','knowledge','persistence')) {
     if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null }
 }
 ```
 Verificar que las 5 carpetas existen. Si alguna falta:
 ```powershell
-$faltantes = @('discovery','eval','changes','knowledge','persistence') | Where-Object { -not (Test-Path $_) }
+$faltantes = @('010_discovery','eval','changes','knowledge','persistence') | Where-Object { -not (Test-Path $_) }
 if ($faltantes) { Write-Host "ADVERTENCIA: carpetas no creadas: $($faltantes -join ', ')" }
 ```
 Si `eval/` o `knowledge/` no existen: retornar INIT_FAILED — son bloqueantes.

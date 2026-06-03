@@ -117,11 +117,11 @@ Confirmar que el directorio de trabajo es el correcto. Registrar path absoluto.
 
 **E10-A.2 — Crear carpeta `/040_planning/`:**
 ```powershell
-if (-not (Test-Path "plan")) { New-Item -ItemType Directory -Path "plan" | Out-Null }
+if (-not (Test-Path "040_planning")) { New-Item -ItemType Directory -Path "040_planning" | Out-Null }
 ```
 Verificar que la carpeta fue creada:
 ```powershell
-if (-not (Test-Path "plan")) { Write-Host "ERROR: no se pudo crear 040_planning/. Detener." }
+if (-not (Test-Path "040_planning")) { Write-Host "ERROR: no se pudo crear 040_planning/. Detener." }
 ```
 Si `040_planning/` no existe tras la verificación: retornar INIT_FAILED (bloqueante).
 

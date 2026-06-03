@@ -117,11 +117,11 @@ Confirmar que el directorio de trabajo es el correcto. Registrar path absoluto.
 
 **E10-A.2 — Crear carpeta `/030_design/`:**
 ```powershell
-if (-not (Test-Path "design")) { New-Item -ItemType Directory -Path "design" | Out-Null }
+if (-not (Test-Path "030_design")) { New-Item -ItemType Directory -Path "030_design" | Out-Null }
 ```
 Verificar que la carpeta fue creada:
 ```powershell
-if (-not (Test-Path "design")) { Write-Host "ERROR: no se pudo crear 030_design/. Detener." }
+if (-not (Test-Path "030_design")) { Write-Host "ERROR: no se pudo crear 030_design/. Detener." }
 ```
 Si `030_design/` no existe tras la verificación: retornar INIT_FAILED (bloqueante).
 

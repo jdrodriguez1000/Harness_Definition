@@ -119,11 +119,11 @@ Confirmar que el directorio de trabajo es el correcto. Registrar path absoluto.
 
 **E10-A.2 — Crear carpeta `/020_specification/` (ADJ-20):**
 ```powershell
-if (-not (Test-Path "specification")) { New-Item -ItemType Directory -Path "specification" | Out-Null }
+if (-not (Test-Path "020_specification")) { New-Item -ItemType Directory -Path "020_specification" | Out-Null }
 ```
 Verificar que la carpeta fue creada:
 ```powershell
-if (-not (Test-Path "specification")) { Write-Host "ERROR: no se pudo crear 020_specification/. Detener." }
+if (-not (Test-Path "020_specification")) { Write-Host "ERROR: no se pudo crear 020_specification/. Detener." }
 ```
 Si `020_specification/` no existe tras la verificación: retornar INIT_FAILED (bloqueante).
 

@@ -8,9 +8,9 @@
 
 ## Estado General del Proyecto
 
-- **Fecha de última actualización:** 2026-06-03 (Sesión 76)
-- **Fase actual:** Harnesses 010, 020, 030 y 040 COMPLETOS. FORGE CLI operativo. ADJ-25..ADJ-30 IMPLEMENTADOS. ADJ-31 pendiente. Próximo: ADJ-31 (/forge-changes) y luego 050 Vertical Harness.
-- **Estado:** 28 lecciones registradas (LL-01..LL-28). Carpetas de output renombradas con prefijo numérico en 65 archivos.
+- **Fecha de última actualización:** 2026-06-03 (Sesión 77)
+- **Fase actual:** Harnesses 010, 020, 030 y 040 COMPLETOS. FORGE CLI operativo. ADJ-25..ADJ-30 IMPLEMENTADOS. ADJ-31 rediseñado (entry point del 100 Change Harness). 100 Change Harness definido a alto nivel. Próximo: Test_Harness_002 (prueba end-to-end 010→040, proyecto restaurante "La Terraza").
+- **Estado:** 28 lecciones registradas (LL-01..LL-28). Harnesses/100_change_harness.md creado. Brief de prueba en Tests/Test_Harness_002/inputs/brief.md.
 
 ---
 
@@ -86,7 +86,8 @@ Harness_Definition/
 ├── Harnesses/
 │   ├── 010_discovery_harness.md   — COMPLETO e IMPLEMENTADO
 │   ├── 020_specification_harness.md — COMPLETO e IMPLEMENTADO
-│   └── 030_design_harness.md      — COMPLETO e IMPLEMENTADO
+│   ├── 030_design_harness.md      — COMPLETO e IMPLEMENTADO
+│   └── 100_change_harness.md      — DESCRIPCIÓN DE ALTO NIVEL (pendiente construcción completa)
 └── .claude/
     ├── settings.local.json        — Hooks + env vars
     ├── commands/
@@ -118,6 +119,29 @@ Harness_Definition/
 ---
 
 ## Historial de Sesiones
+
+### Sesión 77 — 2026-06-03
+
+**Objetivo:** Analizar el mecanismo para gestión de cambios del cliente durante la construcción, diseñar el 100 Change Harness a alto nivel, alinear ADJ-31 con ese diseño y preparar el proyecto de prueba Test_Harness_002.
+
+**Trabajo realizado:**
+- Análisis de los 3 casos de cambio durante la etapa de construcción: Caso 1 (SA — feature nunca considerada), Caso 2 (CR pre-build — feature considerada, no construida), Caso 3 (CR post-build — feature considerada y ya construida).
+- Decisión: `/forge-changes` es el entry point único del 100 Change Harness — no un comando standalone. El harness clasifica el cambio, hace el impact analysis, escala al humano y ejecuta el camino de re-ejecución correcto.
+- Creación de `Harnesses/100_change_harness.md` — descripción de alto nivel con 3 casos de activación, proceso de impact analysis con escalamiento obligatorio al humano, artefactos de salida (CH-xxx, artefactos upstream actualizados, plan maestro actualizado, slice lista para el 050) y ruta de salida hacia el 050.
+- Actualización de `support/ajustes.md` — ADJ-31 rediseñado: describe el alineamiento `/forge-changes` = entry point del 100 Change Harness, diferencia semántica con `/forge-override`, los 3 casos y el flujo de activación. Prerequisito actualizado: construir el 100 primero.
+- Selección del proyecto de prueba: sistema de reservas para restaurante "La Terraza" (3 stakeholders: Carlos Méndez/dueño, Ana Ríos/recepcionista, Miguel Torres/cliente frecuente).
+- Creación de `Tests/Test_Harness_002/inputs/brief.md` — brief completo con descripción del negocio, problema central, 3 stakeholders con intereses y dolores, restricciones conocidas y alcance tentativo.
+- Push a GitHub — 72 archivos commiteados (100_change_harness.md, 4 slash commands nuevos, 65 archivos con renombre ADJ-30, ajustes.md).
+
+**Decisiones clave:**
+| Decisión | Detalle |
+|----------|---------|
+| 100 Change Harness separado del 050 | Los cambios durante construcción tienen su propio harness con impact analysis y escalamiento al humano obligatorio. El 050 queda limpio: solo construye slices bien definidas. |
+| `/forge-changes` = entry point del 100 | Un comando único para el usuario independientemente del tipo de cambio. La inteligencia de clasificación y routing vive en el harness. |
+| ADJ-31 no se implementa como comando standalone | ADJ-31 y el 100 Change Harness van juntos — el comando se construye como parte del harness, no antes. |
+| Test_Harness_002: restaurante "La Terraza" | 3 stakeholders con perspectivas genuinamente distintas y conflictivas. Restricciones reales (sin app móvil, personal no técnico, conexión inestable) que generan decisiones interesantes en el 030. |
+
+---
 
 ### Sesión 76 — 2026-06-03
 
@@ -447,11 +471,17 @@ completa del patrón establecido por los harnesses 010/020/030.
 
 ## Próximos Pasos
 
-### Tarea 1 — Implementar ADJ-31 (/forge-changes)
+### Tarea 1 — Test_Harness_002: prueba end-to-end 010 → 040
 
-Crear el comando global `/forge-changes "descripción"` que permite al humano solicitar cambios sobre artefactos ya producidos en cualquier punto del harness activo. El comando registra el cambio con ID CH-xxx, lo persiste en `persistence/changes.md` y en `harness-state.json`, y re-invoca el governor o worker afectado con el contexto del cambio.
+Ejecutar el ciclo completo de FORGE con el proyecto "La Terraza" (sistema de reservas para restaurante). El brief está en `Tests/Test_Harness_002/inputs/brief.md`.
 
-Ver `support/ajustes.md` sección ADJ-31 para el diseño completo, casos de uso y prerequisitos.
+**Flujo:**
+1. Abrir Claude en `C:\Users\USUARIO\Documents\Triple S\Tests\Test_Harness_002`
+2. Ejecutar `/forge-init` → `/forge-discovery`
+3. Completar los 4 harnesses (010 Discovery → 020 Specification → 030 Design → 040 Planning)
+4. Registrar hallazgos y bugs encontrados durante la prueba
+
+**Stakeholders a entrevistar:** Carlos Méndez (dueño), Ana Ríos (recepcionista), Miguel Torres (cliente frecuente).
 
 ---
 
