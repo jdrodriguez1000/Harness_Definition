@@ -8,9 +8,9 @@
 
 ## Estado General del Proyecto
 
-- **Fecha de última actualización:** 2026-06-03 (Sesión 69)
-- **Fase actual:** Harnesses 010, 020, 030 y 040 COMPLETOS. Tooling de sesión actualizado. Próximo: 050 Vertical Harness.
-- **Estado:** 28 lecciones registradas (LL-01..LL-28). 040 Planning Harness 100% operativo. Comandos de sesión: `/progress` (ex-`/avance`) y `/flag` (nuevo — registro de ajustes pendientes desde contexto de conversación).
+- **Fecha de última actualización:** 2026-06-03 (Sesión 70)
+- **Fase actual:** Harnesses 010, 020, 030 y 040 COMPLETOS. Framework nombrado FORGE. Repo en GitHub. Próximo: 050 Vertical Harness + ADJ-25 FORGE CLI.
+- **Estado:** 28 lecciones registradas (LL-01..LL-28). 040 Planning Harness 100% operativo. Repo público en GitHub (https://github.com/jdrodriguez1000/Harness_Definition.git). ADJ-25 registrado (FORGE CLI: forge-setup.ps1 + slash commands /forge-init + /forge-discovery).
 
 ---
 
@@ -42,6 +42,12 @@ siguiendo este estándar, garantizando calidad y reducción de varianza en los o
 ```
 Harness_Definition/
 ├── deploy-harness.ps1             — Script de deployment (soporta 010-090) ✓
+├── forge-setup.ps1                — [ADJ-25 PENDIENTE] Script de instalación por máquina
+├── forge.config.json              — [ADJ-25 PENDIENTE] Template de config global
+├── commands/
+│   ├── forge-init.md              — [ADJ-25 PENDIENTE] Fuente del slash command /forge-init
+│   └── forge-discovery.md        — [ADJ-25 PENDIENTE] Fuente del slash command /forge-discovery
+├── .gitignore                     — Excluye settings.local.json ✓
 ├── README.md                      — Documentación para humanos
 ├── CLAUDE.md                      — Instrucciones para agentes Claude Code
 ├── default_stacks.md              — [NO — este archivo vive en templates/]
@@ -108,6 +114,31 @@ Harness_Definition/
 ---
 
 ## Historial de Sesiones
+
+### Sesión 70 — 2026-06-03
+
+**Objetivo:** Nombrar el framework, subir el repo a GitHub y diseñar la automatización del arranque de proyecto (FORGE CLI).
+
+**Trabajo realizado:**
+- Nombre oficial del framework decidido: **FORGE** (*Framework for Orchestrated Requirements and Guided Engineering*).
+- Actualización de `support/avance.md` — sección "Contexto del Proyecto" ahora incluye el nombre FORGE con acrónimo completo.
+- Memoria guardada en `memory/project_forge_name.md` + `memory/MEMORY.md` creado para futuras sesiones.
+- Creación de `.gitignore` — excluye `.claude/settings.local.json` (rutas locales y hooks de máquina).
+- Inicialización de git y push inicial a GitHub: `https://github.com/jdrodriguez1000/Harness_Definition.git` — 97 archivos, 27,358 líneas.
+- Análisis completo del FORGE CLI: diseño de dos slash commands globales (`/forge-init` y `/forge-discovery`) más script de instalación por máquina (`forge-setup.ps1`) y template de config (`forge.config.json`).
+- Registro de **ADJ-25** en `support/ajustes.md` — FORGE CLI: automatización del arranque de proyecto.
+
+**Decisiones clave:**
+| Decisión | Detalle |
+|----------|---------|
+| Nombre: FORGE | Framework for Orchestrated Requirements and Guided Engineering. Elegido por su semántica (fragua = transformar materia bruta en algo sólido) y escalabilidad ("FORGE Discovery Harness", etc.) |
+| GitHub repo público | `https://github.com/jdrodriguez1000/Harness_Definition.git` — respaldo completo, recuperable con `git clone` en máquina nueva |
+| `.gitignore` excluye `settings.local.json` | Contiene rutas absolutas de la máquina actual y referencias a hooks locales — no debe versionarse |
+| FORGE CLI: todo dentro de Claude | Los slash commands `/forge-init` y `/forge-discovery` se ejecutan desde dentro de Claude, eliminando la necesidad de un script shell externo |
+| Archivos fuente en repo, instalados por `forge-setup.ps1` | Los slash commands viven en `commands/` del repo; `forge-setup.ps1` los copia a `~/.claude/commands/` en cada máquina nueva. Portabilidad total. |
+| `forge.config.json` en `~/.forge/` | Config global con `forge_home`. Se genera al correr `forge-setup.ps1`. No se duplica por proyecto. |
+
+---
 
 ### Sesión 69 — 2026-06-03
 
@@ -258,7 +289,17 @@ completa del patrón establecido por los harnesses 010/020/030.
 
 ## Próximos Pasos
 
-### Tarea 1 — Construir el 050 Vertical Harness
+### Tarea 1 — Implementar ADJ-25: FORGE CLI
+
+Crear los 4 archivos en el repo:
+- `forge-setup.ps1` — instala config y slash commands en la máquina local
+- `forge.config.json` — template con `forge_home`
+- `commands/forge-init.md` — slash command: ejecuta deploy + mensaje de siguiente paso
+- `commands/forge-discovery.md` — slash command: invoca `discovery-governor` en modo INIT
+
+Después de implementar: correr `forge-setup.ps1` para verificar que funciona end-to-end.
+
+### Tarea 2 — Construir el 050 Vertical Harness
 
 El siguiente harness en la secuencia. Trabaja una slice a la vez tomando el plan maestro del 040 como fuente de verdad. Produce: Proposal, SDS, SDD, testing_plan y execution_plan para la slice activa.
 

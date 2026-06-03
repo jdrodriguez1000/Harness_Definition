@@ -1,4 +1,12 @@
-# Harness Definition
+# FORGE — Harness Definition
+
+**FORGE** (*Framework for Orchestrated Requirements and Guided Engineering*) es el nombre de este sistema de harnesses agénticos para desarrollo de software.
+
+**En español:** Marco para Ingeniería Guiada y Orquestación de Requisitos.
+
+**Por qué FORGE:** Una fragua transforma materia bruta en algo sólido y preciso aplicando calor, presión y forma. FORGE hace lo mismo con un proyecto de software: toma un brief crudo y lo transforma en código listo para producción a través de fases estructuradas (Discovery → Specification → Design → Planning → ...), con agentes especializados que garantizan calidad y reducen la varianza en cada etapa.
+
+---
 
 Repositorio de definición de **harnesses agénticos** para proyectos de software. Un harness es un conjunto de agentes Claude especializados que guían a un equipo a través de una fase del ciclo de vida del software (discovery, especificación, diseño, etc.) con calidad y consistencia garantizadas.
 

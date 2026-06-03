@@ -19,6 +19,7 @@ Registro de ajustes identificados que aún no han sido implementados.
 | ADJ-08 | README.md del proyecto: incluirlo en `deploy-harness.ps1` para que se copie al cliente                     | MENOR         | PENDIENTE |
 | ADJ-12 | Meta-Harness: referencia académica para optimización automática de harnesses                                | MENOR         | PENDIENTE |
 | ADJ-24 | 010 Discovery: modelo de entrevista síncrona genera latencia y limita paralelismo — evaluar modelo async con cuestionario + ronda de gaps | SIGNIFICATIVA | PENDIENTE — evaluar antes de construir el 040 |
+| ADJ-25 | FORGE CLI: automatizar arranque de proyecto con forge-setup.ps1, forge.config.json y slash commands /forge-init + /forge-discovery | SIGNIFICATIVA | PENDIENTE |
 
 ---
 
@@ -157,6 +158,32 @@ Incluir en `deploy-harness.ps1` la lógica para copiar el README al proyecto cli
 **Aplicación:** Nuestros harnesses ya tienen `eval/verdict.json` (reward signal) y `metrics_summary.json` (trazabilidad). Con OBS-01 (telemetría) tendríamos los traces para implementar un meta-harness que optimice automáticamente prompts, orden de workers y umbrales de gate para harnesses 030–090.
 
 **Nota:** Referencial — no requiere implementación inmediata.
+
+---
+
+### ADJ-25 — FORGE CLI: automatización del arranque de proyecto — PENDIENTE
+
+**Prioridad:** SIGNIFICATIVA
+
+**Descripción:**
+Automatizar el flujo actual de inicio de proyecto (deploy manual + abrir Claude + escribir "iniciemos el proyecto") con dos slash commands globales que operan desde dentro de Claude.
+
+**Diseño acordado:**
+- `forge-setup.ps1` — script de instalación, corre una vez por máquina tras `git clone`. Crea `~/.forge/forge.config.json` y copia los slash commands a `~/.claude/commands/`.
+- `forge.config.json` (template en repo) — contiene `forge_home` con la ruta a `Harness_Definition`. El setup lo instala en `~/.forge/`.
+- `commands/forge-init.md` (fuente en repo) — slash command `/forge-init`: lee el config, ejecuta `deploy-harness.ps1 -harness 010 -dest .` en la carpeta actual, imprime mensaje de siguiente paso.
+- `commands/forge-discovery.md` (fuente en repo) — slash command `/forge-discovery`: invoca el `discovery-governor` en modo INIT.
+
+**Flujo resultante:**
+1. `git clone` + `.\forge-setup.ps1` — una vez por máquina
+2. Abrir Claude en carpeta del proyecto → `/forge-init` → `/forge-discovery`
+
+**Impacto:**
+- `deploy-harness.ps1` — sin cambios
+- Archivos nuevos en raíz del repo: `forge-setup.ps1`, `forge.config.json`, `commands/forge-init.md`, `commands/forge-discovery.md`
+
+**Prerequisitos antes de implementar:**
+- Ninguno — puede implementarse de forma independiente
 
 ---
 
