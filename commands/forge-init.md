@@ -13,7 +13,7 @@ Despliega el FORGE Discovery Harness (010) en el proyecto actual.
 3. Si el script termina sin errores, muestra este mensaje exacto:
    ```
    FORGE: Discovery Harness desplegado correctamente.
-   Siguiente paso: escribe /forge-discovery para iniciar el harness.
+   Siguiente paso: reinicia Claude Code en esta misma carpeta y luego escribe /forge-discovery para iniciar el harness.
    ```
 
 4. Si ocurre un error (forge.config.json no existe, deploy falla), explica el problema
