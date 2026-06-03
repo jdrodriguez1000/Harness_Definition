@@ -1,11 +1,11 @@
----
+﻿---
 name: specification-synthesis-schema
 description: Schema y formato de los 4 artefactos finales del 020 Specification Harness producidos por specification-writer. Usar cuando specification-writer escribe los artefactos o cuando specification-evaluator los lee para auditar.
 user-invocable: false
 agent: specification-writer
 ---
 
-Los 4 artefactos deben escribirse en la carpeta `/specification/`. La carpeta ya existe (creada por el governor en E10-A).
+Los 4 artefactos deben escribirse en la carpeta `/020_specification/`. La carpeta ya existe (creada por el governor en E10-A).
 
 Las IDs que el writer recibe desde `spec_analysis_report.md` y debe referenciar:
 - `AC-xx` — actores
@@ -20,7 +20,7 @@ Las IDs que el writer recibe desde `spec_analysis_report.md` y debe referenciar:
 
 ## Artefacto 1 — bdd_features.md
 
-**Path:** `/specification/bdd_features.md`
+**Path:** `/020_specification/bdd_features.md`
 
 Producir primero. Los IDs de escenario (SC-xx, SE-xx) son la fuente de referencia para `acceptance_criteria.md`.
 
@@ -28,7 +28,7 @@ Producir primero. Los IDs de escenario (SC-xx, SE-xx) son la fuente de referenci
 # BDD Feature Files — 020 Specification
 Fecha: [fecha]
 Estado: DRAFT | APROBADO POR CLIENTE
-Basado en: specification/spec_analysis_report.md
+Basado en: 020_specification/spec_analysis_report.md
 
 ## Resumen de cobertura
 
@@ -89,7 +89,7 @@ Entonces [resultado esperado ante el caso de borde]
 
 ## Artefacto 2 — data_contracts.md
 
-**Path:** `/specification/data_contracts.md`
+**Path:** `/020_specification/data_contracts.md`
 
 Producir segundo. Define el modelo de datos de negocio (no un schema técnico).
 
@@ -97,7 +97,7 @@ Producir segundo. Define el modelo de datos de negocio (no un schema técnico).
 # Data Contracts — 020 Specification
 Fecha: [fecha]
 Estado: DRAFT | APROBADO POR CLIENTE
-Basado en: specification/spec_analysis_report.md
+Basado en: 020_specification/spec_analysis_report.md
 
 ## Entidades y sus Contratos
 
@@ -143,7 +143,7 @@ Basado en: specification/spec_analysis_report.md
 
 ## Artefacto 3 — acceptance_criteria.md
 
-**Path:** `/specification/acceptance_criteria.md`
+**Path:** `/020_specification/acceptance_criteria.md`
 
 Producir tercero. Requiere que `bdd_features.md` esté completo para tener los IDs SC-xx y SE-xx.
 
@@ -151,7 +151,7 @@ Producir tercero. Requiere que `bdd_features.md` esté completo para tener los I
 # Product Acceptance Criteria — 020 Specification
 Fecha: [fecha]
 Estado: DRAFT | APROBADO POR CLIENTE
-Basado en: specification/spec_analysis_report.md + specification/bdd_features.md
+Basado en: 020_specification/spec_analysis_report.md + 020_specification/bdd_features.md
 
 ## Criterios de Aceptación por Actor
 
@@ -196,7 +196,7 @@ Basado en: specification/spec_analysis_report.md + specification/bdd_features.md
 
 ## Artefacto 4 — error_exception_policy.md
 
-**Path:** `/specification/error_exception_policy.md`
+**Path:** `/020_specification/error_exception_policy.md`
 
 Producir último. Resuelve todos los EE-xx del analysis_report (incluyendo los que estaban PENDIENTE en el 010 y el governor ya resolvió).
 
@@ -204,7 +204,7 @@ Producir último. Resuelve todos los EE-xx del analysis_report (incluyendo los q
 # Error & Exception Policy — 020 Specification
 Fecha: [fecha]
 Estado: DRAFT | APROBADO POR CLIENTE
-Basado en: specification/spec_analysis_report.md
+Basado en: 020_specification/spec_analysis_report.md
 
 ## Políticas por Actor
 
@@ -260,5 +260,5 @@ Antes de reportar a B, verificar:
 - [ ] `acceptance_criteria.md`: ningún ACP-xx tiene campo "Escenario BDD" vacío
 - [ ] `error_exception_policy.md`: todos los EE-xx del analysis_report tienen política EP-xx
 - [ ] `error_exception_policy.md`: los ítems PENDIENTE resueltos están en la sección correspondiente
-- [ ] Los 4 archivos existen en `/specification/`
+- [ ] Los 4 archivos existen en `/020_specification/`
 - [ ] Ningún término clave queda sin referencia en `domain_glossary.md` (o está marcado con `[GLOSARIO: pendiente]`)

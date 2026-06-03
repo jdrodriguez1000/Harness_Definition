@@ -1,4 +1,4 @@
----
+﻿---
 name: planning-state-schema
 description: Schema y formato de los dos archivos de estado del 040 Planning Harness — persistence/harness-state.json (entrada "040_planning", escrita por planning-governor) y persistence/execution-state.json (orchestration_plan y checkpoints, escrito por planning-orchestrator). Define la Single Writer Rule y las reglas de lectura/escritura para cada campo. Usar cuando planning-orchestrator escribe persistence/execution-state.json o cuando planning-governor lee o escribe la entrada 040 de persistence/harness-state.json.
 user-invocable: false
@@ -40,18 +40,18 @@ la información del 040.
     "sprint_contract": {
       "objective": "Tomar el draft de Vertical Slices del 030 y producir el plan maestro completo del proyecto",
       "inputs": {
-        "I1":  "<path a design/test_strategy_map.md>",
-        "I2":  "<path a design/architecture_decision_records.md>",
-        "I3":  "<path a design/technical_blueprint.md>",
-        "I4":  "<path a design/contract_definitions.md>",
-        "I5":  "<path a design/dependency_graph.md>",
-        "I6":  "<path a specification/bdd_features.md>",
-        "I7":  "<path a specification/data_contracts.md>",
-        "I8":  "<path a specification/acceptance_criteria.md>",
-        "I9":  "<path a specification/error_exception_policy.md>",
-        "I10": "<path a discovery/shared_understanding.md>",
-        "I11": "<path a discovery/scope_boundaries.md>",
-        "I12": "<path a discovery/domain_glossary.md>"
+        "I1":  "<path a 030_design/test_strategy_map.md>",
+        "I2":  "<path a 030_design/architecture_decision_records.md>",
+        "I3":  "<path a 030_design/technical_blueprint.md>",
+        "I4":  "<path a 030_design/contract_definitions.md>",
+        "I5":  "<path a 030_design/dependency_graph.md>",
+        "I6":  "<path a 020_specification/bdd_features.md>",
+        "I7":  "<path a 020_specification/data_contracts.md>",
+        "I8":  "<path a 020_specification/acceptance_criteria.md>",
+        "I9":  "<path a 020_specification/error_exception_policy.md>",
+        "I10": "<path a 010_discovery/shared_understanding.md>",
+        "I11": "<path a 010_discovery/scope_boundaries.md>",
+        "I12": "<path a 010_discovery/domain_glossary.md>"
       },
       "vs_draft_summary": "<lista de VS-xx extraídas del draft del 030 con sus tipos>",
       "workers": ["planning-analyst", "planning-writer"],
@@ -65,15 +65,42 @@ la información del 040.
         "Aprobación explícita del cliente en CP-04"
       ]
     },
-    "status": "PENDING_CONTRACT | ACTIVE | AUDIT_PENDING | IN_REWORK | HOLD | PHASE_COMPLETE",
+    "status": "PENDING_CONTRACT | ACTIVE | AUDIT_PENDING | IN_REWORK | HOLD | SUSPENDED | PHASE_COMPLETE",
     "client_approval": {
       "CP-03_draft_review": null,
       "CP-04_formal_approval": null
     },
     "escalations": [],
+    "overrides": [],
     "handoff_050": null,
-    "last_updated": "<timestamp ISO 8601>"
+    "last_updated": "<timestamp ISO 8601>",
+    "suspension": null
   }
+}
+```
+
+El campo `"overrides"` es un array de objetos. Cada objeto representa un override registrado por el usuario vía `/forge-override`. Estructura de cada elemento:
+```json
+{
+  "id": "OV-001",
+  "timestamp": "<ISO 8601>",
+  "harness": "040_planning",
+  "texto": "<texto del override tal como lo escribió el usuario>",
+  "status": "ACTIVE"
+}
+```
+- El campo `"overrides"` es escrito por el comando `/forge-override` (no por el governor).
+- El governor solo lo lee (en E10-A.8) para incorporar los constraints duros al Sprint Contract.
+
+El campo `suspension` es `null` cuando el harness no está suspendido. Cuando `/forge-suspend` es invocado, el governor escribe el bloque completo:
+```json
+"suspension": {
+  "timestamp": "<ISO 8601>",
+  "harness": "040_planning",
+  "governor_mode": "INIT | EXECUTE | POST_CP03 | POST_CP04",
+  "last_checkpoint": "null | CP-01 | CP-02",
+  "context_note": "<descripción libre del estado al momento de suspender>",
+  "resume_instruction": "<qué hacer al reanudar>"
 }
 ```
 
@@ -83,6 +110,7 @@ la información del 040.
 - `AUDIT_PENDING` — CP-04 recibido; planning-evaluator aún no ha corrido
 - `IN_REWORK` — rechazo técnico de C; planning-governor re-spawnea el Worker fallido
 - `HOLD` — rechazo estratégico; requiere nueva aprobación humana antes de continuar
+- `SUSPENDED` — harness suspendido por `/forge-suspend`; esperando `/forge-resume` para continuar
 - `PHASE_COMPLETE` — C emitió APPROVED y planning-governor cerró la fase; activa handoff al 050
 
 **Reglas de lectura para planning-orchestrator:**
@@ -108,21 +136,21 @@ la información del 040.
       "planning-writer"
     ],
     "inputs": {
-      "I1":  "<path a design/test_strategy_map.md o null>",
-      "I2":  "<path a design/architecture_decision_records.md o null>",
-      "I3":  "<path a design/technical_blueprint.md o null>",
-      "I4":  "<path a design/contract_definitions.md o null>",
-      "I5":  "<path a design/dependency_graph.md o null>",
-      "I6":  "<path a specification/bdd_features.md o null>",
-      "I7":  "<path a specification/data_contracts.md o null>",
-      "I8":  "<path a specification/acceptance_criteria.md o null>",
-      "I9":  "<path a specification/error_exception_policy.md o null>",
-      "I10": "<path a discovery/shared_understanding.md o null>",
-      "I11": "<path a discovery/scope_boundaries.md o null>",
-      "I12": "<path a discovery/domain_glossary.md o null>"
+      "I1":  "<path a 030_design/test_strategy_map.md o null>",
+      "I2":  "<path a 030_design/architecture_decision_records.md o null>",
+      "I3":  "<path a 030_design/technical_blueprint.md o null>",
+      "I4":  "<path a 030_design/contract_definitions.md o null>",
+      "I5":  "<path a 030_design/dependency_graph.md o null>",
+      "I6":  "<path a 020_specification/bdd_features.md o null>",
+      "I7":  "<path a 020_specification/data_contracts.md o null>",
+      "I8":  "<path a 020_specification/acceptance_criteria.md o null>",
+      "I9":  "<path a 020_specification/error_exception_policy.md o null>",
+      "I10": "<path a 010_discovery/shared_understanding.md o null>",
+      "I11": "<path a 010_discovery/scope_boundaries.md o null>",
+      "I12": "<path a 010_discovery/domain_glossary.md o null>"
     },
     "demo_statements": {
-      "planning-analyst": "Cuando planning-analyst termine, podré observar que plan/planning_analysis_report.md existe y contiene: (a) tabla de validación de granularidad para cada VS-xx del draft del 030, indicando si pasa o requiere división; (b) lista de IC-xx huérfanos (puede ser vacía); (c) lista de BDD scenarios huérfanos (puede ser vacía); (d) matriz de dependencias entre slices derivada de DEP-xx; (e) ≥1 riesgo preliminar por VS-xx.",
+      "planning-analyst": "Cuando planning-analyst termine, podré observar que 040_planning/planning_analysis_report.md existe y contiene: (a) tabla de validación de granularidad para cada VS-xx del draft del 030, indicando si pasa o requiere división; (b) lista de IC-xx huérfanos (puede ser vacía); (c) lista de BDD scenarios huérfanos (puede ser vacía); (d) matriz de dependencias entre slices derivada de DEP-xx; (e) ≥1 riesgo preliminar por VS-xx.",
       "planning-writer": "Cuando planning-writer termine, podré observar que: vertical_slice_plan.md tiene una entrada VS-xx por cada slice (incluyendo las nuevas si se dividieron), cada una con los 6 campos obligatorios (nombre, tipo, IC-xx, BDD scenarios, Criterio de Done con referencias a IDs, estimación de esfuerzo); project_roadmap.md lista todas las VS-xx en secuencia respetando la estructura TB→Crecimiento→MVP→Evolución→Robustez, con dependencias VS-xx → VS-xx explícitas y los 3 hitos obligatorios marcados; risk_register.md tiene ≥1 RK-xx por VS-xx con probabilidad, impacto y mitigación."
     },
     "starting_point": "null | CP-01 | COMPLETE"

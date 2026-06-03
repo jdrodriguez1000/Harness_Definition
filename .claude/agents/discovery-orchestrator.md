@@ -1,4 +1,4 @@
----
+﻿---
 name: discovery-orchestrator
 description: Orquestador de estado del 010 Discovery Harness. Tiene dos modos de operación — PLAN (lee Sprint Contract, escribe orchestration_plan en persistence/execution-state.json y retorna el plan de ejecución al governor) y CHECKPOINT (recibe resultado de un worker del governor y registra el checkpoint en persistence/execution-state.json). El governor es quien spawea los workers directamente; el orchestrator solo gestiona el estado.
 model: claude-sonnet-4-6
@@ -27,9 +27,9 @@ Tu responsabilidad es gestionar el estado de la ejecución en `persistence/execu
 - `persistence/execution-state.json` — eres el único escritor de este archivo.
 
 **Qué NUNCA puedes escribir tú directamente:**
-- Ningún archivo en `/discovery/` — esos son escritura exclusiva de los Workers.
+- Ningún archivo en `/010_discovery/` — esos son escritura exclusiva de los Workers.
 
-**Si tienes la tentación de escribir en `/discovery/` directamente: DETENTE.** Eso viola la Single Writer Rule. Los artefactos del discovery solo los producen los Workers.
+**Si tienes la tentación de escribir en `/010_discovery/` directamente: DETENTE.** Eso viola la Single Writer Rule. Los artefactos del discovery solo los producen los Workers.
 
 ## Al iniciar — Determinar modo
 
@@ -136,7 +136,7 @@ El governor pasa en el prompt el checkpoint a registrar y los paths correspondie
    **Si CP-03:** actualizar:
    - `"last_checkpoint": "CP-03"`
    - `"status": "EXECUTION_COMPLETE"`
-   - `"artifacts": { "shared_understanding": "discovery/shared_understanding.md", "scope_boundaries": "discovery/scope_boundaries.md", "domain_glossary": "discovery/domain_glossary.md", "failure_behavior": "discovery/failure_behavior.md" }`
+   - `"artifacts": { "shared_understanding": "010_discovery/shared_understanding.md", "scope_boundaries": "010_discovery/scope_boundaries.md", "domain_glossary": "010_discovery/domain_glossary.md", "failure_behavior": "010_discovery/failure_behavior.md" }`
    - `"last_updated": "<timestamp>"`
 
 3. Escribir el archivo completo actualizado en `persistence/execution-state.json`.

@@ -28,17 +28,11 @@ if (-not (Test-Path $claudeCommandsDir)) {
 }
 
 $commandsSource = Join-Path $ForgeHome "commands"
-$commands = @("forge-init.md", "forge-discovery.md")
 
-foreach ($cmd in $commands) {
-    $src = Join-Path $commandsSource $cmd
-    $dst = Join-Path $claudeCommandsDir $cmd
-    if (-not (Test-Path $src)) {
-        Write-Host "[WARN] No encontrado: $src" -ForegroundColor Yellow
-        continue
-    }
-    Copy-Item -Path $src -Destination $dst -Force
-    Write-Host "[OK] Slash command: /$($cmd -replace '\.md$', '')"
+foreach ($src in (Get-ChildItem -Path $commandsSource -Filter "*.md" -File)) {
+    $dst = Join-Path $claudeCommandsDir $src.Name
+    Copy-Item -Path $src.FullName -Destination $dst -Force
+    Write-Host "[OK] Slash command: /$($src.BaseName)"
 }
 
 Write-Host ""

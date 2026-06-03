@@ -1,4 +1,4 @@
----
+﻿---
 name: specification-writer-protocol
 description: Protocolo de producción del specification-writer en el 020 Specification Harness. Define las reglas de transformación de spec_analysis_report a los 4 artefactos finales y la checklist de consistencia cruzada entre artefactos. Usar cuando specification-writer produce los artefactos o verifica su consistencia antes de reportar.
 user-invocable: false
@@ -135,8 +135,8 @@ antes de pasar al siguiente.
 
 ### Consistencia bdd_features ↔ acceptance_criteria
 
-- [ ] Abrir `specification/bdd_features.md` y extraer todos los IDs: `SC-01`, `SC-02`, ..., `SE-01`, `SE-02`, ...
-- [ ] Abrir `specification/acceptance_criteria.md` y verificar que cada ID listado en la
+- [ ] Abrir `020_specification/bdd_features.md` y extraer todos los IDs: `SC-01`, `SC-02`, ..., `SE-01`, `SE-02`, ...
+- [ ] Abrir `020_specification/acceptance_criteria.md` y verificar que cada ID listado en la
   tabla de trazabilidad inversa existe efectivamente en `bdd_features.md`.
 - [ ] Verificar que ningún SC-xx o SE-xx de `bdd_features.md` está ausente en la tabla de trazabilidad inversa.
 

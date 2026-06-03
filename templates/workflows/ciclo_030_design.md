@@ -1,4 +1,4 @@
-## Ciclo 030 Design
+﻿## Ciclo 030 Design
 
 El ciclo completo de interacción para el 030 Design Harness.
 
@@ -46,6 +46,13 @@ Usando el texto de `sprint_contract` del `GOVERNOR_RESULT`, presentar al usuario
 → El governor retornará un nuevo `SPRINT_CONTRACT_READY`.
 → Repetir hasta aprobación o cancelación.
 
+**Si el usuario usa `/forge-override "texto"`:**
+→ El comando habrá registrado el override y retornado `FORGE_OVERRIDE_RESULT`.
+→ Volver al Paso A incluyendo en el prompt:
+  `adjustment_request: <constraint_str del FORGE_OVERRIDE_RESULT>`
+→ El governor incorpora la restricción como constraint duro en el nuevo Sprint Contract.
+→ Repetir el loop hasta aprobación.
+
 **Si el usuario cancela:**
 → Notificar: "El harness 030 Design ha sido cancelado. El estado queda en PENDING_CONTRACT."
 → Detener.
@@ -84,11 +91,11 @@ Preparar el mensaje de presentación. Si el `GOVERNOR_RESULT` incluye `review_st
 ```
 El 030 Design Harness ha producido los siguientes documentos para tu revisión:
 
-- Architecture Decision Records: /design/architecture_decision_records.md
-- Technical Blueprint: /design/technical_blueprint.md
-- Contract Definitions: /design/contract_definitions.md
-- Dependency Graph: /design/dependency_graph.md
-- Test Strategy Map: /design/test_strategy_map.md
+- Architecture Decision Records: /030_design/architecture_decision_records.md
+- Technical Blueprint: /030_design/technical_blueprint.md
+- Contract Definitions: /030_design/contract_definitions.md
+- Dependency Graph: /030_design/dependency_graph.md
+- Test Strategy Map: /030_design/test_strategy_map.md
 
 [Si review_status == HAS_MINOR_ISSUES:]
 Nota: el revisor detectó los siguientes issues menores (no bloqueantes):
@@ -121,6 +128,17 @@ Los artefactos fueron actualizados con los cambios solicitados. Por favor revisa
 ¿Los apruebas ahora?
 ```
 → Repetir Paso D hasta aprobación.
+
+**Si el usuario usa `/forge-override "texto"`:**
+→ El comando habrá registrado el override y retornado `FORGE_OVERRIDE_RESULT`.
+→ Invocar `design-governor` con:
+```
+[MODO: POST_CP03]
+cp03_decision: rework
+changes: <constraint_str del FORGE_OVERRIDE_RESULT>
+```
+→ El governor re-ejecuta el worker afectado con la restricción como constraint duro (no negociable).
+→ Si `REWORK_COMPLETE` → volver a presentar CP-03.
 
 ### Paso E — Gate CP-04 (aprobación formal) — SIEMPRE independiente de CP-03 (ADJ-16 / LL-25)
 
@@ -168,11 +186,11 @@ Resultado: <decision del verdict — APPROVED/REJECTED>
 Score: <score> (<dimensiones D1..D5>)
 
 Artefactos producidos:
-- design/architecture_decision_records.md
-- design/technical_blueprint.md
-- design/contract_definitions.md
-- design/dependency_graph.md
-- design/test_strategy_map.md
+- 030_design/architecture_decision_records.md
+- 030_design/technical_blueprint.md
+- 030_design/contract_definitions.md
+- 030_design/dependency_graph.md
+- 030_design/test_strategy_map.md
 
 ¿Deseas iniciar ahora el 040 Planning Harness?
 ```
@@ -187,8 +205,7 @@ Leer `GOVERNOR_RESULT`:
 
 - **`HANDOFF_READY`**: Notificar al usuario:
   ```
-  Deploy del 040 completado. Para continuar, reinicia la sesión de Claude Code en este directorio.
-  El CLAUDE.md detectará automáticamente el estado y lanzará el governor del 040.
+  Deploy del 040 completado. Reinicia la sesión de Claude Code en este directorio y ejecuta /forge-restart para continuar.
   ```
   Fin de la sesión actual.
 

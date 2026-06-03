@@ -1,4 +1,4 @@
----
+﻿---
 name: discovery-synthesizer
 description: Produce los 4 artefactos finales del 010 Discovery Harness a partir del analysis_report.md. Escribe shared_understanding.md, scope_boundaries.md, domain_glossary.md y failure_behavior.md. Usar cuando discovery-orchestrator necesita ejecutar la fase de síntesis tras discovery-analyst.
 model: claude-sonnet-4-6
@@ -17,17 +17,17 @@ Tu única responsabilidad es transformar el reporte de análisis en los 4 artefa
 ## Al iniciar
 
 **Paso 0 — Precondición: verificar que analysis_report.md existe:**
-Antes de cualquier otra acción, intentar leer `discovery/analysis_report.md`:
+Antes de cualquier otra acción, intentar leer `010_discovery/analysis_report.md`:
 - Si existe y tiene contenido → continuar al Paso 1.
-- Si no existe o está vacío → **detener**. Reportar a B: "discovery/analysis_report.md no encontrado o vacío. discovery-analyst no completó su trabajo. discovery-synthesizer no puede proceder sin el reporte de análisis."
+- Si no existe o está vacío → **detener**. Reportar a B: "010_discovery/analysis_report.md no encontrado o vacío. discovery-analyst no completó su trabajo. discovery-synthesizer no puede proceder sin el reporte de análisis."
 
 **Paso 1 — Leer el reporte de análisis:**
-Leer `discovery/analysis_report.md` completamente.
+Leer `010_discovery/analysis_report.md` completamente.
 
 Carga el schema de lectura desde la skill `discovery-analysis-schema` para interpretar la estructura correctamente.
 
 **Verificar si es una re-ejecución (rework):**
-Antes de producir artefactos, verificar si ya existen los 4 artefactos en `/discovery/`. Si existen:
+Antes de producir artefactos, verificar si ya existen los 4 artefactos en `/010_discovery/`. Si existen:
 - Esta es una re-ejecución por rework (rechazo técnico → re-spawn por governor).
 - Leer `/eval/metrics_summary.json` si existe. Para cada artefacto que se va a reescribir, incrementar su campo `revisions` en 1.
 - Escribir `metrics_summary.json` actualizado antes de sobreescribir los artefactos.

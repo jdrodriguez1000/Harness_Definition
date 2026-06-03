@@ -1,4 +1,4 @@
-## INICIO OBLIGATORIO DE SESIÓN
+﻿## INICIO OBLIGATORIO DE SESIÓN
 
 Al iniciar cualquier sesión, **antes de responder al usuario**, determinar qué harness ejecutar y gestionar su ciclo de interacción completo.
 
@@ -28,7 +28,9 @@ Si  harness-state["status"] == "PHASE_COMPLETE"
           ¿Deseas continuar ahora con el 020 Specification Harness?"
         Si sí:
           Ejecutar: & "$env:HARNESS_DEPLOY_SCRIPT" -Harness 020 -Destino (Get-Location).Path
-          Leer `.claude/workflows/ciclo_020_specification.md` y ejecutar Ciclo 020 Specification
+          Actualizar harness-state["handoff_020"]["status"] = "DEPLOYED" en persistence/harness-state.json
+          Notificar: "Deploy del 020 completado. Reinicia la sesión de Claude Code en este directorio y ejecuta /forge-restart para continuar."
+          Fin.
         Si no:
           Notificar: "Cuando quieras continuar, abre Claude Code aquí y te lo preguntaré."
           Fin.
@@ -52,7 +54,9 @@ Si  harness-state["020_specification"]["status"] == "PHASE_COMPLETE"
           ¿Deseas continuar ahora con el 030 Design Harness?"
         Si sí:
           Ejecutar: & "$env:HARNESS_DEPLOY_SCRIPT" -Harness 030 -Destino (Get-Location).Path
-          Leer `.claude/workflows/ciclo_030_design.md` y ejecutar Ciclo 030 Design
+          Actualizar harness-state["handoff_030"]["status"] = "DEPLOYED" en persistence/harness-state.json
+          Notificar: "Deploy del 030 completado. Reinicia la sesión de Claude Code en este directorio y ejecuta /forge-restart para continuar."
+          Fin.
         Si no:
           Notificar: "Cuando quieras continuar, abre Claude Code aquí y te lo preguntaré."
           Fin.
@@ -76,7 +80,9 @@ Si  harness-state["030_design"]["status"] == "PHASE_COMPLETE"
           ¿Deseas continuar ahora con el 040 Planning Harness?"
         Si sí:
           Ejecutar: & "$env:HARNESS_DEPLOY_SCRIPT" -Harness 040 -Destino (Get-Location).Path
-          Leer `.claude/workflows/ciclo_040_planning.md` y ejecutar Ciclo 040 Planning
+          Actualizar harness-state["handoff_040"]["status"] = "DEPLOYED" en persistence/harness-state.json
+          Notificar: "Deploy del 040 completado. Reinicia la sesión de Claude Code en este directorio y ejecuta /forge-restart para continuar."
+          Fin.
         Si no:
           Notificar: "Cuando quieras continuar, abre Claude Code aquí y te lo preguntaré."
           Fin.
@@ -105,7 +111,7 @@ No esperar ninguna frase especial del usuario para arrancar.
 
 - Todo el trabajo de cada fase se realiza a través de los governors. No ejecutar tareas técnicas directamente.
 - Los archivos en `persistence/` son propiedad del harness. No modificarlos manualmente.
-- Los artefactos en `discovery/`, `specification/` y `design/` son los outputs oficiales de sus fases. No editarlos fuera del flujo del harness.
+- Los artefactos en `010_discovery/`, `020_specification/` y `030_design/` son los outputs oficiales de sus fases. No editarlos fuera del flujo del harness.
 
 ## PRINCIPIOS DE COMPORTAMIENTO DE TODO AGENTE
 

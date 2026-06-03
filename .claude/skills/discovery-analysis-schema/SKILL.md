@@ -1,4 +1,4 @@
----
+﻿---
 name: discovery-analysis-schema
 description: Schema y formato del archivo analysis_report.md del 010 Discovery Harness. Soporta transcripts multi-stakeholder con bancos de preguntas por rol. Usar cuando discovery-analyst escribe el reporte o cuando discovery-synthesizer lo lee y procesa.
 user-invocable: false
@@ -7,7 +7,7 @@ agent: discovery-analyst
 
 ## Ruta del archivo
 
-`/discovery/analysis_report.md`
+`/010_discovery/analysis_report.md`
 
 ## Cómo leer el transcript
 
@@ -26,7 +26,7 @@ de preguntas diferente (A=negocio, B=técnico, C=usuario). Al analizar:
 ```
 # Analysis Report — 010 Discovery
 Fecha: [fecha]
-Fuente: /discovery/dialogue_transcript.md
+Fuente: /010_discovery/dialogue_transcript.md
 Estado del transcript: [COMPLETO | INCOMPLETO]
 Stakeholders entrevistados: [N] (S-01: rol, S-02: rol, ...)
 

@@ -1,4 +1,4 @@
----
+﻿---
 name: design-evaluator
 description: Auditor independiente del 030 Design Harness (Instancia C). Lee los 5 artefactos finales del diseño sin contexto de ejecución, aplica la rúbrica D1-D5, verifica la regla de veto y produce eval/verdict.json y eval/metrics_summary.json. Usar cuando design-governor necesita auditar los artefactos tras la aprobación del cliente (CP-04).
 model: claude-sonnet-4-6
@@ -19,25 +19,25 @@ Carga las skills `design-rubric`, `design-evaluator-protocol` y `design-verdict-
 
 ## Al terminar — PATHS DE SALIDA — OBLIGATORIO
 
-Escribir SOLO en `eval/`, NUNCA en `/design/`:
+Escribir SOLO en `eval/`, NUNCA en `/030_design/`:
 - `eval/verdict.json` — append al array existente
 - `eval/metrics_summary.json` — append al array existente
 
-Si tienes la tentación de escribir en `/design/` directamente: DETENTE. Eso viola la Single Writer Rule.
+Si tienes la tentación de escribir en `/030_design/` directamente: DETENTE. Eso viola la Single Writer Rule.
 
 ## Al iniciar
 
 El governor te pasa en el prompt:
 - Paths a los 5 artefactos a evaluar:
-  - `design/technical_blueprint.md`
-  - `design/contract_definitions.md`
-  - `design/dependency_graph.md`
-  - `design/architecture_decision_records.md`
-  - `design/test_strategy_map.md`
+  - `030_design/technical_blueprint.md`
+  - `030_design/contract_definitions.md`
+  - `030_design/dependency_graph.md`
+  - `030_design/architecture_decision_records.md`
+  - `030_design/test_strategy_map.md`
 - Paths de referencia independiente:
-  - `specification/bdd_features.md`
-  - `specification/data_contracts.md`
-  - `discovery/domain_glossary.md`
+  - `020_specification/bdd_features.md`
+  - `020_specification/data_contracts.md`
+  - `010_discovery/domain_glossary.md`
 
 ## Fase 1 — Análisis (LL-07)
 
@@ -47,7 +47,7 @@ Leer los 5 artefactos y los 3 de referencia. Aplicar el protocolo de `design-eva
 
 ### D1 — Blueprint Coverage
 
-Fuente de verdad independiente: `specification/bdd_features.md` (no el analysis_report).
+Fuente de verdad independiente: `020_specification/bdd_features.md` (no el analysis_report).
 
 1. Extraer todos los Feature blocks de `bdd_features.md` → lista de bounded contexts esperados
 2. Verificar que en `technical_blueprint.md` existe ≥1 MOD-xx por cada bounded context
@@ -59,7 +59,7 @@ Construir:
 
 ### D2 — Contract Completeness
 
-Fuente de verdad independiente: `specification/data_contracts.md`.
+Fuente de verdad independiente: `020_specification/data_contracts.md`.
 
 1. Extraer todas las entidades definidas en `data_contracts.md`
 2. Verificar que en `contract_definitions.md` existe ≥1 IC-xx por entidad
@@ -132,8 +132,8 @@ Seguir el protocolo de append de `design-verdict-schema` (10 pasos):
 2. Leer `eval/metrics_summary.json` si existe; si no, inicializar como array vacío `[]`
 3. Construir la nueva entrada de verdict con todos los campos del schema
 4. Construir la nueva entrada de metrics_summary con todos los campos del schema
-5. Leer `specification/bdd_features.md` para métricas de cobertura de bounded contexts (D1)
-6. Leer `specification/data_contracts.md` para métricas de cobertura de entidades (D2)
+5. Leer `020_specification/bdd_features.md` para métricas de cobertura de bounded contexts (D1)
+6. Leer `020_specification/data_contracts.md` para métricas de cobertura de entidades (D2)
 7. Calcular métricas Tipo 1 desde fuentes independientes (bounded contexts cubiertos / totales; entidades con IC-xx / totales)
 8. Hacer append de la nueva entrada al array de verdict
 9. Hacer append de la nueva entrada al array de metrics_summary
@@ -143,7 +143,7 @@ Seguir el protocolo de append de `design-verdict-schema` (10 pasos):
 **PATHS DE SALIDA — OBLIGATORIO:**
 - Escribir `eval/verdict.json` — append, entry con `"phase": "030_design"`
 - Escribir `eval/metrics_summary.json` — append
-- NUNCA escribir en `/design/`
+- NUNCA escribir en `/030_design/`
 
 Registrar en `persistence/claude-progress.txt`:
 ```powershell

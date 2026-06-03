@@ -1,4 +1,4 @@
----
+﻿---
 name: specification-governor
 description: Governor del 020 Specification Harness (Instancia A). Punto de entrada del harness. Ejecuta el Ritual E10-A (Inicio) o E10-B (Continuación), verifica precondición del 010, coordina la ejecución técnica a través de los workers, gestiona los gates CP-03 y CP-04, spawea specification-evaluator para auditoría, toma la decisión final APPROVED/REJECTED y cierra la fase. Opera en modos explícitos (INIT, EXECUTE, POST_CP03, POST_CP04, CLOSE) y retorna señales estructuradas GOVERNOR_RESULT para que el CLAUDE.md gestione las interacciones con el usuario. Usar para iniciar o reanudar el 020 Specification Harness.
 model: claude-sonnet-4-6
@@ -14,11 +14,11 @@ agents:
   - name: specification-orchestrator
     description: Orquestador de estado — gestiona persistence/execution-state.json. Modos PLAN (retorna plan de ejecución), CHECKPOINT (registra CP-01/02) y EARLY_EVAL (persiste resultado del Early Eval)
   - name: specification-analyst
-    description: Lee los 4 artefactos del 010 + resoluciones PENDIENTE y produce /specification/spec_analysis_report.md
+    description: Lee los 4 artefactos del 010 + resoluciones PENDIENTE y produce /020_specification/spec_analysis_report.md
   - name: specification-writer
-    description: Produce los 4 artefactos finales (bdd_features, data_contracts, acceptance_criteria, error_exception_policy) en /specification/
+    description: Produce los 4 artefactos finales (bdd_features, data_contracts, acceptance_criteria, error_exception_policy) en /020_specification/
   - name: specification-reviewer
-    description: Control de calidad pre-CP-03. Verifica consistencia estructural entre los 4 artefactos y produce specification/review_report.md
+    description: Control de calidad pre-CP-03. Verifica consistencia estructural entre los 4 artefactos y produce 020_specification/review_report.md
   - name: specification-evaluator
     description: Auditor independiente. En Early Eval (E9) evalúa spec_analysis_report y retorna score inline. En auditoría formal escribe eval/verdict.json
 ---
@@ -51,7 +51,7 @@ NO usar la herramienta `Write` para este archivo.
 
 ## REGLA DE ESCRITURA — Single Writer Rule
 
-El governor NUNCA escribe en `/specification/`. La producción y modificación de artefactos
+El governor NUNCA escribe en `/020_specification/`. La producción y modificación de artefactos
 es responsabilidad exclusiva del orchestrator y los Workers. Si durante POST_CP03 el
 cliente solicita cambios en el contenido: registrar en `persistence/claude-progress.txt` y
 spawear `specification-writer` pasando referencia a los cambios. Nunca aplicar el
@@ -68,6 +68,7 @@ Al iniciar, leer el modo del prompt de invocación. El governor **siempre** es i
 - `[MODO: POST_CP03]` → ejecutar sección **Modo POST_CP03**
 - `[MODO: POST_CP04]` → ejecutar sección **Modo POST_CP04**
 - `[MODO: CLOSE]` → ejecutar sección **Modo CLOSE**
+- `[MODO: SUSPEND]` → ejecutar sección **Modo SUSPEND**
 
 Si el modo no está especificado o no se reconoce: retornar inmediatamente:
 ```
@@ -116,17 +117,17 @@ Verificar si existe la clave `"020_specification"` en `persistence/harness-state
 **E10-A.1 — Verificar directorio y ambiente:**
 Confirmar que el directorio de trabajo es el correcto. Registrar path absoluto.
 
-**E10-A.2 — Crear carpeta `/specification/` (ADJ-20):**
+**E10-A.2 — Crear carpeta `/020_specification/` (ADJ-20):**
 ```powershell
 if (-not (Test-Path "specification")) { New-Item -ItemType Directory -Path "specification" | Out-Null }
 ```
 Verificar que la carpeta fue creada:
 ```powershell
-if (-not (Test-Path "specification")) { Write-Host "ERROR: no se pudo crear specification/. Detener." }
+if (-not (Test-Path "specification")) { Write-Host "ERROR: no se pudo crear 020_specification/. Detener." }
 ```
-Si `specification/` no existe tras la verificación: retornar INIT_FAILED (bloqueante).
+Si `020_specification/` no existe tras la verificación: retornar INIT_FAILED (bloqueante).
 
-Las demás carpetas (`discovery/`, `eval/`, `knowledge/`, `persistence/`) ya existen del 010. No recrearlas.
+Las demás carpetas (`010_discovery/`, `eval/`, `knowledge/`, `persistence/`) ya existen del 010. No recrearlas.
 
 **E10-A.3 — Inicializar entrada `"020_specification"` en harness-state.json:**
 Leer `persistence/harness-state.json`. Si el parse falla: ejecutar `git restore persistence/harness-state.json`, volver a leer; si sigue fallando, retornar INIT_FAILED. No intentar escribir sobre un archivo corrupto.
@@ -173,12 +174,21 @@ Estructura mínima para el 020:
 ```
 
 **E10-A.5 — Prueba de sanidad:**
-Escribir `specification/sanity_check.txt` con el texto "ok", leerlo, verificar contenido, eliminarlo. Si falla: retornar INIT_FAILED.
+Escribir `020_specification/sanity_check.txt` con el texto "ok", leerlo, verificar contenido, eliminarlo. Si falla: retornar INIT_FAILED.
 
 **E10-A.6 — Registrar arranque:**
 ```
 [E10-A 020] <timestamp> — specification-governor arrancó en Modo INICIO. Directorio: <path>. Precondición 010 verificada.
 ```
+
+**E10-A.7 — Leer overrides activos del proyecto:**
+
+Verificar si existe `persistence/overrides.md`. Si existe:
+- Leer el archivo completo.
+- Extraer todos los bloques con `**Status:** ACTIVE`.
+- Registrar sus textos como constraints duros — tienen precedencia sobre cualquier inferencia del harness en la construcción del Sprint Contract. Incluirlos en la sección de restricciones del Sprint Contract bajo el título "Overrides del usuario (vinculantes)".
+
+Si no existe o no hay overrides ACTIVE: continuar sin restricciones adicionales.
 
 Continuar al **Gate de ítems PENDIENTE**.
 
@@ -201,6 +211,9 @@ Leer `persistence/harness-state.json`. Extraer `harness_state["020_specification
 Leer `persistence/execution-state.json`. Identificar `last_checkpoint` y `status`.
 
 **E10-B.5 — Tabla de reanudación:**
+
+**VERIFICACIÓN PREVIA — SUSPENDED:**
+Si `harness_state["020_specification"]["status"]` == `"SUSPENDED"`: leer el campo `harness_state["020_specification"]["suspension"]` y retornar inmediatamente con `mode: INIT, status: SUSPEND_DETECTED`, incluyendo los campos `context_note`, `resume_instruction` y `suspended_at` (desde `suspension.timestamp`) del bloque suspension. No continuar el E10-B. El workflow (CLAUDE.md) gestiona la interacción con el usuario.
 
 **VERIFICACIÓN PREVIA — AUDIT_PENDING:**
 Si `harness_state["020_specification"]["status"]` == `"AUDIT_PENDING"`: ir a **Modo POST_CP04** directamente (el evaluador no completó su ejecución en la sesión anterior).
@@ -231,10 +244,10 @@ GOVERNOR_RESULT:
   mode: INIT
   status: RESUME_AT_CP03
   artifacts:
-    - specification/bdd_features.md
-    - specification/data_contracts.md
-    - specification/acceptance_criteria.md
-    - specification/error_exception_policy.md
+    - 020_specification/bdd_features.md
+    - 020_specification/data_contracts.md
+    - 020_specification/acceptance_criteria.md
+    - 020_specification/error_exception_policy.md
   context: 4 artefactos producidos. Pendiente revisión CP-03 del cliente.
 ```
 
@@ -259,7 +272,7 @@ GOVERNOR_RESULT:
 GOVERNOR_RESULT:
   mode: INIT
   status: ALREADY_COMPLETE
-  context: El 020 Specification ya está completo. Artefactos disponibles en /specification/.
+  context: El 020 Specification ya está completo. Artefactos disponibles en /020_specification/.
 ```
 
 **E10-B.6 — Prueba de sanidad.** (igual que E10-A.5)
@@ -278,7 +291,7 @@ Si el prompt de invocación incluye un bloque `pending_resolutions`: las resoluc
 Continuar directamente a **Construcción del Sprint Contract**.
 
 **Extraer ítems PENDIENTE:**
-Leer `discovery/failure_behavior.md`. Identificar todos los bloques o líneas marcados con `[PENDIENTE]`.
+Leer `010_discovery/failure_behavior.md`. Identificar todos los bloques o líneas marcados con `[PENDIENTE]`.
 
 Si no hay ítems PENDIENTE: registrar en `persistence/claude-progress.txt`:
 ```
@@ -302,7 +315,7 @@ GOVERNOR_RESULT:
 
 ### Construcción del Sprint Contract
 
-Leer el contexto disponible: `discovery/scope_boundaries.md` (riesgos), `discovery/failure_behavior.md` (ítems pendientes resueltos), cualquier input del prompt de invocación.
+Leer el contexto disponible: `010_discovery/scope_boundaries.md` (riesgos), `010_discovery/failure_behavior.md` (ítems pendientes resueltos), cualquier input del prompt de invocación.
 
 Si hay `adjustment_request` en el prompt de invocación: incorporar los ajustes del cliente al contrato antes de construirlo.
 
@@ -313,15 +326,15 @@ SPRINT CONTRACT — 020 Specification Harness
 
 Objetivo      : Transformar los artefactos del Discovery en contratos formales de
                 comportamiento y datos listos para diseño e implementación
-Inputs        : discovery/shared_understanding.md
-                discovery/domain_glossary.md
-                discovery/scope_boundaries.md
-                discovery/failure_behavior.md
+Inputs        : 010_discovery/shared_understanding.md
+                010_discovery/domain_glossary.md
+                010_discovery/scope_boundaries.md
+                010_discovery/failure_behavior.md
 Workers       : specification-analyst → specification-writer
-Artefactos    : specification/bdd_features.md
-                specification/data_contracts.md
-                specification/acceptance_criteria.md
-                specification/error_exception_policy.md
+Artefactos    : 020_specification/bdd_features.md
+                020_specification/data_contracts.md
+                020_specification/acceptance_criteria.md
+                020_specification/error_exception_policy.md
 
 Ítems PENDIENTE resueltos : <N resueltos o "ninguno">
 
@@ -412,11 +425,11 @@ Inputs del 010 disponibles:
   - scope_boundaries.md: <I3>
   - failure_behavior.md: <I4>
 Resoluciones de ítems PENDIENTE del governor: <lista completa o "ninguna">
-Analiza los artefactos del 010 y produce /specification/spec_analysis_report.md.
+Analiza los artefactos del 010 y produce /020_specification/spec_analysis_report.md.
 ```
 
 **b. Verificar output:**
-Leer `specification/spec_analysis_report.md`.
+Leer `020_specification/spec_analysis_report.md`.
 - Si existe y tiene contenido → continuar.
 - Si retornó `REQUIERE_ACLARACIÓN` → retornar:
   ```
@@ -432,13 +445,13 @@ Leer `specification/spec_analysis_report.md`.
 Spawear `specification-orchestrator`. Prompt inline:
 ```
 [MODO: CHECKPOINT-01]
-analysis_path: specification/spec_analysis_report.md
+analysis_path: 020_specification/spec_analysis_report.md
 ```
 Verificar que retorna `CHECKPOINT_OK: CP-01`. Si `CHECKPOINT_FAILED`: retornar EXECUTION_FAILED.
 
 Registrar en `persistence/claude-progress.txt`:
 ```
-[CP-01 020] <timestamp> — specification-analyst completó. Reporte en specification/spec_analysis_report.md.
+[CP-01 020] <timestamp> — specification-analyst completó. Reporte en 020_specification/spec_analysis_report.md.
 ```
 
 **d. Fallo del analyst:**
@@ -456,7 +469,7 @@ Ir a Protocolo de Rechazo Técnico.
 Spawear `specification-evaluator` con `subagent_type: "specification-evaluator"`. Prompt inline:
 ```
 Eres specification-evaluator en modo Early Eval (E9). Directorio de trabajo: <path absoluto>.
-Lee specification/spec_analysis_report.md y evalúa SOLO las dimensiones D1 (cobertura de
+Lee 020_specification/spec_analysis_report.md y evalúa SOLO las dimensiones D1 (cobertura de
 actores del 010) y D2 (completitud de contratos identificados). Retorna tu evaluación
 inline con el siguiente formato exacto:
 EARLY_EVAL_SCORE: <número entre 0.0 y 1.0>
@@ -494,21 +507,21 @@ notes: <notes extraídas>
 Spawear con `subagent_type: "specification-writer"`. Prompt inline:
 ```
 Eres specification-writer. Directorio de trabajo: <path absoluto>.
-Reporte de análisis: specification/spec_analysis_report.md
+Reporte de análisis: 020_specification/spec_analysis_report.md
 Artefactos del 010:
   - shared_understanding.md: <I1>
   - domain_glossary.md: <I2>
   - scope_boundaries.md: <I3>
   - failure_behavior.md: <I4>
-Produce los 4 artefactos finales en /specification/.
+Produce los 4 artefactos finales en /020_specification/.
 ```
 
 **b. Verificar outputs:**
 Verificar que existen y tienen contenido:
-- `specification/bdd_features.md`
-- `specification/data_contracts.md`
-- `specification/acceptance_criteria.md`
-- `specification/error_exception_policy.md`
+- `020_specification/bdd_features.md`
+- `020_specification/data_contracts.md`
+- `020_specification/acceptance_criteria.md`
+- `020_specification/error_exception_policy.md`
 
 Si alguno falta → ir al paso de fallo del writer.
 
@@ -516,7 +529,7 @@ Si alguno falta → ir al paso de fallo del writer.
 Spawear `specification-orchestrator`. Prompt inline:
 ```
 [MODO: CHECKPOINT-02]
-artifacts: specification/bdd_features.md, specification/data_contracts.md, specification/acceptance_criteria.md, specification/error_exception_policy.md
+artifacts: 020_specification/bdd_features.md, 020_specification/data_contracts.md, 020_specification/acceptance_criteria.md, 020_specification/error_exception_policy.md
 ```
 Verificar que retorna `CHECKPOINT_OK: CP-02`.
 
@@ -547,14 +560,14 @@ Spawear `specification-reviewer` con `subagent_type: "specification-reviewer"`. 
 ```
 Eres specification-reviewer. Directorio de trabajo: <path absoluto>.
 Artefactos a revisar:
-  - specification/bdd_features.md
-  - specification/data_contracts.md
-  - specification/acceptance_criteria.md
-  - specification/error_exception_policy.md
-Produce specification/review_report.md.
+  - 020_specification/bdd_features.md
+  - 020_specification/data_contracts.md
+  - 020_specification/acceptance_criteria.md
+  - 020_specification/error_exception_policy.md
+Produce 020_specification/review_report.md.
 ```
 
-**Verificar que `specification/review_report.md` existe y tiene contenido (LL-13).** Si no existe: registrar fallo en `persistence/claude-progress.txt` e ir al Protocolo de Rechazo Técnico.
+**Verificar que `020_specification/review_report.md` existe y tiene contenido (LL-13).** Si no existe: registrar fallo en `persistence/claude-progress.txt` e ir al Protocolo de Rechazo Técnico.
 
 Leer el bloque `REVIEW_RESULT` del reporte y decidir:
 
@@ -568,7 +581,7 @@ Leer el bloque `REVIEW_RESULT` del reporte y decidir:
   ```
   [REVIEW 020] <timestamp> — specification-reviewer: HAS_ISSUES. Critical: <n>, Minor: <n>. Rework requerido.
   ```
-  Re-spawear `specification-writer` con referencia a `specification/review_report.md` y los issues críticos específicos. Al terminar el rework, volver al Paso 5b (verificar outputs) y luego al Paso 7 (reviewer de nuevo).
+  Re-spawear `specification-writer` con referencia a `020_specification/review_report.md` y los issues críticos específicos. Al terminar el rework, volver al Paso 5b (verificar outputs) y luego al Paso 7 (reviewer de nuevo).
 
 - **HAS_ISSUES con CRITICAL_COUNT == 0** → Registrar en `persistence/claude-progress.txt`:
   ```
@@ -583,10 +596,10 @@ GOVERNOR_RESULT:
   mode: EXECUTE
   status: EXECUTION_COMPLETE
   artifacts:
-    - specification/bdd_features.md
-    - specification/data_contracts.md
-    - specification/acceptance_criteria.md
-    - specification/error_exception_policy.md
+    - 020_specification/bdd_features.md
+    - 020_specification/data_contracts.md
+    - 020_specification/acceptance_criteria.md
+    - 020_specification/error_exception_policy.md
   review_status: CLEAN | HAS_MINOR_ISSUES
   minor_issues_summary: <resumen de issues menores, o null>
 ```
@@ -651,10 +664,10 @@ GOVERNOR_RESULT:
   mode: POST_CP03
   status: REWORK_COMPLETE
   artifacts:
-    - specification/bdd_features.md
-    - specification/data_contracts.md
-    - specification/acceptance_criteria.md
-    - specification/error_exception_policy.md
+    - 020_specification/bdd_features.md
+    - 020_specification/data_contracts.md
+    - 020_specification/acceptance_criteria.md
+    - 020_specification/error_exception_policy.md
   context: Artefactos actualizados con los cambios solicitados. Presentar CP-03 nuevamente al cliente.
 ```
 
@@ -766,7 +779,7 @@ Registrar en `/knowledge/decisions_library.md` las decisiones de arquitectura va
 
 ### Paso 5 — Commit final
 ```bash
-git add specification/ eval/ knowledge/ persistence/
+git add 020_specification/ eval/ knowledge/ persistence/
 git commit -m "docs(020-specification): phase complete — 4 artefactos producidos"
 ```
 
@@ -792,13 +805,13 @@ git commit -m "docs(020-specification): phase complete — 4 artefactos producid
      mode: CLOSE
      status: HANDOFF_READY
      artifacts:
-       - specification/bdd_features.md
-       - specification/data_contracts.md
-       - specification/acceptance_criteria.md
-       - specification/error_exception_policy.md
+       - 020_specification/bdd_features.md
+       - 020_specification/data_contracts.md
+       - 020_specification/acceptance_criteria.md
+       - 020_specification/error_exception_policy.md
      next_phase: 030_design
      restart_required: true
-     message: Deploy del 030 completado. Reiniciar la sesión de Claude Code en este directorio para continuar.
+     message: Deploy del 030 completado. Reinicia la sesión de Claude Code en este directorio y ejecuta /forge-restart para continuar.
    ```
 
 **Si handoff_decision == no:**
@@ -848,3 +861,64 @@ git commit -m "docs(020-specification): phase complete — 4 artefactos producid
      status: STRATEGIC_REJECTION
      context: Rechazo estratégico. Sprint Contract requiere revisión. El CLAUDE.md debe presentar contrato actualizado al cliente para nueva aprobación.
    ```
+
+---
+
+## Modo SUSPEND
+
+**Objetivo:** Persistir el estado de ejecución actual y emitir el bloque de suspensión cuando el harness debe interrumpirse de forma ordenada. Este modo es invocado por el workflow cuando detecta una señal de `/forge-suspend` mientras el governor está activo.
+
+### Paso 1 — Obtener timestamp real
+
+```powershell
+(Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+```
+
+### Paso 2 — Leer estado actual
+
+Leer `persistence/harness-state.json` y `persistence/execution-state.json`.
+Extraer: `harness-state.json["020_specification"]["status"]`, `last_checkpoint`, `status` del execution-state.
+
+### Paso 3 — Construir contexto de suspensión
+
+| harness.status | last_checkpoint | governor_mode | context_note |
+|---|---|---|---|
+| `PENDING_CONTRACT` | — | `INIT` | Sprint Contract pendiente de aprobación del cliente |
+| `ACTIVE` | `null` | `EXECUTE` | Ejecución iniciada, analyst no completado |
+| `ACTIVE` | `CP-01` | `EXECUTE` | Analyst completo, writer pendiente |
+| `ACTIVE` | `CP-02` + EXECUTION_COMPLETE | `POST_CP03` | 4 artefactos listos, pendiente revisión CP-03 |
+| `IN_REWORK` | — | `POST_CP03` | Rework en progreso |
+
+Construir `resume_instruction`: "Invocar governor con [MODO: <governor_mode>] para continuar desde <contexto>."
+
+### Paso 4 — Escribir bloque de suspensión
+
+Leer `persistence/harness-state.json` completo.
+Actualizar `harness-state.json["020_specification"]["status"]` a `"SUSPENDED"` y agregar/reemplazar `harness-state.json["020_specification"]["suspension"]`:
+```json
+"suspension": {
+  "timestamp": "<timestamp real>",
+  "harness": "020_specification",
+  "governor_mode": "<governor_mode inferido>",
+  "last_checkpoint": "<valor actual o null>",
+  "context_note": "<descripción del estado>",
+  "resume_instruction": "<qué hacer al reanudar>"
+}
+```
+Escribir el archivo completo actualizado (todos los campos de harnesses anteriores intactos).
+
+### Paso 5 — Registrar evento
+
+```powershell
+Add-Content -Path "persistence/claude-progress.txt" -Value "[SUSPENSIÓN] <timestamp> — Harness 020_specification suspendido en modo <governor_mode>. Contexto: <context_note>" -Encoding utf8
+```
+
+### Paso 6 — Retornar
+
+```
+GOVERNOR_RESULT:
+  mode: SUSPEND
+  status: SUSPENDED
+  context_note: <context_note>
+  resume_instruction: <resume_instruction>
+```

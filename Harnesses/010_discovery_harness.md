@@ -1,4 +1,4 @@
-# 010 — Discovery Harness (Descubrimiento)
+﻿# 010 — Discovery Harness (Descubrimiento)
 
 ---
 
@@ -35,10 +35,10 @@ y aprobada explícitamente por el cliente.
 
 | Artefacto | Path | Descripción |
 |-----------|------|-------------|
-| Shared Understanding Document | `/discovery/shared_understanding.md` | Resumen estructurado en lenguaje natural; el cliente aprueba diciendo "Sí, esto es exactamente lo que quiero" |
-| Scope Boundaries | `/discovery/scope_boundaries.md` | Lista explícita de qué NO hará la aplicación en esta etapa |
-| Glosario de Dominio | `/discovery/domain_glossary.md` | Términos clave con definición acordada (Ubiquitous Language) |
-| Failure Behavior | `/discovery/failure_behavior.md` | Comportamiento esperado ante fallos por escenario; input directo al 020 |
+| Shared Understanding Document | `/010_discovery/shared_understanding.md` | Resumen estructurado en lenguaje natural; el cliente aprueba diciendo "Sí, esto es exactamente lo que quiero" |
+| Scope Boundaries | `/010_discovery/scope_boundaries.md` | Lista explícita de qué NO hará la aplicación en esta etapa |
+| Glosario de Dominio | `/010_discovery/domain_glossary.md` | Términos clave con definición acordada (Ubiquitous Language) |
+| Failure Behavior | `/010_discovery/failure_behavior.md` | Comportamiento esperado ante fallos por escenario; input directo al 020 |
 
 ### Criterio de Done
 
@@ -83,9 +83,9 @@ Jerarquía de llamadas (nunca se viola):
 
 | Worker | Micro-tarea | Inputs que recibe | Output (path) |
 |--------|-------------|-------------------|---------------|
-| discovery-dialoguer | Ejecuta rondas de cuestionamiento socrático con el cliente | I-1, I-2, I-3 | `/discovery/dialogue_transcript.md` |
-| discovery-analyst | Analiza el transcript: extrae actores, objetivos de valor, contradicciones, escenarios de fallo | Path a `dialogue_transcript.md` | `/discovery/analysis_report.md` |
-| discovery-synthesizer | Produce los 4 artefactos finales a partir del analysis report | Path a `analysis_report.md` | `/discovery/shared_understanding.md`, `/discovery/scope_boundaries.md`, `/discovery/domain_glossary.md`, `/discovery/failure_behavior.md` |
+| discovery-dialoguer | Ejecuta rondas de cuestionamiento socrático con el cliente | I-1, I-2, I-3 | `/010_discovery/dialogue_transcript.md` |
+| discovery-analyst | Analiza el transcript: extrae actores, objetivos de valor, contradicciones, escenarios de fallo | Path a `dialogue_transcript.md` | `/010_discovery/analysis_report.md` |
+| discovery-synthesizer | Produce los 4 artefactos finales a partir del analysis report | Path a `analysis_report.md` | `/010_discovery/shared_understanding.md`, `/010_discovery/scope_boundaries.md`, `/010_discovery/domain_glossary.md`, `/010_discovery/failure_behavior.md` |
 
 **Secuenciación:** discovery-dialoguer → discovery-analyst → discovery-synthesizer (dependencia estricta, no paralela).
 
@@ -160,12 +160,12 @@ Inputs disponibles:
   - Restricciones       : [lista]
 
 Workers activados:
-  - discovery-dialoguer   → /discovery/dialogue_transcript.md
-  - discovery-analyst   → /discovery/analysis_report.md
-  - discovery-synthesizer  → /discovery/shared_understanding.md
-                   /discovery/scope_boundaries.md
-                   /discovery/domain_glossary.md
-                   /discovery/failure_behavior.md
+  - discovery-dialoguer   → /010_discovery/dialogue_transcript.md
+  - discovery-analyst   → /010_discovery/analysis_report.md
+  - discovery-synthesizer  → /010_discovery/shared_understanding.md
+                   /010_discovery/scope_boundaries.md
+                   /010_discovery/domain_glossary.md
+                   /010_discovery/failure_behavior.md
 
 Checkpoints  : CP-01, CP-02, CP-03, CP-04
 
@@ -262,7 +262,7 @@ explícitas.
 Discovery entrega al 020 los siguientes artefactos. El 020 **no puede iniciarse** sin ellos.
 
 ```
-/discovery/
+/010_discovery/
 ├── shared_understanding.md  → Base para construir requerimientos funcionales en el 020
 ├── scope_boundaries.md      → Restricciones de alcance que el 020 debe respetar
 ├── domain_glossary.md       → Lenguaje ubicuo que todos los harnesses subsiguientes deben usar
@@ -289,7 +289,7 @@ para la fase 010. Sin este estado, el 020 no se activa.
 **Ritual E10-A — Inicio:**
 
 1. Verificar directorio y ambiente
-2. Crear jerarquía de carpetas: `/discovery/`, `/eval/`, `/changes/`, `/knowledge/`
+2. Crear jerarquía de carpetas: `/010_discovery/`, `/eval/`, `/changes/`, `/knowledge/`
 3. Inicializar `harness-state.json`, `execution-state.json`, `claude-progress.txt`
 4. Ejecutar `git init` y enlazar a remote GitHub (requisito E1 — sin esto, trazabilidad en riesgo)
 5. Prueba básica de sanidad (escribir y leer un archivo de prueba)
@@ -324,13 +324,13 @@ para la fase 010. Sin este estado, el 020 no se activa.
 3. B persiste `orchestration_plan` completo en `execution-state.json` **antes de spawear ningún Worker** (E12)
 4. B spawea **discovery-dialoguer** en Modo Discovery con los inputs I-1, I-2, I-3
    - discovery-dialoguer ejecuta rondas de cuestionamiento socrático con todos los stakeholders
-   - discovery-dialoguer escribe `/discovery/dialogue_transcript.md` incrementalmente (una entrada por ronda)
+   - discovery-dialoguer escribe `/010_discovery/dialogue_transcript.md` incrementalmente (una entrada por ronda)
    - discovery-dialoguer reporta a B el path y el resultado del Criterio de Done
 5. B registra **CP-01a** (por cada stakeholder completado durante el flujo) y **CP-01** (transcript COMPLETO) en `execution-state.json`
 6. B spawea **discovery-analyst** con path a `dialogue_transcript.md`
    - discovery-analyst verifica `Estado global: COMPLETO` antes de proceder
    - discovery-analyst extrae actores, objetivos, contradicciones, ambigüedades y vacíos
-   - discovery-analyst escribe `/discovery/analysis_report.md` con todos los hallazgos y preguntas de aclaración si hay issues
+   - discovery-analyst escribe `/010_discovery/analysis_report.md` con todos los hallazgos y preguntas de aclaración si hay issues
    - discovery-analyst reporta a B: path del reporte + estado (LISTO PARA SÍNTESIS / PENDIENTE DE ACLARACIÓN / ALERTA)
 
 **Bucle de aclaración** (se repite hasta que discovery-analyst reporta LISTO PARA SÍNTESIS o se alcanza el límite):

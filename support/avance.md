@@ -8,9 +8,9 @@
 
 ## Estado General del Proyecto
 
-- **Fecha de última actualización:** 2026-06-03 (Sesión 70)
-- **Fase actual:** Harnesses 010, 020, 030 y 040 COMPLETOS. Framework nombrado FORGE. Repo en GitHub. Próximo: 050 Vertical Harness + ADJ-25 FORGE CLI.
-- **Estado:** 28 lecciones registradas (LL-01..LL-28). 040 Planning Harness 100% operativo. Repo público en GitHub (https://github.com/jdrodriguez1000/Harness_Definition.git). ADJ-25 registrado (FORGE CLI: forge-setup.ps1 + slash commands /forge-init + /forge-discovery).
+- **Fecha de última actualización:** 2026-06-03 (Sesión 76)
+- **Fase actual:** Harnesses 010, 020, 030 y 040 COMPLETOS. FORGE CLI operativo. ADJ-25..ADJ-30 IMPLEMENTADOS. ADJ-31 pendiente. Próximo: ADJ-31 (/forge-changes) y luego 050 Vertical Harness.
+- **Estado:** 28 lecciones registradas (LL-01..LL-28). Carpetas de output renombradas con prefijo numérico en 65 archivos.
 
 ---
 
@@ -24,7 +24,7 @@ siguiendo este estándar, garantizando calidad y reducción de varianza en los o
 ### Fuentes de Verdad
 - `Insumos/principios.md` — Principios P1-P8 y Estándares E1-E12. **No se modifica nunca.**
 - `Insumos/metodologia.md` — Metodología universal. **ALINEADA Y CERRADA.** No se modifica.
-- `support/ajustes.md` — Ajustes pendientes activos: IMP-22, IMP-28, ADJ-04..08, ADJ-12, ADJ-24.
+- `support/ajustes.md` — Ajustes pendientes activos: IMP-22, IMP-28, ADJ-04..08, ADJ-12, ADJ-24, ADJ-31.
 - `support/lessons_learned.md` — 28 lecciones universales (LL-01 a LL-28).
 - `support/history/` — Historial completo de sesiones anteriores (avance y ajustes de 010, 020, 030).
 
@@ -42,11 +42,15 @@ siguiendo este estándar, garantizando calidad y reducción de varianza en los o
 ```
 Harness_Definition/
 ├── deploy-harness.ps1             — Script de deployment (soporta 010-090) ✓
-├── forge-setup.ps1                — [ADJ-25 PENDIENTE] Script de instalación por máquina
-├── forge.config.json              — [ADJ-25 PENDIENTE] Template de config global
+├── install.ps1                    — Instalación en máquina nueva (irm | iex) ✓
+├── forge-setup.ps1                — Configura máquina: instala config y slash commands ✓
 ├── commands/
-│   ├── forge-init.md              — [ADJ-25 PENDIENTE] Fuente del slash command /forge-init
-│   └── forge-discovery.md        — [ADJ-25 PENDIENTE] Fuente del slash command /forge-discovery
+│   ├── forge-init.md              — Fuente del slash command /forge-init ✓
+│   ├── forge-discovery.md         — Fuente del slash command /forge-discovery ✓
+│   ├── forge-suspend.md           — Slash command /forge-suspend ✓ (ADJ-26 IMPLEMENTADO)
+│   ├── forge-continue.md          — Slash command /forge-continue ✓ (ADJ-27 IMPLEMENTADO)
+│   ├── forge-restart.md           — Slash command /forge-restart ✓ (ADJ-28 IMPLEMENTADO)
+│   └── forge-override.md          — Slash command /forge-override ✓ (ADJ-29 IMPLEMENTADO)
 ├── .gitignore                     — Excluye settings.local.json ✓
 ├── README.md                      — Documentación para humanos
 ├── CLAUDE.md                      — Instrucciones para agentes Claude Code
@@ -114,6 +118,160 @@ Harness_Definition/
 ---
 
 ## Historial de Sesiones
+
+### Sesión 76 — 2026-06-03
+
+**Objetivo:** Registrar ADJ-30 y ADJ-31 como ajustes formales, e implementar ADJ-30 — renombrar las carpetas de output de todos los harnesses con prefijo numérico.
+
+**Trabajo realizado:**
+- `support/ajustes.md` — ADJ-30 y ADJ-31 registrados con tabla de estado, sección de detalle completa, impacto y prerequisitos.
+- Batch replacement con PowerShell sobre 65 archivos operacionales (excluyendo `support/`):
+  - `discovery/` → `010_discovery/` en todos los agentes, skills, harnesses, plans, workflows, commands y README
+  - `specification/` → `020_specification/` ídem
+  - `design/` → `030_design/` ídem
+  - `plan/` → `040_planning/` ídem
+- Verificación con regex que no quedaron referencias antiguas en archivos operacionales.
+- `forge-setup.ps1` ejecutado para reinstalar los comandos globales actualizados.
+- `support/ajustes.md` — ADJ-30 marcado como IMPLEMENTADO.
+
+**Archivos modificados (65 en total):**
+- `.claude/agents/` — 24 agentes (todos los de 010, 020, 030, 040)
+- `.claude/skills/` — 27 skills (todas las de los 4 harnesses)
+- `templates/workflows/ciclo_010..040.md` (×4)
+- `templates/client-project-CLAUDE.md`
+- `Harnesses/010..040_*.md` (×4)
+- `plans/010..040_*.md` (×4)
+- `commands/forge-suspend.md`, `commands/forge-continue.md`
+- `README.md`
+
+**Decisiones clave:**
+| Decisión | Detalle |
+|----------|---------|
+| Reemplazo via trailing slash | El patrón `discovery/` (con `/`) evita falsos positivos en `discovery-governor`, `design-analyst`, `planning` (texto) y `plans/` (directorio del repo). Seguro para todos los casos. |
+| Excluir `support/` del batch | Los archivos de soporte son documentación histórica — las sesiones anteriores referencian las rutas antiguas como evidencia de decisiones. No tiene sentido actualizarlas. |
+| `deploy-harness.ps1` sin cambios | El mapa `'010' = 'discovery'` no usa trailing slash — no fue afectado. Las carpetas de output las crean los governors en runtime, no el script de deployment. |
+| Reinstalar comandos post-update | `forge-suspend.md` y `forge-continue.md` referenciaban `discovery/dialogue_transcript.md` → actualizado a `010_discovery/dialogue_transcript.md`. Reinstalación vía `forge-setup.ps1` propaga el cambio a `~/.claude/commands/`. |
+
+---
+
+### Sesión 75 — 2026-06-03
+
+**Objetivo:** Implementar ADJ-29 — comando `/forge-override` para que el usuario registre un desacuerdo con una decisión del harness como restricción vinculante.
+
+**Trabajo realizado:**
+- Análisis completo del flujo: identificados los dos momentos naturales de override (Sprint Contract Paso B y CP-03 Paso D) y la diferencia semántica con el "rework" normal (override = restricción vinculante registrada + propagada; rework = corrección de calidad sin registro).
+- Diseño acordado: texto inline en el comando (A1), doble persistencia harness-state.json + overrides.md (B3), propagación a harnesses futuros vía overrides.md en E10-A (C2).
+- Creación de `commands/forge-override.md` — slash command global con 8 pasos: extrae texto, timestamp, verifica harness activo, genera ID (OV-xxx), escribe en harness-state.json, crea/appenda overrides.md, loguea en claude-progress.txt, retorna FORGE_OVERRIDE_RESULT para que el ciclo continúe.
+- Modificación de los 4 ciclos (ciclo_010..040.md): agregado caso `/forge-override` en Paso B (Sprint Contract) → re-invoca governor con adjustment_request; y en Paso D (CP-03) → re-invoca governor con cp03_decision: rework + changes = constraint_str.
+- Modificación de los 4 governors (discovery, specification, design, planning): agregado E10-A.7/E10-A.8 — lee `persistence/overrides.md` si existe, extrae overrides ACTIVE, los incorpora como constraints duros en el Sprint Contract bajo "Overrides del usuario (vinculantes)".
+- Modificación de los 4 state schemas: campo `"overrides": []` documentado en el JSON de ejemplo con schema completo del objeto override.
+- Instalación de `forge-override.md` en `~/.claude/commands/`.
+- `support/ajustes.md` — ADJ-29 marcado como IMPLEMENTADO con detalle completo.
+
+**Decisiones clave:**
+| Decisión | Detalle |
+|----------|---------|
+| Texto inline (A1) | El usuario escribe `/forge-override "texto"` — más robusto que inferir del contexto de la conversación |
+| Doble persistencia (B3) | harness-state.json para que la máquina lo lea; overrides.md como audit trail legible y accesible a futuros harnesses |
+| Propagación vía overrides.md en E10-A (C2) | Cada governor lee el archivo en su inicio de fase y aplica los constraints duros en el Sprint Contract — sin "Modo OVERRIDE" separado en los governors |
+| No "Modo OVERRIDE" en governors | El override se pasa inline como adjustment_request (INIT) o changes (POST_CP03) con el marker [OVERRIDE VINCULANTE — OV-xxx] — los modos existentes son suficientes |
+
+---
+
+### Sesión 74 — 2026-06-03
+
+**Objetivo:** Implementar ADJ-28 — transición automática entre harnesses sin reinicio manual dentro de la misma sesión. Crear `/forge-restart` como comando post-reinicio universal.
+
+**Trabajo realizado:**
+- Análisis completo del mecanismo existente: los governors (010..040) ya tenían el Paso 6 del CLOSE con deploy del siguiente harness + `HANDOFF_READY`. Los ciclos ya instruían al usuario a reiniciar. El `client-project-CLAUDE.md` ya tenía el path `DEPLOYED` que arranca automáticamente al reiniciar.
+- Identificación del bug: el path `PENDING_HANDOFF` en `client-project-CLAUDE.md` desplegaba los agentes y luego intentaba arrancar el ciclo siguiente **en la misma sesión** — los agentes recién copiados no están cargados → error "no reconocidos".
+- Corrección de los 3 casos `PENDING_HANDOFF` en `templates/client-project-CLAUDE.md` (handoff_020, handoff_030, handoff_040): ahora deploya → actualiza status a `DEPLOYED` → notifica al usuario que reinicie → Fin. En la siguiente sesión el path `DEPLOYED` arranca el ciclo correctamente con agentes cargados.
+- Creación de `commands/forge-restart.md` — slash command global `/forge-restart`: lee `harness-state.json`, detecta el harness con `DEPLOYED` o el harness activo en progreso, y arranca el ciclo correspondiente. Sirve como comando universal "¿dónde estaba?" — funciona post-reinicio, post-handoff y en cualquier momento que el usuario quiera retomar el proyecto.
+- Actualización de mensajes de reinicio en 4 governors (discovery, specification, design, planning) y 4 ciclos (ciclo_010..040): de "Reiniciar la sesión" a "Reinicia la sesión y ejecuta /forge-restart".
+- Actualización de 3 casos `PENDING_HANDOFF` en `client-project-CLAUDE.md` con el mismo mensaje.
+- `commands/forge-restart.md` instalado en `~/.claude/commands/` vía PowerShell.
+- `support/ajustes.md` — ADJ-28 marcado como IMPLEMENTADO con detalle completo de la solución.
+
+**Decisiones clave:**
+| Decisión | Detalle |
+|----------|---------|
+| Restart como frontera de fase (no como bug) | Un reinicio al cerrar un harness es deseable: limpia el contexto de la fase anterior y carga solo los agentes del nuevo harness. Evita inflar el contexto con agentes de fases no activas. |
+| No pre-deployar todos los harnesses en forge-setup.ps1 | Descartado porque aumenta el contexto desde el inicio de cada sesión con agentes que no se usarán. |
+| Bug era solo en PENDING_HANDOFF, no en HANDOFF_READY | El path HANDOFF_READY (cierre en sesión activa) ya funcionaba: deploy + mensaje + Fin. Solo PENDING_HANDOFF (handoff diferido, sesión nueva) tenía el defecto de continuar en la misma sesión tras el deploy. |
+| /forge-restart como comando universal post-reinicio | El usuario necesita escribir algo al abrir Claude. /forge-restart da un comando claro y memorable en lugar de "escribe cualquier cosa". También sirve para retomar el proyecto en cualquier momento sin recordar el estado exacto. |
+| Mapa de comandos de reanudación | `/forge-suspend` + `/forge-continue` = par para interrupciones mid-harness. `/forge-restart` = comando post-reinicio y universal de retoma. |
+
+---
+
+### Sesión 73 — 2026-06-03
+
+**Objetivo:** Verificar ADJ-26 en producción, corregir la brecha de CP-03 en forge-suspend e implementar ADJ-27 como /forge-continue.
+
+**Trabajo realizado:**
+- Diagnóstico: `forge-suspend.md` existía en `commands/` del repo pero no había sido copiado a `~/.claude/commands/` — por eso no aparecía como slash command.
+- `forge-setup.ps1` — refactorizado para copiar automáticamente todos los `.md` de `commands/` sin array hardcodeado. Ya no requiere modificación al agregar nuevos comandos.
+- `commands/forge-suspend.md` — dos correcciones: (1) agregado Paso B de override obligatorio para detectar CP-03 ya aprobado (`client_approval.CP-03_draft_review != null` → fuerza `governor_mode: POST_CP04`); (2) mensaje de confirmación actualizado de `/forge-resume` a `/forge-continue`.
+- `commands/forge-continue.md` — nuevo slash command global (renombrado desde /forge-resume por decisión del usuario): verifica suspensión activa, limpia el bloque `suspension`, restaura el `status` según el `governor_mode` (tabla de 5 casos), mapea el harness al governor correspondiente e invoca el governor con el modo correcto.
+- Ejecución de `forge-setup.ps1` — instalados los 4 comandos: `/forge-init`, `/forge-discovery`, `/forge-suspend`, `/forge-continue`.
+- Test end-to-end: `/forge-init` → `/forge-discovery` → `/forge-suspend` → `/forge-continue` — el ciclo completo funcionó. El governor tomó el control y presentó el Sprint Contract al reanudar.
+- `support/ajustes.md` — ADJ-26 y ADJ-27 marcados como IMPLEMENTADO con nombres correctos (`/forge-suspend` y `/forge-continue`).
+
+**Decisiones clave:**
+| Decisión | Detalle |
+|----------|---------|
+| Nombre: `/forge-continue` | El usuario prefirió este nombre sobre `/forge-resume`. Sigue la convención de verbos de acción de FORGE. |
+| forge-setup.ps1 genérico | Eliminar el array hardcodeado evita tener que editar el script cada vez que se agrega un comando nuevo — `Get-ChildItem *.md` copia todo automáticamente. |
+| Brecha CP-03 corregida con Paso B | La tabla base no podía distinguir "esperando CP-03" de "CP-03 ya aprobado". El Paso B lee `client_approval.CP-03_draft_review` directamente y hace el override a POST_CP04 si ya fue aprobado. |
+| Restauración de status por governor_mode | INIT → PENDING_CONTRACT; todos los demás → ACTIVE. Garantiza que E10-B del governor no retorne SUSPEND_DETECTED al encontrar status limpio. |
+
+---
+
+### Sesión 72 — 2026-06-03
+
+**Objetivo:** Implementar ADJ-26 — comando `/forge-suspend` para suspensión ordenada de harnesses activos.
+
+**Trabajo realizado:**
+- Creación de `commands/forge-suspend.md` — slash command global `/forge-suspend` con 8 pasos: timestamp real, verificación de harness activo, identificación del harness más reciente sin PHASE_COMPLETE, lectura de execution-state, detección del worker activo (caso especial dialoguer mid-interview con escritura de marcador ⏸ en transcript), construcción del bloque `suspension`, escritura en harness-state.json y registro en claude-progress.txt.
+- Actualización de `forge-setup.ps1` — agregado `"forge-suspend.md"` al array `$commands` para instalación automática en `~/.claude/commands/`.
+- Actualización de 4 state schemas — campo `"suspension": null` + valor `SUSPENDED` en la lista de status + schema completo del bloque suspension documentado:
+  - `.claude/skills/discovery-state-schema/SKILL.md` (también: event `SUSPENSIÓN` en claude-progress.txt)
+  - `.claude/skills/specification-state-schema/SKILL.md`
+  - `.claude/skills/design-state-schema/SKILL.md`
+  - `.claude/skills/planning-state-schema/SKILL.md`
+- Actualización de 4 governors (discovery, specification, design, planning) con 3 cambios cada uno:
+  1. `[MODO: SUSPEND]` agregado al listado de modos de invocación
+  2. `VERIFICACIÓN PREVIA — SUSPENDED` en E10-B antes del check de AUDIT_PENDING — retorna SUSPEND_DETECTED con context_note, resume_instruction y suspended_at
+  3. Sección `## Modo SUSPEND` al final del archivo — 6 pasos: timestamp, lectura de estado, tabla de inferencia governor_mode, escritura del bloque suspension, registro en claude-progress.txt, retorno SUSPENDED
+- `support/ajustes.md` — ADJ-26 marcado como IMPLEMENTADO (y nombre corregido a /forge-suspend).
+
+**Decisiones clave:**
+| Decisión | Detalle |
+|----------|---------|
+| Nombre: `/forge-suspend` | Sigue la convención de naming FORGE (igual que /forge-init, /forge-discovery). El nombre original /suspend fue descartado. |
+| Bloque suspension con 6 campos | {timestamp, harness, governor_mode, last_checkpoint, context_note, resume_instruction} — context_note captura el qué, resume_instruction captura el cómo reanudar |
+| Caso dialoguer cubierto | /forge-suspend lee el transcript, escribe marcador ⏸ al final y captura el estado de la entrevista en context_note/resume_instruction. El dialoguer no pierde ninguna respuesta recopilada. |
+| VERIFICACIÓN PREVIA SUSPENDED en E10-B | Retorna SUSPEND_DETECTED antes del check de AUDIT_PENDING para que el workflow (CLAUDE.md) gestione la interacción con el usuario |
+| /forge-suspend opera sin invocar governors | El comando lee/escribe directamente los archivos de estado. Los governors tienen Modo SUSPEND para cuando son ellos los que deben iniciar la suspensión durante su propia ejecución. |
+
+### Sesión 71 — 2026-06-03
+
+**Objetivo:** Verificar FORGE CLI en producción y registrar 4 nuevos ajustes identificados por el usuario.
+
+**Trabajo realizado:**
+- Verificación exitosa de `/forge-init` en carpeta `Test_001` — deploy completo del harness 010 ejecutado desde dentro de Claude con un solo comando.
+- Aclaración del flujo: `irm | iex` es instalación de máquina (una vez), `/forge-init` es arranque de proyecto (cada vez).
+- `support/ajustes.md` — ADJ-25 marcado como IMPLEMENTADO.
+- `support/ajustes.md` — ADJ-26..ADJ-29 registrados con detalle completo.
+
+**Decisiones clave:**
+| Decisión | Detalle |
+|----------|---------|
+| ADJ-26 /suspend | Suspensión ordenada: persiste estado, registra punto de interrupción, deja todo listo para E10-B |
+| ADJ-27 /resume | Complemento de /suspend — invoca E10-B explícitamente, requiere ADJ-26 como prerequisito |
+| ADJ-28 transición automática | Al cerrar un harness, el governor despliega el siguiente sin pasos manuales del usuario |
+| ADJ-29 /override | Registra desacuerdo del usuario como restricción vinculante e inyecta en el harness activo; scope a definir (harness actual vs. propagación a futuros) |
+
+---
 
 ### Sesión 70 — 2026-06-03
 
@@ -289,15 +447,13 @@ completa del patrón establecido por los harnesses 010/020/030.
 
 ## Próximos Pasos
 
-### Tarea 1 — Implementar ADJ-25: FORGE CLI
+### Tarea 1 — Implementar ADJ-31 (/forge-changes)
 
-Crear los 4 archivos en el repo:
-- `forge-setup.ps1` — instala config y slash commands en la máquina local
-- `forge.config.json` — template con `forge_home`
-- `commands/forge-init.md` — slash command: ejecuta deploy + mensaje de siguiente paso
-- `commands/forge-discovery.md` — slash command: invoca `discovery-governor` en modo INIT
+Crear el comando global `/forge-changes "descripción"` que permite al humano solicitar cambios sobre artefactos ya producidos en cualquier punto del harness activo. El comando registra el cambio con ID CH-xxx, lo persiste en `persistence/changes.md` y en `harness-state.json`, y re-invoca el governor o worker afectado con el contexto del cambio.
 
-Después de implementar: correr `forge-setup.ps1` para verificar que funciona end-to-end.
+Ver `support/ajustes.md` sección ADJ-31 para el diseño completo, casos de uso y prerequisitos.
+
+---
 
 ### Tarea 2 — Construir el 050 Vertical Harness
 

@@ -1,4 +1,4 @@
----
+﻿---
 name: design-analyst-protocol
 description: Protocolo analítico del design-analyst en el 030 Design Harness. Define las 7 categorías de extracción, la regla de no-inferencia, el criterio de done y el límite de iteraciones. Usar cuando design-analyst ejecuta su análisis sobre los 8 inputs del 030.
 user-invocable: false
@@ -16,14 +16,14 @@ sobre stacks o patrones sin base en los inputs.
 
 Leer en este orden para construir el contexto progresivamente antes de extraer:
 
-1. `discovery/domain_glossary.md` — fijar el vocabulario obligatorio antes de leer nada más
-2. `discovery/scope_boundaries.md` — identificar RT-xx y límites duros antes de analizar funcionalidades
-3. `discovery/shared_understanding.md` — contexto de dominio y restricciones de calidad
-4. `discovery/failure_behavior.md` — patrones de error que el diseño debe manejar
-5. `specification/bdd_features.md` — bounded contexts y flujos a soportar arquitectónicamente
-6. `specification/data_contracts.md` — entidades que necesitan interfaces técnicas (IC-xx)
-7. `specification/acceptance_criteria.md` — restricciones de comportamiento que el diseño debe garantizar
-8. `specification/error_exception_policy.md` — políticas de error que impactan el diseño de interfaces
+1. `010_discovery/domain_glossary.md` — fijar el vocabulario obligatorio antes de leer nada más
+2. `010_discovery/scope_boundaries.md` — identificar RT-xx y límites duros antes de analizar funcionalidades
+3. `010_discovery/shared_understanding.md` — contexto de dominio y restricciones de calidad
+4. `010_discovery/failure_behavior.md` — patrones de error que el diseño debe manejar
+5. `020_specification/bdd_features.md` — bounded contexts y flujos a soportar arquitectónicamente
+6. `020_specification/data_contracts.md` — entidades que necesitan interfaces técnicas (IC-xx)
+7. `020_specification/acceptance_criteria.md` — restricciones de comportamiento que el diseño debe garantizar
+8. `020_specification/error_exception_policy.md` — políticas de error que impactan el diseño de interfaces
 
 ## Categorías de extracción
 
@@ -152,7 +152,7 @@ antes de reportar COMPLETED.
 - [ ] Tabla de capas arquitectónicas completa con todos los CO-xx asignados
 - [ ] ≥1 flujo de datos por CO-xx principal
 - [ ] Tabla de Gaps completa (o "Ninguno" explícito)
-- [ ] `design/design_analysis_report.md` escrito en disco antes de reportar
+- [ ] `030_design/design_analysis_report.md` escrito en disco antes de reportar
 
 ## Límite de iteraciones
 

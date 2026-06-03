@@ -1,4 +1,4 @@
----
+﻿---
 name: specification-verdict-schema
 description: Schema y formato del archivo de salida de specification-evaluator en el 020 Specification Harness — verdict.json (veredicto, scores por dimensión con pesos y métricas del ciclo). Usar cuando specification-evaluator escribe los resultados de la auditoría.
 user-invocable: false
@@ -27,10 +27,10 @@ al final. Nunca sobreescribir entradas existentes.
     "generated_at": "2026-01-01T00:00:00Z",
     "evaluation_version": 1,
     "artifacts_evaluated": [
-      "specification/bdd_features.md",
-      "specification/data_contracts.md",
-      "specification/acceptance_criteria.md",
-      "specification/error_exception_policy.md"
+      "020_specification/bdd_features.md",
+      "020_specification/data_contracts.md",
+      "020_specification/acceptance_criteria.md",
+      "020_specification/error_exception_policy.md"
     ],
     "dimensions": {
       "D1_bdd_coverage":              { "score": 0.0, "weight": 0.20, "notes": "..." },
@@ -49,7 +49,7 @@ al final. Nunca sobreescribir entradas existentes.
       "rework_cycles": 0,
       "rejection_cycles": 0,
       "minor_issues": [],
-      "analysis_path": "specification/spec_analysis_report.md",
+      "analysis_path": "020_specification/spec_analysis_report.md",
       "approved_at": "2026-01-01T00:00:00Z",
       "sprint_contract_approved_at": "2026-01-01T00:00:00Z"
     }

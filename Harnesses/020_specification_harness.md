@@ -1,4 +1,4 @@
-# 020 — Specification Harness (Especificación - El QUÉ)
+﻿# 020 — Specification Harness (Especificación - El QUÉ)
 
 ---
 
@@ -21,10 +21,10 @@ humano: "El 010 Discovery debe completarse antes de iniciar el 020."
 
 | ID | Input | Fuente | Descripción |
 |----|-------|--------|-------------|
-| I-1 | `shared_understanding.md` | `/discovery/` | Entendimiento compartido del dominio aprobado por el cliente |
-| I-2 | `domain_glossary.md` | `/discovery/` | Lenguaje ubicuo acordado — todos los artefactos del 020 deben usarlo |
-| I-3 | `scope_boundaries.md` | `/discovery/` | Exclusiones explícitas que los contratos del 020 deben respetar |
-| I-4 | `failure_behavior.md` | `/discovery/` | Comportamiento ante fallos — input directo para la Error & Exception Policy. Puede contener ítems PENDIENTE que el governor debe resolver con el cliente antes de ejecutar |
+| I-1 | `shared_understanding.md` | `/010_discovery/` | Entendimiento compartido del dominio aprobado por el cliente |
+| I-2 | `domain_glossary.md` | `/010_discovery/` | Lenguaje ubicuo acordado — todos los artefactos del 020 deben usarlo |
+| I-3 | `scope_boundaries.md` | `/010_discovery/` | Exclusiones explícitas que los contratos del 020 deben respetar |
+| I-4 | `failure_behavior.md` | `/010_discovery/` | Comportamiento ante fallos — input directo para la Error & Exception Policy. Puede contener ítems PENDIENTE que el governor debe resolver con el cliente antes de ejecutar |
 
 ### Proceso
 
@@ -49,13 +49,13 @@ humano: "El 010 Discovery debe completarse antes de iniciar el 020."
 
 | Artefacto | Path | Descripción |
 |-----------|------|-------------|
-| BDD Feature Files | `/specification/bdd_features.md` | Escenarios Given/When/Then: camino feliz + todos los casos de borde identificados por actor |
-| Data Contracts | `/specification/data_contracts.md` | Campos, formatos, validaciones y reglas de negocio por entidad. Agnóstico a tecnología |
-| Product Acceptance Criteria | `/specification/acceptance_criteria.md` | Checklist que determina si cada funcionalidad cumple lo esperado por el negocio. Trazable a un escenario BDD |
-| Error & Exception Policy | `/specification/error_exception_policy.md` | Qué hace el sistema ante cada caso de borde: mensaje al usuario, reintento, bloqueo o acción alternativa. Resuelve todos los ítems de `failure_behavior.md` |
+| BDD Feature Files | `/020_specification/bdd_features.md` | Escenarios Given/When/Then: camino feliz + todos los casos de borde identificados por actor |
+| Data Contracts | `/020_specification/data_contracts.md` | Campos, formatos, validaciones y reglas de negocio por entidad. Agnóstico a tecnología |
+| Product Acceptance Criteria | `/020_specification/acceptance_criteria.md` | Checklist que determina si cada funcionalidad cumple lo esperado por el negocio. Trazable a un escenario BDD |
+| Error & Exception Policy | `/020_specification/error_exception_policy.md` | Qué hace el sistema ante cada caso de borde: mensaje al usuario, reintento, bloqueo o acción alternativa. Resuelve todos los ítems de `failure_behavior.md` |
 
 Artefacto auxiliar (no entregado al 030, no evaluado por la rúbrica):
-- `/specification/review_report.md` — producido por specification-reviewer entre CP-02 y CP-03; verifica consistencia estructural pre-aprobación
+- `/020_specification/review_report.md` — producido por specification-reviewer entre CP-02 y CP-03; verifica consistencia estructural pre-aprobación
 
 ### Criterio de Done
 
@@ -89,13 +89,13 @@ Specification produce **documentos de contrato**, no código. El ciclo SDD+TDD s
 |-----------|--------|-----|-------------------|------------|
 | A — Governor | `specification-governor` | Director del Proyecto | Verifica precondición del 010; gestiona gate de ítems PENDIENTE; propone Sprint Contract; gestiona CP-03 y CP-04; decide Avanzar/Repetir | `persistence/harness-state.json` |
 | B — Orchestrator | `specification-orchestrator` | Capataz Técnico | Lee contrato; coordina Workers; persiste `orchestration_plan` antes de spawear; registra checkpoints | `persistence/execution-state.json` |
-| D — Reviewer | `specification-reviewer` | Control de Calidad Pre-CP-03 | Lee los 4 artefactos tras CP-02 y antes de CP-03. Verifica consistencia estructural (IDs cruzados, entidades huérfanas, secciones faltantes). Issues críticos → rework antes de CP-03. Issues menores → presentar al cliente con diagnóstico. | `specification/review_report.md` |
+| D — Reviewer | `specification-reviewer` | Control de Calidad Pre-CP-03 | Lee los 4 artefactos tras CP-02 y antes de CP-03. Verifica consistencia estructural (IDs cruzados, entidades huérfanas, secciones faltantes). Issues críticos → rework antes de CP-03. Issues menores → presentar al cliente con diagnóstico. | `020_specification/review_report.md` |
 | C — Evaluator | `specification-evaluator` | Auditor Independiente | Lee los 4 artefactos sin contexto de ejecución; aplica rúbrica; emite APPROVED/REJECTED | `eval/verdict.json`, `eval/metrics_summary.json` |
 
 Jerarquía de llamadas (nunca se viola):
 - A → B (para ejecutar), A → D (para revisar entre CP-02 y CP-03), A → C (para auditar). Nunca simultáneo.
 - A NO llama Workers directamente.
-- D NO llama a nadie. Solo lee del filesystem y escribe `specification/review_report.md`.
+- D NO llama a nadie. Solo lee del filesystem y escribe `020_specification/review_report.md`.
 - C NO llama a nadie. Solo lee del filesystem.
 
 **Todos los agentes son exclusivos del 020.** No comparten ni heredan instrucciones del 010.
@@ -104,8 +104,8 @@ Jerarquía de llamadas (nunca se viola):
 
 | Worker | Micro-tarea | Inputs que recibe | Output (path) |
 |--------|-------------|-------------------|---------------|
-| `specification-analyst` | Lee los 4 artefactos del 010 + respuestas del governor a ítems PENDIENTE. Identifica todos los comportamientos a especificar, casos de borde, entidades y relaciones. Produce reporte de análisis estructurado listo para el writer. | Paths a I-1, I-2, I-3, I-4 + respuestas PENDIENTE del governor | `/specification/spec_analysis_report.md` |
-| `specification-writer` | Produce los 4 artefactos finales a partir del spec_analysis_report y los artefactos del 010. Usa el `domain_glossary.md` como lenguaje obligatorio. | Path a `spec_analysis_report.md` + paths a I-1..I-4 | `/specification/bdd_features.md`, `/specification/data_contracts.md`, `/specification/acceptance_criteria.md`, `/specification/error_exception_policy.md` |
+| `specification-analyst` | Lee los 4 artefactos del 010 + respuestas del governor a ítems PENDIENTE. Identifica todos los comportamientos a especificar, casos de borde, entidades y relaciones. Produce reporte de análisis estructurado listo para el writer. | Paths a I-1, I-2, I-3, I-4 + respuestas PENDIENTE del governor | `/020_specification/spec_analysis_report.md` |
+| `specification-writer` | Produce los 4 artefactos finales a partir del spec_analysis_report y los artefactos del 010. Usa el `domain_glossary.md` como lenguaje obligatorio. | Path a `spec_analysis_report.md` + paths a I-1..I-4 | `/020_specification/bdd_features.md`, `/020_specification/data_contracts.md`, `/020_specification/acceptance_criteria.md`, `/020_specification/error_exception_policy.md` |
 
 **Secuenciación:** specification-analyst → specification-writer (dependencia estricta, no paralela).
 
@@ -141,7 +141,7 @@ notifica al humano con contexto completo (ítem bloqueante, artefacto afectado, 
 |----|---------|----------------|
 | CP-01 | Tras specification-analyst | Path a `spec_analysis_report.md` en `execution-state.json` |
 | CP-02 | Tras specification-writer (draft) | Paths a los 4 artefactos en `execution-state.json`; marca `EXECUTION_COMPLETE` |
-| — | Tras CP-02 (pre-CP-03) | A spawea specification-reviewer. Si issues críticos → rework. Reviewer produce `specification/review_report.md` |
+| — | Tras CP-02 (pre-CP-03) | A spawea specification-reviewer. Si issues críticos → rework. Reviewer produce `020_specification/review_report.md` |
 | CP-03 | Cliente revisa draft | A presenta artefactos al cliente (+ issues menores del reviewer si los hay); registra feedback en `harness-state.json` |
 | CP-04 | Cliente aprueba formalmente | A registra aprobación explícita en `harness-state.json`; spawea C para auditoría |
 
@@ -176,7 +176,7 @@ Fase        : 020 — Specification
 Modo        : [INICIO | CONTINUACIÓN]
 Precondición: 010 Discovery — PHASE_COMPLETE ✓
 
-Inputs disponibles (desde /discovery/):
+Inputs disponibles (desde /010_discovery/):
   - shared_understanding.md : [confirmado / path]
   - domain_glossary.md      : [confirmado / path]
   - scope_boundaries.md     : [confirmado / path]
@@ -185,11 +185,11 @@ Inputs disponibles (desde /discovery/):
     Resolución obtenida del cliente: [respuestas registradas antes de aprobar]
 
 Workers activados:
-  - specification-analyst → /specification/spec_analysis_report.md
-  - specification-writer  → /specification/bdd_features.md
-                            /specification/data_contracts.md
-                            /specification/acceptance_criteria.md
-                            /specification/error_exception_policy.md
+  - specification-analyst → /020_specification/spec_analysis_report.md
+  - specification-writer  → /020_specification/bdd_features.md
+                            /020_specification/data_contracts.md
+                            /020_specification/acceptance_criteria.md
+                            /020_specification/error_exception_policy.md
 
 Checkpoints : CP-01, CP-02, CP-03, CP-04
 
@@ -284,10 +284,10 @@ Sin contradicciones. Glosario de dominio usado consistentemente en todos los art
   "gate_passed": false,
   "findings": [],
   "artifacts_evaluated": [
-    "specification/bdd_features.md",
-    "specification/data_contracts.md",
-    "specification/acceptance_criteria.md",
-    "specification/error_exception_policy.md"
+    "020_specification/bdd_features.md",
+    "020_specification/data_contracts.md",
+    "020_specification/acceptance_criteria.md",
+    "020_specification/error_exception_policy.md"
   ]
 }
 ```
@@ -299,13 +299,13 @@ Sin contradicciones. Glosario de dominio usado consistentemente en todos los art
 Specification entrega al 030 los siguientes artefactos. El 030 **no puede iniciarse** sin ellos.
 
 ```
-/specification/
+/020_specification/
 ├── bdd_features.md           → Base para arquitectura: qué debe soportar el sistema
 ├── data_contracts.md         → Entidades y relaciones que el diseño técnico debe implementar
 ├── acceptance_criteria.md    → Criterios que el 030 debe garantizar desde el diseño
 └── error_exception_policy.md → Políticas que el diseño técnico debe implementar a nivel de arquitectura
 
-/discovery/                   → El 030 también hereda los 4 artefactos del 010
+/010_discovery/                   → El 030 también hereda los 4 artefactos del 010
 ├── shared_understanding.md
 ├── domain_glossary.md        → Lenguaje ubicuo que todos los harnesses subsiguientes deben respetar
 ├── scope_boundaries.md
@@ -336,10 +336,10 @@ Si no, detener y notificar al humano.
 **Ritual E10-A — Inicio:**
 
 1. Verificar directorio y ambiente
-2. Crear carpeta `/specification/` (las demás ya existen del 010)
+2. Crear carpeta `/020_specification/` (las demás ya existen del 010)
 3. Inicializar entrada 020 en `harness-state.json` con status `PENDING`
 4. Inicializar `persistence/execution-state.json` con estructura mínima para el 020
-5. Prueba básica de sanidad (escribir y leer un archivo de prueba en `/specification/`)
+5. Prueba básica de sanidad (escribir y leer un archivo de prueba en `/020_specification/`)
 6. Registrar arranque en `persistence/claude-progress.txt`
 
 **Ritual E10-B — Continuación:**
@@ -355,7 +355,7 @@ Si no, detener y notificar al humano.
 **Gate de ítems PENDIENTE (exclusivo del 020 — antes de aprobar Sprint Contract):**
 
 Antes de proponer el Sprint Contract al humano, el governor debe:
-1. Leer `discovery/failure_behavior.md` y extraer todos los ítems marcados como PENDIENTE.
+1. Leer `010_discovery/failure_behavior.md` y extraer todos los ítems marcados como PENDIENTE.
 2. Si existen ítems PENDIENTE: presentarlos al cliente via `AskUserQuestion` y registrar las
    respuestas en `harness-state.json` bajo `pending_resolutions`.
 3. Solo cuando todos los PENDIENTE están resueltos (o el cliente confirma que no aplican),
@@ -390,7 +390,7 @@ El `CLAUDE.md` del proyecto cliente detecta automáticamente qué governor invoc
 4. B spawea **specification-analyst** con paths a los 4 artefactos del 010 + resoluciones de PENDIENTE
    - specification-analyst lee los artefactos del 010, extrae comportamientos, casos de borde,
      entidades y relaciones
-   - specification-analyst produce `/specification/spec_analysis_report.md` y reporta path a B
+   - specification-analyst produce `/020_specification/spec_analysis_report.md` y reporta path a B
    - Si detecta un ítem PENDIENTE sin resolución del governor, reporta `REQUIERE_ACLARACIÓN` a B,
      quien escala a A para obtener respuesta del cliente antes de continuar
 5. B registra **CP-01** en `persistence/execution-state.json`

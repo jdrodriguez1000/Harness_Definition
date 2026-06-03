@@ -1,4 +1,4 @@
-# FORGE — Harness Definition
+﻿# FORGE — Harness Definition
 
 **FORGE** (*Framework for Orchestrated Requirements and Guided Engineering*) es el nombre de este sistema de harnesses agénticos para desarrollo de software.
 
@@ -183,7 +183,7 @@ Al completar el harness 010, el proyecto cliente tendrá:
 
 ```
 MiProyecto/
-├── discovery/
+├── 010_discovery/
 │   ├── shared_understanding.md   — Entendimiento compartido del dominio
 │   ├── scope_boundaries.md       — Qué está dentro y fuera del alcance
 │   ├── domain_glossary.md        — Glosario de términos acordados

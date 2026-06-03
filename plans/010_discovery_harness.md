@@ -1,4 +1,4 @@
-# Plan de Construcción — 010 Discovery Harness
+﻿# Plan de Construcción — 010 Discovery Harness
 
 ## Meta
 
@@ -53,10 +53,10 @@ y aprobada explícitamente por el cliente.
 
 | Artefacto | Path | Descripción |
 |-----------|------|-------------|
-| Shared Understanding Document | `/discovery/shared_understanding.md` | Resumen estructurado en lenguaje natural; el cliente aprueba diciendo "Sí, esto es exactamente lo que quiero" |
-| Scope Boundaries | `/discovery/scope_boundaries.md` | Lista explícita de qué NO hará la aplicación en esta etapa |
-| Glosario de Dominio | `/discovery/domain_glossary.md` | Términos clave con definición acordada (Ubiquitous Language) |
-| Failure Behavior | `/discovery/failure_behavior.md` | Comportamiento esperado ante fallos por escenario |
+| Shared Understanding Document | `/010_discovery/shared_understanding.md` | Resumen estructurado en lenguaje natural; el cliente aprueba diciendo "Sí, esto es exactamente lo que quiero" |
+| Scope Boundaries | `/010_discovery/scope_boundaries.md` | Lista explícita de qué NO hará la aplicación en esta etapa |
+| Glosario de Dominio | `/010_discovery/domain_glossary.md` | Términos clave con definición acordada (Ubiquitous Language) |
+| Failure Behavior | `/010_discovery/failure_behavior.md` | Comportamiento esperado ante fallos por escenario |
 
 ### Criterio de Done
 
@@ -100,9 +100,9 @@ Jerarquía de llamadas (nunca se viola):
 
 | Worker | Micro-tarea | Inputs que recibe | Output (path) |
 |--------|-------------|-------------------|---------------|
-| discovery-dialoguer | Ejecuta rondas de cuestionamiento socrático con el cliente | I-1, I-2, I-3 | `/discovery/dialogue_transcript.md` |
-| discovery-analyst | Analiza el transcript: extrae actores, objetivos de valor, contradicciones, escenarios de fallo | Path a `dialogue_transcript.md` | `/discovery/analysis_report.md` |
-| discovery-synthesizer | Produce los 4 artefactos finales a partir del analysis report | Path a `analysis_report.md` | `/discovery/shared_understanding.md`, `/discovery/scope_boundaries.md`, `/discovery/domain_glossary.md`, `/discovery/failure_behavior.md` |
+| discovery-dialoguer | Ejecuta rondas de cuestionamiento socrático con el cliente | I-1, I-2, I-3 | `/010_discovery/dialogue_transcript.md` |
+| discovery-analyst | Analiza el transcript: extrae actores, objetivos de valor, contradicciones, escenarios de fallo | Path a `dialogue_transcript.md` | `/010_discovery/analysis_report.md` |
+| discovery-synthesizer | Produce los 4 artefactos finales a partir del analysis report | Path a `analysis_report.md` | `/010_discovery/shared_understanding.md`, `/010_discovery/scope_boundaries.md`, `/010_discovery/domain_glossary.md`, `/010_discovery/failure_behavior.md` |
 
 **Secuenciación:** discovery-dialoguer → discovery-analyst → discovery-synthesizer (dependencia estricta, no paralela).
 
@@ -172,12 +172,12 @@ Inputs disponibles:
   - Restricciones       : [lista]
 
 Workers activados:
-  - discovery-dialoguer   → /discovery/dialogue_transcript.md
-  - discovery-analyst   → /discovery/analysis_report.md
-  - discovery-synthesizer  → /discovery/shared_understanding.md
-                   /discovery/scope_boundaries.md
-                   /discovery/domain_glossary.md
-                   /discovery/failure_behavior.md
+  - discovery-dialoguer   → /010_discovery/dialogue_transcript.md
+  - discovery-analyst   → /010_discovery/analysis_report.md
+  - discovery-synthesizer  → /010_discovery/shared_understanding.md
+                   /010_discovery/scope_boundaries.md
+                   /010_discovery/domain_glossary.md
+                   /010_discovery/failure_behavior.md
 
 Checkpoints  : CP-01, CP-02, CP-03, CP-04
 Criterio Done: (1) aprobación explícita del cliente, (2) sin contradicciones nuevas en 2 rondas
@@ -271,7 +271,7 @@ explícitas.
 Discovery entrega al 020 los siguientes artefactos. El 020 no puede iniciarse sin ellos.
 
 ```
-/discovery/
+/010_discovery/
 ├── shared_understanding.md  → Base para construir requerimientos funcionales en el 020
 ├── scope_boundaries.md      → Restricciones de alcance que el 020 debe respetar
 ├── domain_glossary.md       → Lenguaje ubicuo que todos los harnesses subsiguientes deben usar
@@ -294,7 +294,7 @@ en la entrada correspondiente al 010. Sin este estado, el 020 no se activa.
 
 **Ritual E10-A — Inicio:**
 1. Verificar directorio y ambiente
-2. Crear jerarquía de carpetas: `/discovery/`, `/eval/`, `/changes/`, `/knowledge/`
+2. Crear jerarquía de carpetas: `/010_discovery/`, `/eval/`, `/changes/`, `/knowledge/`
 3. Inicializar `harness-state.json`, `execution-state.json`, `claude-progress.txt`
 4. Ejecutar `git init` y enlazar a remote GitHub (requisito E1 — sin esto, trazabilidad en riesgo)
 5. Prueba básica de sanidad (escribir y leer un archivo de prueba)
@@ -325,10 +325,10 @@ en la entrada correspondiente al 010. Sin este estado, el 020 no se activa.
 2. B consulta `decisions_library.md` y `lessons_learned.md` si existen
 3. B persiste `orchestration_plan` completo en `execution-state.json` **antes de spawear ningún Worker** (E12)
 4. B spawea discovery-dialoguer con contexto completo (inputs I-1, I-2, I-3)
-5. discovery-dialoguer ejecuta cuestionamiento socrático, escribe `/discovery/dialogue_transcript.md`, reporta path a B
+5. discovery-dialoguer ejecuta cuestionamiento socrático, escribe `/010_discovery/dialogue_transcript.md`, reporta path a B
 6. B registra CP-01 en `execution-state.json`
 7. B spawea discovery-analyst con path al transcript
-8. discovery-analyst produce `/discovery/analysis_report.md`, reporta path a B
+8. discovery-analyst produce `/010_discovery/analysis_report.md`, reporta path a B
    - Si discovery-analyst encuentra issues (contradicción, ambigüedad, vacío), re-spawna discovery-dialoguer en Modo Aclaración (solo preguntas PA-xx del analysis_report). Este ciclo puede repetirse hasta 3 veces antes de escalar al humano. B espera que discovery-analyst retorne "listo para síntesis" antes de registrar CP-02.
 9. B registra CP-02 en `execution-state.json`
 10. B spawea discovery-synthesizer con path al analysis report

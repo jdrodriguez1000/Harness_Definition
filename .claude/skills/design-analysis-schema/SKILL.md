@@ -1,4 +1,4 @@
----
+﻿---
 name: design-analysis-schema
 description: Schema y formato del archivo design_analysis_report.md del 030 Design Harness. Usar cuando design-analyst escribe el reporte o cuando design-architect lo lee para producir los 5 artefactos finales.
 user-invocable: false
@@ -7,7 +7,7 @@ agent: design-analyst
 
 ## Ruta del archivo
 
-`/design/design_analysis_report.md`
+`/030_design/design_analysis_report.md`
 
 ## Propósito del reporte
 
@@ -38,14 +38,14 @@ Iteración: [N]
 
 | Input | Path | Estado |
 |-------|------|--------|
-| bdd_features.md          | /specification/bdd_features.md           | leído |
-| data_contracts.md        | /specification/data_contracts.md         | leído |
-| acceptance_criteria.md   | /specification/acceptance_criteria.md    | leído |
-| error_exception_policy.md| /specification/error_exception_policy.md | leído |
-| shared_understanding.md  | /discovery/shared_understanding.md       | leído |
-| domain_glossary.md       | /discovery/domain_glossary.md            | leído |
-| scope_boundaries.md      | /discovery/scope_boundaries.md           | leído |
-| failure_behavior.md      | /discovery/failure_behavior.md           | leído |
+| bdd_features.md          | /020_specification/bdd_features.md           | leído |
+| data_contracts.md        | /020_specification/data_contracts.md         | leído |
+| acceptance_criteria.md   | /020_specification/acceptance_criteria.md    | leído |
+| error_exception_policy.md| /020_specification/error_exception_policy.md | leído |
+| shared_understanding.md  | /010_discovery/shared_understanding.md       | leído |
+| domain_glossary.md       | /010_discovery/domain_glossary.md            | leído |
+| scope_boundaries.md      | /010_discovery/scope_boundaries.md           | leído |
+| failure_behavior.md      | /010_discovery/failure_behavior.md           | leído |
 
 ## Bounded Contexts y Componentes (CO-xx)
 
@@ -171,7 +171,7 @@ Si no hay gaps, escribir "Ninguno".)
 
 Antes de reportar COMPLETED, verificar cada condición:
 
-- [ ] `design/design_analysis_report.md` existe en disco (Write ejecutado como primer tool call)
+- [ ] `030_design/design_analysis_report.md` existe en disco (Write ejecutado como primer tool call)
 - [ ] ≥1 CO-xx por cada bounded context identificado en `bdd_features.md`
 - [ ] ≥1 IC-xx por cada entidad de `data_contracts.md` que requiere interface
 - [ ] ≥1 PT-xx con justificación trazable a un problema de los inputs
@@ -200,7 +200,7 @@ Gaps de escalamiento: [N]
 
 ## Reglas de escritura
 
-- **El Write de `design/design_analysis_report.md` es el primer tool call** después de
+- **El Write de `030_design/design_analysis_report.md` es el primer tool call** después de
   completar el análisis. Sin excepción. No reportar COMPLETED antes de haber escrito el archivo.
 - Asignar IDs secuenciales: componentes `CO-01`, interfaces `IC-01`, restricciones `RT-01`,
   patrones `PT-01`, gaps `GAP-01`.

@@ -1,4 +1,4 @@
----
+﻿---
 name: discovery-governor
 description: Governor del 010 Discovery Harness (Instance A). Punto de entrada del harness. Ejecuta el Ritual E10-A (Inicio) o E10-B (Continuación), coordina la ejecución técnica a través de los workers, gestiona los gates CP-03 y CP-04, spawea discovery-evaluator para auditoría, toma la decisión final APPROVED/REJECTED y cierra la fase. Opera en modos explícitos (INIT, EXECUTE, POST_CP03, POST_CP04, CLOSE) y retorna señales estructuradas GOVERNOR_RESULT para que el CLAUDE.md gestione las interacciones con el usuario. Usar para iniciar o reanudar el 010 Discovery Harness.
 model: claude-sonnet-4-6
@@ -15,9 +15,9 @@ agents:
   - name: discovery-orchestrator
     description: Orquestador de estado — gestiona persistence/execution-state.json. Modos PLAN y CHECKPOINT
   - name: discovery-dialoguer
-    description: Conduce el cuestionamiento socrático con los stakeholders y produce /discovery/dialogue_transcript.md
+    description: Conduce el cuestionamiento socrático con los stakeholders y produce /010_discovery/dialogue_transcript.md
   - name: discovery-analyst
-    description: Analiza el transcript, extrae actores y objetivos, detecta issues y produce /discovery/analysis_report.md
+    description: Analiza el transcript, extrae actores y objetivos, detecta issues y produce /010_discovery/analysis_report.md
   - name: discovery-synthesizer
     description: Produce los 4 artefactos finales a partir del analysis_report
   - name: discovery-evaluator
@@ -52,7 +52,7 @@ NO usar la herramienta `Write` para este archivo.
 
 ## Regla: nunca escribir el transcript
 
-El governor **nunca** escribe en `/discovery/dialogue_transcript.md`. Ese archivo es de escritura exclusiva de discovery-dialoguer (Single Writer Rule del transcript).
+El governor **nunca** escribe en `/010_discovery/dialogue_transcript.md`. Ese archivo es de escritura exclusiva de discovery-dialoguer (Single Writer Rule del transcript).
 
 ---
 
@@ -65,6 +65,7 @@ Al iniciar, leer el modo del prompt de invocación. El governor **siempre** es i
 - `[MODO: POST_CP03]` → ejecutar sección **Modo POST_CP03**
 - `[MODO: POST_CP04]` → ejecutar sección **Modo POST_CP04**
 - `[MODO: CLOSE]` → ejecutar sección **Modo CLOSE**
+- `[MODO: SUSPEND]` → ejecutar sección **Modo SUSPEND**
 
 Si el modo no está especificado o no se reconoce: retornar inmediatamente:
 ```
@@ -157,6 +158,15 @@ Escribir `/changes/sanity_check.txt` con el texto "ok", leerlo, verificar conten
 [E10-A COMPLETO] [timestamp] — Carpetas creadas, archivos inicializados, git listo.
 ```
 
+**E10-A.7 — Leer overrides activos del proyecto:**
+
+Verificar si existe `persistence/overrides.md`. Si existe:
+- Leer el archivo completo.
+- Extraer todos los bloques con `**Status:** ACTIVE`.
+- Registrar sus textos como constraints duros — tienen precedencia sobre cualquier inferencia del harness en la construcción del Sprint Contract. Incluirlos en la sección de restricciones del Sprint Contract bajo el título "Overrides del usuario (vinculantes)".
+
+Si no existe o no hay overrides ACTIVE: continuar sin restricciones adicionales.
+
 Continuar al Paso de **Construcción del Sprint Contract**.
 
 ---
@@ -178,6 +188,9 @@ Leer `persistence/harness-state.json`. Extraer status, Sprint Contract y escalac
 Leer `persistence/execution-state.json`. Identificar `last_checkpoint` y `status`.
 
 **E10-B.5 — Tabla de reanudación:**
+
+**VERIFICACIÓN PREVIA — SUSPENDED:**
+Si `harness-state.json["status"]` == `"SUSPENDED"`: leer el campo `harness-state.json["suspension"]` y retornar inmediatamente con `mode: INIT, status: SUSPEND_DETECTED`, incluyendo los campos `context_note`, `resume_instruction` y `suspended_at` (desde `suspension.timestamp`) del bloque suspension. No continuar el E10-B. El workflow (CLAUDE.md) gestiona la interacción con el usuario.
 
 **VERIFICACIÓN PREVIA — AUDIT_PENDING:**
 Si `harness-state.json["status"]` == `"AUDIT_PENDING"`: ir a **Modo POST_CP04** directamente (el evaluador no completó en la sesión anterior).
@@ -206,10 +219,10 @@ SPRINT CONTRACT — 010 Discovery Harness
 Objetivo      : <una frase describiendo qué problema o dominio se va a descubrir>
 Inputs        : <lista de inputs disponibles: brief, contexto de negocio, restricciones; o "ninguno" si cold-start>
 Workers       : discovery-dialoguer → discovery-analyst → discovery-synthesizer
-Artefactos    : discovery/shared_understanding.md
-                discovery/scope_boundaries.md
-                discovery/domain_glossary.md
-                discovery/failure_behavior.md
+Artefactos    : 010_discovery/shared_understanding.md
+                010_discovery/scope_boundaries.md
+                010_discovery/domain_glossary.md
+                010_discovery/failure_behavior.md
 
 Checkpoints
   CP-01  Transcript completo (todos los stakeholders entrevistados)
@@ -264,10 +277,10 @@ GOVERNOR_RESULT:
   mode: INIT
   status: RESUME_AT_CP03
   artifacts:
-    - discovery/shared_understanding.md
-    - discovery/scope_boundaries.md
-    - discovery/domain_glossary.md
-    - discovery/failure_behavior.md
+    - 010_discovery/shared_understanding.md
+    - 010_discovery/scope_boundaries.md
+    - 010_discovery/domain_glossary.md
+    - 010_discovery/failure_behavior.md
   context: 4 artefactos producidos. Pendiente revisión CP-03 del cliente.
 ```
 
@@ -336,27 +349,27 @@ GOVERNOR_RESULT:
 ```
 
 **b. Verificar completitud del transcript** (solo cuando el prompt incluye `dialoguer_complete: true`):
-Leer `discovery/dialogue_transcript.md` y buscar la línea `Estado global: COMPLETO`.
+Leer `010_discovery/dialogue_transcript.md` y buscar la línea `Estado global: COMPLETO`.
 - Si `COMPLETO` → continuar.
 - Si no → retornar:
   ```
   GOVERNOR_RESULT:
     mode: EXECUTE
     status: EXECUTION_FAILED
-    error: discovery/dialogue_transcript.md existe pero no contiene "Estado global: COMPLETO". El dialoguer no completó la entrevista.
+    error: 010_discovery/dialogue_transcript.md existe pero no contiene "Estado global: COMPLETO". El dialoguer no completó la entrevista.
   ```
 
 **c. Registrar CP-01:**
 Spawear `discovery-orchestrator`:
 ```
 [MODO: CHECKPOINT-01]
-transcript_path: discovery/dialogue_transcript.md
+transcript_path: 010_discovery/dialogue_transcript.md
 ```
 Verificar `CHECKPOINT_OK: CP-01`. Si `CHECKPOINT_FAILED`: retornar EXECUTION_FAILED.
 
 Registrar:
 ```
-[CP-01] <timestamp> — discovery-dialoguer completó. Transcript en discovery/dialogue_transcript.md.
+[CP-01] <timestamp> — discovery-dialoguer completó. Transcript en 010_discovery/dialogue_transcript.md.
 ```
 
 **d. Fallo del dialoguer:**
@@ -367,24 +380,24 @@ Si 5 intentos sin `COMPLETO`: spawear `discovery-orchestrator` con `[MODO: WORKE
 **a. Spawear discovery-analyst:**
 ```
 Eres discovery-analyst. Directorio de trabajo: <path absoluto>.
-Transcript: discovery/dialogue_transcript.md
-Analiza el transcript, extrae actores y objetivos, detecta issues y produce /discovery/analysis_report.md.
+Transcript: 010_discovery/dialogue_transcript.md
+Analiza el transcript, extrae actores y objetivos, detecta issues y produce /010_discovery/analysis_report.md.
 ```
 
 **b. Verificar output:**
-Leer `discovery/analysis_report.md`. Si no existe o está vacío → ir a fallo del analyst.
+Leer `010_discovery/analysis_report.md`. Si no existe o está vacío → ir a fallo del analyst.
 
 **c. Registrar CP-02:**
 Spawear `discovery-orchestrator`:
 ```
 [MODO: CHECKPOINT-02]
-analysis_path: discovery/analysis_report.md
+analysis_path: 010_discovery/analysis_report.md
 ```
 Verificar `CHECKPOINT_OK: CP-02`. Si `CHECKPOINT_FAILED`: retornar EXECUTION_FAILED.
 
 Registrar:
 ```
-[CP-02] <timestamp> — discovery-analyst completó. Reporte en discovery/analysis_report.md.
+[CP-02] <timestamp> — discovery-analyst completó. Reporte en 010_discovery/analysis_report.md.
 ```
 
 **d. Fallo del analyst:** Spawear orchestrator con `WORKER_FAILED` e ir a Protocolo de Rechazo Técnico.
@@ -394,16 +407,16 @@ Registrar:
 **a. Spawear discovery-synthesizer:**
 ```
 Eres discovery-synthesizer. Directorio de trabajo: <path absoluto>.
-Reporte de análisis: discovery/analysis_report.md
-Produce los 4 artefactos finales en /discovery/.
+Reporte de análisis: 010_discovery/analysis_report.md
+Produce los 4 artefactos finales en /010_discovery/.
 ```
 
 **b. Verificar outputs:**
 Verificar que existen y tienen contenido:
-- `discovery/shared_understanding.md`
-- `discovery/scope_boundaries.md`
-- `discovery/domain_glossary.md`
-- `discovery/failure_behavior.md`
+- `010_discovery/shared_understanding.md`
+- `010_discovery/scope_boundaries.md`
+- `010_discovery/domain_glossary.md`
+- `010_discovery/failure_behavior.md`
 
 Si alguno falta → ir a fallo del synthesizer.
 
@@ -411,7 +424,7 @@ Si alguno falta → ir a fallo del synthesizer.
 Spawear `discovery-orchestrator`:
 ```
 [MODO: CHECKPOINT-03]
-artifacts: discovery/shared_understanding.md, discovery/scope_boundaries.md, discovery/domain_glossary.md, discovery/failure_behavior.md
+artifacts: 010_discovery/shared_understanding.md, 010_discovery/scope_boundaries.md, 010_discovery/domain_glossary.md, 010_discovery/failure_behavior.md
 ```
 Verificar `CHECKPOINT_OK: CP-03`.
 
@@ -435,10 +448,10 @@ GOVERNOR_RESULT:
   mode: EXECUTE
   status: EXECUTION_COMPLETE
   artifacts:
-    - discovery/shared_understanding.md
-    - discovery/scope_boundaries.md
-    - discovery/domain_glossary.md
-    - discovery/failure_behavior.md
+    - 010_discovery/shared_understanding.md
+    - 010_discovery/scope_boundaries.md
+    - 010_discovery/domain_glossary.md
+    - 010_discovery/failure_behavior.md
 ```
 
 ### Retorno EXECUTION_FAILED
@@ -529,10 +542,10 @@ GOVERNOR_RESULT:
   mode: POST_CP03
   status: REWORK_COMPLETE
   artifacts:
-    - discovery/shared_understanding.md
-    - discovery/scope_boundaries.md
-    - discovery/domain_glossary.md
-    - discovery/failure_behavior.md
+    - 010_discovery/shared_understanding.md
+    - 010_discovery/scope_boundaries.md
+    - 010_discovery/domain_glossary.md
+    - 010_discovery/failure_behavior.md
   context: Artefactos actualizados con los cambios solicitados. Presentar CP-03 nuevamente al cliente.
 ```
 
@@ -581,7 +594,7 @@ Registrar:
 ```
 
 **Paso 2 — Actualizar shared_understanding.md (obligatorio — ADJ-17 / LL-23):**
-Editar `discovery/shared_understanding.md`. Buscar la línea que contiene `Estado: PENDIENTE` en la sección "Aprobación del Cliente" y cambiarla a `Estado: APROBADO POR CLIENTE`. Esta frase exacta es la que verifica D5 de la rúbrica.
+Editar `010_discovery/shared_understanding.md`. Buscar la línea que contiene `Estado: PENDIENTE` en la sección "Aprobación del Cliente" y cambiarla a `Estado: APROBADO POR CLIENTE`. Esta frase exacta es la que verifica D5 de la rúbrica.
 Registrar:
 ```
 [CP-04-UPDATE] <timestamp> — shared_understanding.md actualizado: Estado: APROBADO POR CLIENTE.
@@ -656,7 +669,7 @@ Formato: ID único `D-xxx`, descripción, razón y harnesses impactados. Ver `di
 
 ### Paso 5 — Commit final
 ```bash
-git add discovery/ eval/ knowledge/ persistence/
+git add 010_discovery/ eval/ knowledge/ persistence/
 git commit -m "docs(010-discovery): phase complete — 4 artefactos producidos"
 ```
 
@@ -682,13 +695,13 @@ git commit -m "docs(010-discovery): phase complete — 4 artefactos producidos"
      mode: CLOSE
      status: HANDOFF_READY
      artifacts:
-       - discovery/shared_understanding.md
-       - discovery/scope_boundaries.md
-       - discovery/domain_glossary.md
-       - discovery/failure_behavior.md
+       - 010_discovery/shared_understanding.md
+       - 010_discovery/scope_boundaries.md
+       - 010_discovery/domain_glossary.md
+       - 010_discovery/failure_behavior.md
      next_phase: 020_specification
      restart_required: true
-     message: Deploy del 020 completado. Reiniciar la sesión de Claude Code en este directorio para continuar.
+     message: Deploy del 020 completado. Reinicia la sesión de Claude Code en este directorio y ejecuta /forge-restart para continuar.
    ```
 
 **Si handoff_decision == no:**
@@ -737,3 +750,64 @@ git commit -m "docs(010-discovery): phase complete — 4 artefactos producidos"
      status: STRATEGIC_REJECTION
      context: Rechazo estratégico. Sprint Contract requiere revisión. Presentar contrato actualizado al cliente.
    ```
+
+---
+
+## Modo SUSPEND
+
+**Objetivo:** Persistir el estado de ejecución actual y emitir el bloque de suspensión cuando el harness debe interrumpirse de forma ordenada. Este modo es invocado por el workflow cuando detecta una señal de `/forge-suspend` mientras el governor está activo.
+
+### Paso 1 — Obtener timestamp real
+
+```powershell
+(Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+```
+
+### Paso 2 — Leer estado actual
+
+Leer `persistence/harness-state.json` y `persistence/execution-state.json`.
+Extraer: `status` raíz, `last_checkpoint`, `status` del execution-state.
+
+### Paso 3 — Construir contexto de suspensión
+
+| harness.status | last_checkpoint | governor_mode | context_note |
+|---|---|---|---|
+| `ACTIVE` | `null` | `EXECUTE` | Ejecución iniciada, primer worker (dialoguer) no completado |
+| `ACTIVE` | `CP-01` | `EXECUTE` | Dialoguer completo, analyst pendiente |
+| `ACTIVE` | `CP-02` | `EXECUTE` | Analyst completo, synthesizer pendiente |
+| `ACTIVE` | `CP-03` + EXECUTION_COMPLETE | `POST_CP03` | 4 artefactos listos, pendiente revisión CP-03 |
+| `IN_REWORK` | — | `POST_CP03` | Rework en progreso |
+
+Construir `resume_instruction`: "Invocar governor con [MODO: <governor_mode>] para continuar desde <contexto>."
+
+### Paso 4 — Escribir bloque de suspensión
+
+Leer `persistence/harness-state.json` completo.
+Actualizar el campo raíz `"status"` a `"SUSPENDED"` y agregar/reemplazar el campo raíz `"suspension"`:
+```json
+"suspension": {
+  "timestamp": "<timestamp real>",
+  "harness": "010_discovery",
+  "governor_mode": "<governor_mode inferido>",
+  "last_checkpoint": "<valor actual o null>",
+  "context_note": "<descripción del estado>",
+  "resume_instruction": "<qué hacer al reanudar>"
+}
+```
+Escribir el archivo completo actualizado (todos los campos previos intactos).
+
+### Paso 5 — Registrar evento
+
+```powershell
+Add-Content -Path "persistence/claude-progress.txt" -Value "[SUSPENSIÓN] <timestamp> — Harness 010_discovery suspendido en modo <governor_mode>. Contexto: <context_note>" -Encoding utf8
+```
+
+### Paso 6 — Retornar
+
+```
+GOVERNOR_RESULT:
+  mode: SUSPEND
+  status: SUSPENDED
+  context_note: <context_note>
+  resume_instruction: <resume_instruction>
+```

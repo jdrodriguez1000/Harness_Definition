@@ -1,4 +1,4 @@
----
+﻿---
 name: design-state-schema
 description: Schema y formato de los dos archivos de estado del 030 Design Harness — persistence/harness-state.json (entrada "030_design", escrita por design-governor) y persistence/execution-state.json (orchestration_plan y checkpoints, escrito por design-orchestrator). Define la Single Writer Rule y las reglas de lectura/escritura para cada campo. Usar cuando design-orchestrator escribe persistence/execution-state.json o cuando design-governor lee o escribe la entrada 030 de persistence/harness-state.json.
 user-invocable: false
@@ -46,14 +46,14 @@ del 030.
     "sprint_contract": {
       "objective": "Transformar los contratos formales del 020 en un plano arquitectónico técnico",
       "inputs": {
-        "I1": "<path a specification/bdd_features.md>",
-        "I2": "<path a specification/data_contracts.md>",
-        "I3": "<path a specification/acceptance_criteria.md>",
-        "I4": "<path a specification/error_exception_policy.md>",
-        "I5": "<path a discovery/shared_understanding.md>",
-        "I6": "<path a discovery/domain_glossary.md>",
-        "I7": "<path a discovery/scope_boundaries.md>",
-        "I8": "<path a discovery/failure_behavior.md>"
+        "I1": "<path a 020_specification/bdd_features.md>",
+        "I2": "<path a 020_specification/data_contracts.md>",
+        "I3": "<path a 020_specification/acceptance_criteria.md>",
+        "I4": "<path a 020_specification/error_exception_policy.md>",
+        "I5": "<path a 010_discovery/shared_understanding.md>",
+        "I6": "<path a 010_discovery/domain_glossary.md>",
+        "I7": "<path a 010_discovery/scope_boundaries.md>",
+        "I8": "<path a 010_discovery/failure_behavior.md>"
       },
       "tech_constraints": "<restricciones tecnológicas extraídas de scope_boundaries.md>",
       "workers": ["design-analyst", "design-architect"],
@@ -66,15 +66,43 @@ del 030.
         "Aprobación explícita del cliente en CP-04"
       ]
     },
-    "status": "PENDING_CONTRACT | ACTIVE | AUDIT_PENDING | IN_REWORK | HOLD | PHASE_COMPLETE",
+    "status": "PENDING_CONTRACT | ACTIVE | AUDIT_PENDING | IN_REWORK | HOLD | SUSPENDED | PHASE_COMPLETE",
     "client_approval": {
       "CP-03_draft_review": null,
       "CP-04_formal_approval": null
     },
     "escalations": [],
+    "overrides": [],
     "handoff_040": null,
-    "last_updated": "<timestamp ISO 8601>"
+    "last_updated": "<timestamp ISO 8601>",
+    "suspension": null
   }
+}
+```
+
+El campo `"overrides"` es un array de objetos. Cada objeto representa un override registrado por el usuario vía `/forge-override`. Estructura de cada elemento:
+```json
+{
+  "id": "OV-001",
+  "timestamp": "<ISO 8601>",
+  "harness": "030_design",
+  "texto": "<texto del override tal como lo escribió el usuario>",
+  "status": "ACTIVE"
+}
+```
+- El campo `"overrides"` es escrito por el comando `/forge-override` (no por el governor).
+- El governor solo lo lee (en E10-A.8) para incorporar los constraints duros al Sprint Contract.
+- `"status": "ACTIVE"` indica que la restricción está vigente. No se cambia a otro valor en la implementación actual.
+
+El campo `suspension` es `null` cuando el harness no está suspendido. Cuando `/forge-suspend` es invocado, el governor escribe el bloque completo:
+```json
+"suspension": {
+  "timestamp": "<ISO 8601>",
+  "harness": "030_design",
+  "governor_mode": "INIT | EXECUTE | POST_CP03 | POST_CP04",
+  "last_checkpoint": "null | CP-01 | CP-02",
+  "context_note": "<descripción libre del estado al momento de suspender>",
+  "resume_instruction": "<qué hacer al reanudar>"
 }
 ```
 
@@ -84,6 +112,7 @@ del 030.
 - `AUDIT_PENDING` — CP-04 recibido; design-evaluator aún no ha corrido
 - `IN_REWORK` — rechazo técnico de C; design-governor re-spawnea el Worker fallido
 - `HOLD` — rechazo estratégico; requiere nueva aprobación humana antes de continuar
+- `SUSPENDED` — harness suspendido por `/forge-suspend`; esperando `/forge-resume` para continuar
 - `PHASE_COMPLETE` — C emitió APPROVED y design-governor cerró la fase; activa handoff al 040
 
 **Reglas de lectura para design-orchestrator:**
@@ -109,17 +138,17 @@ del 030.
       "design-architect"
     ],
     "inputs": {
-      "I1": "<path a specification/bdd_features.md o null>",
-      "I2": "<path a specification/data_contracts.md o null>",
-      "I3": "<path a specification/acceptance_criteria.md o null>",
-      "I4": "<path a specification/error_exception_policy.md o null>",
-      "I5": "<path a discovery/shared_understanding.md o null>",
-      "I6": "<path a discovery/domain_glossary.md o null>",
-      "I7": "<path a discovery/scope_boundaries.md o null>",
-      "I8": "<path a discovery/failure_behavior.md o null>"
+      "I1": "<path a 020_specification/bdd_features.md o null>",
+      "I2": "<path a 020_specification/data_contracts.md o null>",
+      "I3": "<path a 020_specification/acceptance_criteria.md o null>",
+      "I4": "<path a 020_specification/error_exception_policy.md o null>",
+      "I5": "<path a 010_discovery/shared_understanding.md o null>",
+      "I6": "<path a 010_discovery/domain_glossary.md o null>",
+      "I7": "<path a 010_discovery/scope_boundaries.md o null>",
+      "I8": "<path a 010_discovery/failure_behavior.md o null>"
     },
     "demo_statements": {
-      "design-analyst": "Cuando design-analyst termine, podré observar que design/design_analysis_report.md existe y contiene: ≥1 componente (CO-xx) por bounded context identificado en bdd_features.md; ≥1 interface requerida (IC-xx) por entidad en data_contracts.md; ≥1 patrón de diseño (PT-xx) con justificación; ≥1 restricción tecnológica (RT-xx) derivada de scope_boundaries.md.",
+      "design-analyst": "Cuando design-analyst termine, podré observar que 030_design/design_analysis_report.md existe y contiene: ≥1 componente (CO-xx) por bounded context identificado en bdd_features.md; ≥1 interface requerida (IC-xx) por entidad en data_contracts.md; ≥1 patrón de diseño (PT-xx) con justificación; ≥1 restricción tecnológica (RT-xx) derivada de scope_boundaries.md.",
       "design-architect": "Cuando design-architect termine, podré observar que: technical_blueprint.md define la estructura de capas y ≥1 módulo (MOD-xx) por bounded context; contract_definitions.md tiene ≥1 interface (IC-xx) por entidad de data_contracts.md; dependency_graph.md describe la estrategia de inyección de dependencias; architecture_decision_records.md incluye ADR-001 (stack) con opciones evaluadas y justificación; test_strategy_map.md cubre cada IC-xx con su estrategia de mock/stub."
     },
     "starting_point": "null | CP-01 | COMPLETE"

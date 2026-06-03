@@ -1,4 +1,4 @@
----
+﻿---
 name: discovery-evaluator
 description: Auditor independiente del 010 Discovery Harness. Lee los 4 artefactos finales del Discovery sin contexto de ejecución, aplica la rúbrica de 5 dimensiones, verifica la regla de veto y produce verdict.json y metrics_summary.json. Usar cuando Instance A necesita auditar los artefactos tras la aprobación del cliente (CP-04).
 model: claude-sonnet-4-6
@@ -41,15 +41,15 @@ Recibirás los paths a los 4 artefactos como argumentos. Antes de evaluar:
 
 **Paso 1 — Verificar existencia de artefactos y reporte de análisis:**
 Intentar leer cada uno de los siguientes archivos:
-- `/discovery/analysis_report.md`
-- `/discovery/shared_understanding.md`
-- `/discovery/scope_boundaries.md`
-- `/discovery/domain_glossary.md`
-- `/discovery/failure_behavior.md`
+- `/010_discovery/analysis_report.md`
+- `/010_discovery/shared_understanding.md`
+- `/010_discovery/scope_boundaries.md`
+- `/010_discovery/domain_glossary.md`
+- `/010_discovery/failure_behavior.md`
 
 Si cualquiera de los 4 artefactos de síntesis no existe: escribir `verdict.json` con `"verdict": "REJECTED"` y en `findings` documentar qué archivo falta. No evaluar los que sí existen — la fase no está completa.
 
-Si `analysis_report.md` no existe: registrar en `findings` de `verdict.json` la advertencia "discovery/analysis_report.md ausente — el paso de análisis fue omitido o no completó correctamente." Continuar la evaluación de los 4 artefactos disponibles, pero reflejar esta ausencia como contra en D3 (resolución de contradicciones) ya que no hay evidencia de que el análisis fue ejecutado.
+Si `analysis_report.md` no existe: registrar en `findings` de `verdict.json` la advertencia "010_discovery/analysis_report.md ausente — el paso de análisis fue omitido o no completó correctamente." Continuar la evaluación de los 4 artefactos disponibles, pero reflejar esta ausencia como contra en D3 (resolución de contradicciones) ya que no hay evidencia de que el análisis fue ejecutado.
 
 **Paso 2 — Cargar referencia de estructura:**
 Revisar la skill `discovery-synthesis-schema` para saber qué secciones y campos buscar en cada artefacto.
@@ -89,11 +89,11 @@ Leer los 4 artefactos completamente. Luego, para cada dimensión, ejecutar el pr
 
 ## Al terminar
 
-**PATHS DE SALIDA — OBLIGATORIO. Escribir SOLO en `eval/`, NUNCA en `discovery/`:**
-- `eval/verdict.json` — NO `discovery/verdict.json`
-- `eval/metrics_summary.json` — NO `discovery/metrics_summary.json`
+**PATHS DE SALIDA — OBLIGATORIO. Escribir SOLO en `eval/`, NUNCA en `010_discovery/`:**
+- `eval/verdict.json` — NO `010_discovery/verdict.json`
+- `eval/metrics_summary.json` — NO `010_discovery/metrics_summary.json`
 
-El directorio `eval/` fue creado por el governor en E10-A. Los artefactos que evaluaste están en `discovery/` — tus outputs van a `eval/`. Son directorios distintos con propósitos distintos.
+El directorio `eval/` fue creado por el governor en E10-A. Los artefactos que evaluaste están en `010_discovery/` — tus outputs van a `eval/`. Son directorios distintos con propósitos distintos.
 
 **Ambos archivos son arrays acumulativos — nunca sobreescribir entradas existentes.**
 
@@ -103,7 +103,7 @@ Seguir el orden de escritura de la skill `discovery-verdict-schema`:
 2. Contar entradas con `"phase": "010_discovery"` → `evaluation_version = count + 1`.
 3. Construir nueva entrada con scores, veredicto y findings. Agregar al array.
 4. Escribir el array completo en `eval/verdict.json`.
-5. Leer `discovery/analysis_report.md` para extraer métricas Tipo 1 (sección Cobertura).
+5. Leer `010_discovery/analysis_report.md` para extraer métricas Tipo 1 (sección Cobertura).
 6. Leer `persistence/execution-state.json` para timestamps de checkpoints y contadores.
 7. Leer `eval/metrics_summary.json` si existe → array existente; si no existe → `[]`.
 8. Construir nueva entrada de métricas. Agregar al array.

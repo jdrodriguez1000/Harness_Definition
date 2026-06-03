@@ -1,4 +1,4 @@
----
+﻿---
 name: design-evaluator-protocol
 description: Protocolo de verificación por dimensión del design-evaluator en el 030 Design Harness. Define los procedimientos de verificación para D1 (Blueprint Coverage), D2 (Contract Completeness), D3 (Testability), D4 (ADR Completeness) y D5 (Consistency), con los checks cruzados entre los 5 artefactos. Usar cuando design-evaluator ejecuta la evaluación de los 5 artefactos finales del 030.
 user-invocable: false
@@ -18,7 +18,7 @@ No asignar un score sin haber construido la lista de pros y contras con evidenci
 **Pregunta:** ¿Todos los bounded contexts de `bdd_features.md` tienen ≥1 módulo (MOD-xx)
 en `technical_blueprint.md` con estructura de capas coherente?
 
-**Fuente de verificación independiente:** leer `specification/bdd_features.md` directamente
+**Fuente de verificación independiente:** leer `020_specification/bdd_features.md` directamente
 para identificar los bounded contexts. No depender del `design_analysis_report.md` — este
 puede tener gaps. Los bounded contexts en BDD se identifican por Features o grupos de Scenarios
 relacionados por actor o dominio.
@@ -47,8 +47,8 @@ Contras (registrar con cita concreta — artefacto + sección + ID):
 **Pregunta:** ¿Todas las entidades de `data_contracts.md` del 020 tienen interface técnica
 (IC-xx) y DTOs en `contract_definitions.md`? ¿Sin entidades huérfanas ni interfaces sin entidad?
 
-**Fuente de verificación independiente:** leer `specification/data_contracts.md` directamente
-para extraer la lista de entidades EN-xx. Verificar cobertura contra `design/contract_definitions.md`.
+**Fuente de verificación independiente:** leer `020_specification/data_contracts.md` directamente
+para extraer la lista de entidades EN-xx. Verificar cobertura contra `030_design/contract_definitions.md`.
 
 **Fase 1 — qué buscar:**
 
@@ -70,7 +70,7 @@ Contras (registrar con cita concreta):
   (interface inventada sin base en el análisis).
 
 **Check cruzado obligatorio:**
-Para cada IC-xx en `contract_definitions.md`, verificar que existe una IC-xx correspondiente en `design/design_analysis_report.md`
+Para cada IC-xx en `contract_definitions.md`, verificar que existe una IC-xx correspondiente en `030_design/design_analysis_report.md`
 (`IC-xx origen (analysis_report): IC-xx`). Si una IC-xx en contract_definitions no tiene origen en el analysis_report,
 registrar como contra directo.
 
@@ -171,14 +171,14 @@ Cualquier tecnología no definida en ADR-001 que aparezca en otros artefactos �
 Para cada ID referenciado que no existe en el artefacto esperado → registrar como contra.
 
 **Verificación 3 — Coherencia con inputs del 020:**
-- Leer `specification/bdd_features.md`: ¿los actores y bounded contexts están representados en el blueprint?
-- Leer `specification/data_contracts.md`: ¿los campos de los DTOs en `contract_definitions.md`
+- Leer `020_specification/bdd_features.md`: ¿los actores y bounded contexts están representados en el blueprint?
+- Leer `020_specification/data_contracts.md`: ¿los campos de los DTOs en `contract_definitions.md`
   corresponden a los atributos de las entidades del 020? Un campo presente en un DTO pero ausente
   en la entidad EN-xx del 020 sin justificación → contra.
 - Los SC-xx y SE-xx referenciados en `test_strategy_map.md` deben existir en `bdd_features.md`.
 
 **Verificación 4 — Lenguaje ubicuo:**
-- Leer `discovery/domain_glossary.md`.
+- Leer `010_discovery/domain_glossary.md`.
 - Verificar que los nombres de módulos (MOD-xx), interfaces (IC-xx), clases y DTOs en los 5
   artefactos corresponden a los términos del glosario cuando existe un término equivalente.
 - Un término de negocio usado con definición diferente a la del glosario → contra.

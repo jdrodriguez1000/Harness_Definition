@@ -1,4 +1,4 @@
----
+﻿---
 name: design-architect-protocol
 description: Protocolo de producción del design-architect en el 030 Design Harness. Define las reglas de transformación de design_analysis_report a los 5 artefactos finales, el orden obligatorio de producción y el self-checklist cruzado. Usar cuando design-architect produce los artefactos o verifica su consistencia antes de reportar.
 user-invocable: false
@@ -230,16 +230,16 @@ Demo Statement de referencia (del orchestration_plan):
 
 Verificación del self-checklist:
 
-- [ ] `design/architecture_decision_records.md` existe en disco con contenido
+- [ ] `030_design/architecture_decision_records.md` existe en disco con contenido
 - [ ] ADR-001 tiene ≥2 opciones evaluadas con pros/contras y criterios de decisión con peso
-- [ ] `design/technical_blueprint.md` existe en disco con contenido
+- [ ] `030_design/technical_blueprint.md` existe en disco con contenido
 - [ ] ≥1 MOD-xx por cada CO-xx del analysis_report
-- [ ] `design/contract_definitions.md` existe en disco con contenido
+- [ ] `030_design/contract_definitions.md` existe en disco con contenido
 - [ ] ≥1 IC-xx por cada IC-xx del analysis_report
 - [ ] ≥1 DTO-xx de request/response + ≥1 DTO-xx de error por IC-xx
-- [ ] `design/dependency_graph.md` existe en disco con contenido
+- [ ] `030_design/dependency_graph.md` existe en disco con contenido
 - [ ] ≥1 DEP-xx por IC-xx que describe el punto de inyección
-- [ ] `design/test_strategy_map.md` existe en disco con contenido
+- [ ] `030_design/test_strategy_map.md` existe en disco con contenido
 - [ ] ≥1 TS-xx por IC-xx con nivel de test y herramienta de mock
 - [ ] Sección "Guía de Vertical Slices" con las 3 subsecciones: Tracer Bullet, MVP, Robustez
 
@@ -283,8 +283,8 @@ de pasar al self-checklist del Demo Statement.
 ### Consistencia con artefactos del 020
 
 - [ ] Los campos de los DTOs en `contract_definitions.md` son consistentes con los atributos de
-  las entidades en `specification/data_contracts.md`. No agregar campos que no existan en el 020.
-- [ ] Los TS-xx referencian SC-xx y SE-xx de `specification/bdd_features.md` que efectivamente
+  las entidades en `020_specification/data_contracts.md`. No agregar campos que no existan en el 020.
+- [ ] Los TS-xx referencian SC-xx y SE-xx de `020_specification/bdd_features.md` que efectivamente
   existen. No referenciar IDs inventados.
 - [ ] La Guía de Vertical Slices en `test_strategy_map.md` referencia SC-xx de
-  `specification/bdd_features.md` para definir el scope de cada slice.
+  `020_specification/bdd_features.md` para definir el scope de cada slice.

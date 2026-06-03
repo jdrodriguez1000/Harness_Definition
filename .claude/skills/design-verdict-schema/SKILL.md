@@ -1,4 +1,4 @@
----
+﻿---
 name: design-verdict-schema
 description: Schema y formato de los dos archivos de salida de design-evaluator en el 030 Design Harness — verdict.json (veredicto y scores por dimensión) y metrics_summary.json (métricas objetivas, historial de versiones y timeline). Usar cuando design-evaluator escribe los resultados de la auditoría.
 user-invocable: false
@@ -46,16 +46,16 @@ Escribir en la carpeta `/eval/`. El directorio fue creado por el governor en E10
       }
     ],
     "artifacts_evaluated": [
-      "design/technical_blueprint.md",
-      "design/contract_definitions.md",
-      "design/dependency_graph.md",
-      "design/architecture_decision_records.md",
-      "design/test_strategy_map.md"
+      "030_design/technical_blueprint.md",
+      "030_design/contract_definitions.md",
+      "030_design/dependency_graph.md",
+      "030_design/architecture_decision_records.md",
+      "030_design/test_strategy_map.md"
     ],
     "reference_artifacts_read": [
-      "specification/bdd_features.md",
-      "specification/data_contracts.md",
-      "discovery/domain_glossary.md"
+      "020_specification/bdd_features.md",
+      "020_specification/data_contracts.md",
+      "010_discovery/domain_glossary.md"
     ]
   }
 ]
@@ -68,8 +68,8 @@ Escribir en la carpeta `/eval/`. El directorio fue creado por el governor en E10
 - Si `veto_triggered: true`, agregar entry en `findings` para D5 con la contradicción específica
   encontrada y los dos artefactos que se contradicen.
 - `reference_artifacts_read` lista los artefactos del 010/020 que C leyó para verificar D1, D2 y D5
-  de forma independiente. Siempre incluye `specification/bdd_features.md` (D1),
-  `specification/data_contracts.md` (D2) y `discovery/domain_glossary.md` (D5).
+  de forma independiente. Siempre incluye `020_specification/bdd_features.md` (D1),
+  `020_specification/data_contracts.md` (D2) y `010_discovery/domain_glossary.md` (D5).
 - `evaluated_at` en formato ISO 8601.
 
 ---
@@ -122,27 +122,27 @@ Escribir en la carpeta `/eval/`. El directorio fue creado por el governor en E10
 
     "artifacts": {
       "technical_blueprint": {
-        "path": "design/technical_blueprint.md",
+        "path": "030_design/technical_blueprint.md",
         "final_version": 1,
         "revisions": 0
       },
       "contract_definitions": {
-        "path": "design/contract_definitions.md",
+        "path": "030_design/contract_definitions.md",
         "final_version": 1,
         "revisions": 0
       },
       "dependency_graph": {
-        "path": "design/dependency_graph.md",
+        "path": "030_design/dependency_graph.md",
         "final_version": 1,
         "revisions": 0
       },
       "architecture_decision_records": {
-        "path": "design/architecture_decision_records.md",
+        "path": "030_design/architecture_decision_records.md",
         "final_version": 1,
         "revisions": 0
       },
       "test_strategy_map": {
-        "path": "design/test_strategy_map.md",
+        "path": "030_design/test_strategy_map.md",
         "final_version": 1,
         "revisions": 0
       }
@@ -169,14 +169,14 @@ Escribir en la carpeta `/eval/`. El directorio fue creado por el governor en E10
 **Reglas:**
 - `phase` siempre `"030_design"` para entradas del 030.
 - `tipo1_metricas_objetivas` se obtiene leyendo los 5 artefactos directamente. No inferir — contar los IDs existentes.
-  - `bounded_contexts_en_bdd`: contar Features o grupos de Scenarios en `specification/bdd_features.md` (fuente independiente — no leer el analysis_report).
-  - `modulos_en_blueprint`: contar IDs MOD-xx en `design/technical_blueprint.md`.
+  - `bounded_contexts_en_bdd`: contar Features o grupos de Scenarios en `020_specification/bdd_features.md` (fuente independiente — no leer el analysis_report).
+  - `modulos_en_blueprint`: contar IDs MOD-xx en `030_design/technical_blueprint.md`.
   - `bounded_contexts_sin_modulo`: contar bounded contexts del 020 que no tienen MOD-xx correspondiente.
-  - `entidades_en_data_contracts_020`: contar entidades EN-xx en `specification/data_contracts.md` (fuente independiente).
-  - `interfaces_ic_en_contract_definitions`: contar IDs IC-xx en `design/contract_definitions.md`.
-  - `dtos_en_contract_definitions`: contar IDs DTO-xx en `design/contract_definitions.md`.
-  - `interfaces_ic_con_ts_en_test_strategy`: contar IC-xx que tienen al menos un TS-xx en `design/test_strategy_map.md`.
-  - `slices_en_guia_vertical`: contar secciones de Vertical Slices en `design/test_strategy_map.md` (esperado: 3).
+  - `entidades_en_data_contracts_020`: contar entidades EN-xx en `020_specification/data_contracts.md` (fuente independiente).
+  - `interfaces_ic_en_contract_definitions`: contar IDs IC-xx en `030_design/contract_definitions.md`.
+  - `dtos_en_contract_definitions`: contar IDs DTO-xx en `030_design/contract_definitions.md`.
+  - `interfaces_ic_con_ts_en_test_strategy`: contar IC-xx que tienen al menos un TS-xx en `030_design/test_strategy_map.md`.
+  - `slices_en_guia_vertical`: contar secciones de Vertical Slices en `030_design/test_strategy_map.md` (esperado: 3).
   - `marcadores_pendiente`: contar ocurrencias de `[PENDIENTE` en los 5 artefactos.
 - `tipo2_scores_evaluacion` tiene una entrada por cada ciclo de evaluación. Si hubo rework, agregar `"v2": { ... }` sin eliminar `"v1"`.
 - `artifacts.*.revisions` = número de veces que ese artefacto fue reescrito por rework.
@@ -192,8 +192,8 @@ Escribir en la carpeta `/eval/`. El directorio fue creado por el governor en E10
 2. Contar entradas con `"phase": "030_design"` → `evaluation_version = count + 1`.
 3. Construir nueva entrada con scores y veredicto. Agregar al array.
 4. Escribir el array completo en `eval/verdict.json`.
-5. Leer los 5 artefactos de `/design/` para métricas Tipo 1 (contar IDs directamente).
-6. Leer `specification/bdd_features.md` y `specification/data_contracts.md` para métricas de cobertura independiente.
+5. Leer los 5 artefactos de `/030_design/` para métricas Tipo 1 (contar IDs directamente).
+6. Leer `020_specification/bdd_features.md` y `020_specification/data_contracts.md` para métricas de cobertura independiente.
 7. Leer `persistence/execution-state.json` para timestamps de checkpoints y contadores.
 8. Leer `eval/metrics_summary.json` si existe → obtener array; si no → array vacío `[]`.
 9. Construir nueva entrada de métricas. Agregar al array.

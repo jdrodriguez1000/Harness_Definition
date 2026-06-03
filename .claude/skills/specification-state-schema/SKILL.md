@@ -1,4 +1,4 @@
----
+﻿---
 name: specification-state-schema
 description: Schema y formato de los dos archivos de estado del 020 Specification Harness — persistence/harness-state.json (entrada "020_specification", escrita por specification-governor) y persistence/execution-state.json (orchestration_plan y checkpoints, escrito por specification-orchestrator). Define la Single Writer Rule y las reglas de lectura/escritura para cada campo. Usar cuando specification-orchestrator escribe persistence/execution-state.json o cuando specification-governor lee o escribe la entrada 020 de persistence/harness-state.json.
 user-invocable: false
@@ -39,10 +39,10 @@ una clave de primer nivel `"020_specification"` con toda la información del 020
     "sprint_contract": {
       "objective": "Transformar los artefactos del Discovery en contratos formales de comportamiento y datos",
       "inputs": {
-        "I1": "<path a discovery/shared_understanding.md>",
-        "I2": "<path a discovery/domain_glossary.md>",
-        "I3": "<path a discovery/scope_boundaries.md>",
-        "I4": "<path a discovery/failure_behavior.md>"
+        "I1": "<path a 010_discovery/shared_understanding.md>",
+        "I2": "<path a 010_discovery/domain_glossary.md>",
+        "I3": "<path a 010_discovery/scope_boundaries.md>",
+        "I4": "<path a 010_discovery/failure_behavior.md>"
       },
       "pending_resolutions": [
         {
@@ -60,14 +60,41 @@ una clave de primer nivel `"020_specification"` con toda la información del 020
         "Aprobación explícita del cliente en CP-04"
       ]
     },
-    "status": "ACTIVE | IN_REWORK | HOLD | PHASE_COMPLETE",
+    "status": "ACTIVE | IN_REWORK | HOLD | SUSPENDED | PHASE_COMPLETE",
     "client_approval": {
       "CP-03_draft_review": null,
       "CP-04_formal_approval": null
     },
     "escalations": [],
-    "last_updated": "<timestamp ISO 8601>"
+    "overrides": [],
+    "last_updated": "<timestamp ISO 8601>",
+    "suspension": null
   }
+}
+```
+
+El campo `"overrides"` es un array de objetos. Cada objeto representa un override registrado por el usuario vía `/forge-override`. Estructura de cada elemento:
+```json
+{
+  "id": "OV-001",
+  "timestamp": "<ISO 8601>",
+  "harness": "020_specification",
+  "texto": "<texto del override tal como lo escribió el usuario>",
+  "status": "ACTIVE"
+}
+```
+- El campo `"overrides"` es escrito por el comando `/forge-override` (no por el governor).
+- El governor solo lo lee (en E10-A.7) para incorporar los constraints duros al Sprint Contract.
+
+El campo `suspension` es `null` cuando el harness no está suspendido. Cuando `/forge-suspend` es invocado, el governor escribe el bloque completo:
+```json
+"suspension": {
+  "timestamp": "<ISO 8601>",
+  "harness": "020_specification",
+  "governor_mode": "INIT | EXECUTE | POST_CP03 | POST_CP04",
+  "last_checkpoint": "null | CP-01 | CP-02",
+  "context_note": "<descripción libre del estado al momento de suspender>",
+  "resume_instruction": "<qué hacer al reanudar>"
 }
 ```
 
@@ -75,6 +102,7 @@ una clave de primer nivel `"020_specification"` con toda la información del 020
 - `ACTIVE` — ejecución en curso (estado inicial tras aprobación del Sprint Contract)
 - `IN_REWORK` — rechazo técnico de C; specification-governor re-spawnea specification-orchestrator
 - `HOLD` — rechazo estratégico; requiere nueva aprobación humana antes de continuar
+- `SUSPENDED` — harness suspendido por `/forge-suspend`; esperando `/forge-resume` para continuar
 - `PHASE_COMPLETE` — C emitió APPROVED y specification-governor cerró la fase; activa handoff al 030
 
 **Reglas de lectura para specification-orchestrator:**
@@ -101,10 +129,10 @@ una clave de primer nivel `"020_specification"` con toda la información del 020
       "specification-writer"
     ],
     "inputs": {
-      "I1": "<path a discovery/shared_understanding.md o null>",
-      "I2": "<path a discovery/domain_glossary.md o null>",
-      "I3": "<path a discovery/scope_boundaries.md o null>",
-      "I4": "<path a discovery/failure_behavior.md o null>"
+      "I1": "<path a 010_discovery/shared_understanding.md o null>",
+      "I2": "<path a 010_discovery/domain_glossary.md o null>",
+      "I3": "<path a 010_discovery/scope_boundaries.md o null>",
+      "I4": "<path a 010_discovery/failure_behavior.md o null>"
     },
     "pending_resolutions_available": true
   },

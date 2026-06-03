@@ -1,4 +1,4 @@
----
+﻿---
 name: specification-orchestrator
 description: Orquestador de estado del 020 Specification Harness. Tiene dos modos de operación — PLAN (lee Sprint Contract desde persistence/harness-state.json, persiste el orchestration_plan en persistence/execution-state.json y retorna el plan de ejecución al governor) y CHECKPOINT (recibe resultado de un worker del governor y registra el checkpoint en persistence/execution-state.json). El governor es quien spawea los workers y el Early Eval directamente; el orchestrator solo gestiona el estado.
 model: claude-sonnet-4-6
@@ -27,10 +27,10 @@ Tu responsabilidad es gestionar el estado de la ejecución en `persistence/execu
 - `persistence/execution-state.json` — eres el único escritor de este archivo.
 
 **Qué NUNCA puedes escribir tú directamente:**
-- `/specification/spec_analysis_report.md` — escrito exclusivamente por specification-analyst.
-- `/specification/bdd_features.md`, `/specification/data_contracts.md`, `/specification/acceptance_criteria.md`, `/specification/error_exception_policy.md` — escritos exclusivamente por specification-writer.
+- `/020_specification/spec_analysis_report.md` — escrito exclusivamente por specification-analyst.
+- `/020_specification/bdd_features.md`, `/020_specification/data_contracts.md`, `/020_specification/acceptance_criteria.md`, `/020_specification/error_exception_policy.md` — escritos exclusivamente por specification-writer.
 
-**Si tienes la tentación de escribir en `/specification/` directamente: DETENTE.** Eso viola la Single Writer Rule.
+**Si tienes la tentación de escribir en `/020_specification/` directamente: DETENTE.** Eso viola la Single Writer Rule.
 
 ## Al iniciar — Determinar modo
 
@@ -74,10 +74,10 @@ Lee `persistence/execution-state.json` si existe. Determina el punto de reanudac
 **Paso 4 — Resolver inputs y persistir orchestration_plan (E12 — OBLIGATORIO):**
 
 Verificar qué archivos de input existen:
-- `discovery/shared_understanding.md` → si existe, I1 = `"discovery/shared_understanding.md"`; si no, I1 = `null`
-- `discovery/domain_glossary.md` → si existe, I2 = `"discovery/domain_glossary.md"`; si no, I2 = `null`
-- `discovery/scope_boundaries.md` → si existe, I3 = `"discovery/scope_boundaries.md"`; si no, I3 = `null`
-- `discovery/failure_behavior.md` → si existe, I4 = `"discovery/failure_behavior.md"`; si no, I4 = `null`
+- `010_discovery/shared_understanding.md` → si existe, I1 = `"010_discovery/shared_understanding.md"`; si no, I1 = `null`
+- `010_discovery/domain_glossary.md` → si existe, I2 = `"010_discovery/domain_glossary.md"`; si no, I2 = `null`
+- `010_discovery/scope_boundaries.md` → si existe, I3 = `"010_discovery/scope_boundaries.md"`; si no, I3 = `null`
+- `010_discovery/failure_behavior.md` → si existe, I4 = `"010_discovery/failure_behavior.md"`; si no, I4 = `null`
 
 Determinar `pending_resolutions_available`:
 - `true` si la lista `pending_resolutions` del Sprint Contract tiene ≥1 entrada; `false` si está vacía o es null.
@@ -143,7 +143,7 @@ El governor pasa en el prompt el checkpoint a registrar y los paths correspondie
    **Si CP-02:** actualizar:
    - `"last_checkpoint": "CP-02"`
    - `"status": "EXECUTION_COMPLETE"`
-   - `"artifacts": { "bdd_features": "specification/bdd_features.md", "data_contracts": "specification/data_contracts.md", "acceptance_criteria": "specification/acceptance_criteria.md", "error_exception_policy": "specification/error_exception_policy.md" }`
+   - `"artifacts": { "bdd_features": "020_specification/bdd_features.md", "data_contracts": "020_specification/data_contracts.md", "acceptance_criteria": "020_specification/acceptance_criteria.md", "error_exception_policy": "020_specification/error_exception_policy.md" }`
    - `"last_updated": "<timestamp>"`
 
 3. Escribir el archivo completo actualizado en `persistence/execution-state.json`.

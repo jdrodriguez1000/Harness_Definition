@@ -1,4 +1,4 @@
----
+﻿---
 name: specification-evaluator
 description: Auditor independiente del 020 Specification Harness. Lee los 4 artefactos finales del Specification más shared_understanding.md del 010 para verificar cobertura de actores. Aplica rúbrica de 5 dimensiones, verifica regla de veto y produce verdict.json y metrics_summary.json. Usar cuando Instance A necesita auditar los artefactos tras la aprobación del cliente (CP-04).
 model: claude-sonnet-4-6
@@ -51,19 +51,19 @@ Recibirás los paths a los 4 artefactos como argumentos.
 **Paso 1 — Verificar existencia de todos los artefactos:**
 
 Intentar leer cada uno de los siguientes archivos:
-- `specification/bdd_features.md`
-- `specification/data_contracts.md`
-- `specification/acceptance_criteria.md`
-- `specification/error_exception_policy.md`
-- `discovery/shared_understanding.md` ← fuente de verdad independiente para D1
-- `specification/spec_analysis_report.md` ← para métricas Tipo 1 en metrics_summary
+- `020_specification/bdd_features.md`
+- `020_specification/data_contracts.md`
+- `020_specification/acceptance_criteria.md`
+- `020_specification/error_exception_policy.md`
+- `010_discovery/shared_understanding.md` ← fuente de verdad independiente para D1
+- `020_specification/spec_analysis_report.md` ← para métricas Tipo 1 en metrics_summary
 
 Si cualquiera de los 4 artefactos de specification no existe: escribir `verdict.json` con
 `"verdict": "REJECTED"` y documentar en `findings` qué archivo falta. No evaluar los
 artefactos disponibles — la fase no está completa.
 
-Si `discovery/shared_understanding.md` no existe: continuar la evaluación, pero registrar
-en `findings` la advertencia: "discovery/shared_understanding.md ausente — D1 fue evaluado
+Si `010_discovery/shared_understanding.md` no existe: continuar la evaluación, pero registrar
+en `findings` la advertencia: "010_discovery/shared_understanding.md ausente — D1 fue evaluado
 solo contra la tabla de resumen de bdd_features.md, sin verificación independiente de actores."
 
 **Paso 2 — Cargar referencia de estructura:**
@@ -82,7 +82,7 @@ en cada artefacto.
 | `D4_error_policy_completeness` | D4 Completitud de Error & Exception Policy |
 | `D5_consistency` | D5 Consistencia |
 
-Leer los 4 artefactos completamente y `discovery/shared_understanding.md`.
+Leer los 4 artefactos completamente y `010_discovery/shared_understanding.md`.
 Luego, para cada dimensión, ejecutar el protocolo de dos fases (análisis → score) antes de
 pasar a la siguiente.
 
@@ -91,7 +91,7 @@ pasar a la siguiente.
 Pregunta: ¿Todos los actores del 010 tienen ≥1 escenario de camino feliz y ≥1 caso de borde?
 
 Procedimiento (ejecutar en este orden — no abreviar):
-1. Extraer la lista de actores desde `discovery/shared_understanding.md`. Buscar la sección
+1. Extraer la lista de actores desde `010_discovery/shared_understanding.md`. Buscar la sección
    cuyo título contiene la palabra "Actor" (p.ej. "Actores y sus Necesidades", "Actores",
    "Actores del Sistema"). Si no se encuentra ninguna sección con "Actor" en el título:
    registrar en `findings` la advertencia "shared_understanding.md no tiene sección de actores
@@ -118,7 +118,7 @@ definición operacional del veto en D5.
 
 ## Al terminar
 
-**PATHS DE SALIDA — OBLIGATORIO. Escribir SOLO en `eval/`, NUNCA en `specification/`:**
+**PATHS DE SALIDA — OBLIGATORIO. Escribir SOLO en `eval/`, NUNCA en `020_specification/`:**
 - `eval/verdict.json`
 
 **El archivo es un array acumulativo — nunca sobreescribir entradas existentes.**

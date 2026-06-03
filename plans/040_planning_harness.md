@@ -1,4 +1,4 @@
-# Plan de Construcción — 040 Planning Harness
+﻿# Plan de Construcción — 040 Planning Harness
 
 ## Meta
 
@@ -6,7 +6,7 @@ Construir el harness completo para la fase Planning implementando el Patrón Uni
 de `Insumos/metodologia.md`. Este plan es el blueprint que guía la construcción del harness
 operativo completo.
 
-El 040 toma el draft de Vertical Slices producido por el 030 en `design/test_strategy_map.md`
+El 040 toma el draft de Vertical Slices producido por el 030 en `030_design/test_strategy_map.md`
 y lo convierte en el **plan maestro completo** del proyecto: slices formalmente definidas con
 scope, Done y esfuerzo; roadmap con dependencias y hitos; y registro de riesgos por slice.
 Es el último harness de la Capa 1 — Gobernanza. Su output es la fuente de verdad que el
@@ -49,18 +49,18 @@ detener el flujo y notificar al humano.
 
 | # | Input | Fuente | Descripción |
 |---|-------|--------|-------------|
-| I-1 | `test_strategy_map.md` | `/design/` | **Principal** — VS draft del 030: nomenclatura, scope por slice, criterios de Done iniciales |
-| I-2 | `architecture_decision_records.md` | `/design/` | Stack tecnológico (ADR-001) y patrones — contexto que afecta el esfuerzo de cada slice |
-| I-3 | `technical_blueprint.md` | `/design/` | MOD-xx: módulos por bounded context — base para contar complejidad por slice |
-| I-4 | `contract_definitions.md` | `/design/` | IC-xx + DTO-xx: interfaces que deben asignarse a slices sin quedar huérfanas |
-| I-5 | `dependency_graph.md` | `/design/` | DEP-xx: dependencias entre módulos que imponen el orden de implementación |
-| I-6 | `bdd_features.md` | `/specification/` | BDD scenarios (SC-xx/SE-xx): deben asignarse a slices sin quedar huérfanos |
-| I-7 | `data_contracts.md` | `/specification/` | Entidades — contexto de datos para evaluar complejidad por slice |
-| I-8 | `acceptance_criteria.md` | `/specification/` | AC: trazabilidad de criterios de aceptación a slices |
-| I-9 | `error_exception_policy.md` | `/specification/` | Políticas de error — informa slice de Robustez y manejo de fallos |
-| I-10 | `shared_understanding.md` | `/discovery/` | Contexto del proyecto: restricciones, expectativas del cliente, alcance acordado |
-| I-11 | `scope_boundaries.md` | `/discovery/` | Qué NO está en scope — evita incluir trabajo fuera del alcance |
-| I-12 | `domain_glossary.md` | `/discovery/` | Lenguaje ubicuo — todos los artefactos del 040 deben usar estos términos |
+| I-1 | `test_strategy_map.md` | `/030_design/` | **Principal** — VS draft del 030: nomenclatura, scope por slice, criterios de Done iniciales |
+| I-2 | `architecture_decision_records.md` | `/030_design/` | Stack tecnológico (ADR-001) y patrones — contexto que afecta el esfuerzo de cada slice |
+| I-3 | `technical_blueprint.md` | `/030_design/` | MOD-xx: módulos por bounded context — base para contar complejidad por slice |
+| I-4 | `contract_definitions.md` | `/030_design/` | IC-xx + DTO-xx: interfaces que deben asignarse a slices sin quedar huérfanas |
+| I-5 | `dependency_graph.md` | `/030_design/` | DEP-xx: dependencias entre módulos que imponen el orden de implementación |
+| I-6 | `bdd_features.md` | `/020_specification/` | BDD scenarios (SC-xx/SE-xx): deben asignarse a slices sin quedar huérfanos |
+| I-7 | `data_contracts.md` | `/020_specification/` | Entidades — contexto de datos para evaluar complejidad por slice |
+| I-8 | `acceptance_criteria.md` | `/020_specification/` | AC: trazabilidad de criterios de aceptación a slices |
+| I-9 | `error_exception_policy.md` | `/020_specification/` | Políticas de error — informa slice de Robustez y manejo de fallos |
+| I-10 | `shared_understanding.md` | `/010_discovery/` | Contexto del proyecto: restricciones, expectativas del cliente, alcance acordado |
+| I-11 | `scope_boundaries.md` | `/010_discovery/` | Qué NO está en scope — evita incluir trabajo fuera del alcance |
+| I-12 | `domain_glossary.md` | `/010_discovery/` | Lenguaje ubicuo — todos los artefactos del 040 deben usar estos términos |
 
 ### Proceso (5 pasos)
 
@@ -101,12 +101,12 @@ detener el flujo y notificar al humano.
 
 | Artefacto | Path | Descripción |
 |-----------|------|-------------|
-| Vertical Slice Plan | `/plan/vertical_slice_plan.md` | Todas las VS-xx formalmente definidas con 6 campos obligatorios por slice |
-| Project Roadmap | `/plan/project_roadmap.md` | Secuencia, dependencias entre slices (VS-xx → VS-xx), hitos y estimación de duración relativa |
-| Risk Register | `/plan/risk_register.md` | RK-xx por slice con probabilidad, impacto y mitigación |
+| Vertical Slice Plan | `/040_planning/vertical_slice_plan.md` | Todas las VS-xx formalmente definidas con 6 campos obligatorios por slice |
+| Project Roadmap | `/040_planning/project_roadmap.md` | Secuencia, dependencias entre slices (VS-xx → VS-xx), hitos y estimación de duración relativa |
+| Risk Register | `/040_planning/risk_register.md` | RK-xx por slice con probabilidad, impacto y mitigación |
 
 Artefacto intermedio (no entregado al 050):
-- `/plan/planning_analysis_report.md` — producido por planning-analyst, consumido por planning-writer
+- `/040_planning/planning_analysis_report.md` — producido por planning-analyst, consumido por planning-writer
 
 ### Criterio de Done
 
@@ -152,7 +152,7 @@ Jerarquía de llamadas (nunca se viola):
 **Nota arquitectónica (LL-21):** Los agentes spawneados no pueden a su vez spawear sub-agentes.
 Por este motivo, siguiendo el patrón del 030:
 - El governor spawnea los Workers directamente (planning-analyst, planning-writer).
-- El orchestrator opera en modos PLAN/CHECKPOINT: persiste el estado pero no spawnea Workers.
+- El orchestrator opera en modos 040_planning/CHECKPOINT: persiste el estado pero no spawnea Workers.
 - El governor es quien llama al orchestrator para planificar (PLAN) y para registrar cada checkpoint (CHECKPOINT).
 
 **Todos los agentes son exclusivos del 040.** No comparten ni heredan instrucciones del 030, 020 o del 010.
@@ -161,8 +161,8 @@ Por este motivo, siguiendo el patrón del 030:
 
 | Worker | Micro-tarea | Inputs que recibe | Output (path) |
 |--------|-------------|-------------------|---------------|
-| `planning-analyst` | Lee los 12 inputs (I-1..I-12). Valida granularidad del draft VS, detecta IC-xx y BDD scenarios huérfanos, extrae dependencias entre slices e identifica riesgos por slice. Produce planning_analysis_report.md | Paths a I-1..I-12 | `/plan/planning_analysis_report.md` |
-| `planning-writer` | Lee planning_analysis_report.md + inputs de referencia. Produce los 3 artefactos finales en orden. | Path a planning_analysis_report.md + paths a I-1, I-4, I-6, I-12 | `/plan/vertical_slice_plan.md`, `/plan/project_roadmap.md`, `/plan/risk_register.md` |
+| `planning-analyst` | Lee los 12 inputs (I-1..I-12). Valida granularidad del draft VS, detecta IC-xx y BDD scenarios huérfanos, extrae dependencias entre slices e identifica riesgos por slice. Produce planning_analysis_report.md | Paths a I-1..I-12 | `/040_planning/planning_analysis_report.md` |
+| `planning-writer` | Lee planning_analysis_report.md + inputs de referencia. Produce los 3 artefactos finales en orden. | Path a planning_analysis_report.md + paths a I-1, I-4, I-6, I-12 | `/040_planning/vertical_slice_plan.md`, `/040_planning/project_roadmap.md`, `/040_planning/risk_register.md` |
 
 **Secuenciación:** planning-analyst → planning-writer (dependencia estricta, no paralela).
 
@@ -175,7 +175,7 @@ El planning-orchestrator (modo PLAN) escribe un Demo Statement por Worker en el 
 antes de que el governor spawnee ningún Worker. Formato:
 
 **Demo Statement para planning-analyst:**
-> "Cuando planning-analyst termine, podré observar que `plan/planning_analysis_report.md`
+> "Cuando planning-analyst termine, podré observar que `040_planning/planning_analysis_report.md`
 > existe y contiene: (a) tabla de validación de granularidad para cada VS-xx del draft
 > del 030, indicando si pasa o requiere división; (b) lista de IC-xx huérfanos (puede ser
 > vacía); (c) lista de BDD scenarios huérfanos (puede ser vacía); (d) matriz de dependencias
@@ -208,12 +208,12 @@ El governor, al recibir `CHECKPOINT_FAILED`, no spawnea el siguiente Worker. Reg
 
 | Agente | Herramientas permitidas | Restricciones |
 |--------|------------------------|---------------|
-| planning-governor | Read, Write, Bash, Agent, AskUserQuestion | NUNCA escribe en `/plan/` directamente |
-| planning-orchestrator | Read, Write | NUNCA escribe en `/plan/`; solo en `persistence/execution-state.json` |
-| planning-analyst | Read, Write | Solo produce `/plan/planning_analysis_report.md` |
-| planning-writer | Read, Write, Edit | Produce los 3 artefactos en `/plan/`; puede editar para corregir antes del self-checklist |
-| planning-reviewer | Read, Write | Lee de `/plan/` y `/design/`; escribe solo `plan/review_report.md` |
-| planning-evaluator | Read, Write | Lee de `/plan/`, `/design/` y `/specification/`; escribe solo en `eval/` |
+| planning-governor | Read, Write, Bash, Agent, AskUserQuestion | NUNCA escribe en `/040_planning/` directamente |
+| planning-orchestrator | Read, Write | NUNCA escribe en `/040_planning/`; solo en `persistence/execution-state.json` |
+| planning-analyst | Read, Write | Solo produce `/040_planning/planning_analysis_report.md` |
+| planning-writer | Read, Write, Edit | Produce los 3 artefactos en `/040_planning/`; puede editar para corregir antes del self-checklist |
+| planning-reviewer | Read, Write | Lee de `/040_planning/` y `/030_design/`; escribe solo `040_planning/review_report.md` |
+| planning-evaluator | Read, Write | Lee de `/040_planning/`, `/030_design/` y `/020_specification/`; escribe solo en `eval/` |
 
 Política de Fallback ante fallo de herramienta (3 niveles — E5):
 1. **Reintento** (hasta 2x): reintentar si falla por error transitorio.
@@ -241,7 +241,7 @@ notifica al humano con contexto completo.
 
 | ID | Momento | Qué persiste B |
 |----|---------|----------------|
-| CP-01 | Tras planning-analyst | Path a `plan/planning_analysis_report.md` en execution-state.json |
+| CP-01 | Tras planning-analyst | Path a `040_planning/planning_analysis_report.md` en execution-state.json |
 | CP-02 | Tras planning-writer (draft) | Paths a los 3 artefactos en execution-state.json; marca `EXECUTION_COMPLETE` |
 | CP-03 | Cliente revisa draft | A presenta los 3 artefactos al cliente; registra feedback en `harness-state.json` |
 | CP-04 | Cliente aprueba formalmente | A registra aprobación en `harness-state.json`; spawnea C para auditoría |
@@ -279,27 +279,27 @@ VS Draft del 030 (extracto de test_strategy_map.md):
   [lista de VS-xx identificadas en el draft del 030 con su tipo]
 
 Inputs disponibles:
-  Desde /design/:
+  Desde /030_design/:
   - test_strategy_map.md          : [confirmado / path — VS draft principal]
   - architecture_decision_records.md: [confirmado / path]
   - technical_blueprint.md        : [confirmado / path]
   - contract_definitions.md       : [confirmado / path]
   - dependency_graph.md           : [confirmado / path]
-  Desde /specification/:
+  Desde /020_specification/:
   - bdd_features.md               : [confirmado / path]
   - data_contracts.md             : [confirmado / path]
   - acceptance_criteria.md        : [confirmado / path]
   - error_exception_policy.md     : [confirmado / path]
-  Desde /discovery/:
+  Desde /010_discovery/:
   - shared_understanding.md       : [confirmado / path]
   - scope_boundaries.md           : [confirmado / path]
   - domain_glossary.md            : [confirmado / path]
 
 Workers activados:
-  - planning-analyst  → /plan/planning_analysis_report.md
-  - planning-writer   → /plan/vertical_slice_plan.md
-                        /plan/project_roadmap.md
-                        /plan/risk_register.md
+  - planning-analyst  → /040_planning/planning_analysis_report.md
+  - planning-writer   → /040_planning/vertical_slice_plan.md
+                        /040_planning/project_roadmap.md
+                        /040_planning/risk_register.md
 
 Checkpoints : CP-01, CP-02, CP-03, CP-04
 Criterio Done:
@@ -416,14 +416,14 @@ ni con los inputs. Lenguaje ubicuo consistente.
   "gate_passed": false,
   "findings": [],
   "artifacts_evaluated": [
-    "plan/vertical_slice_plan.md",
-    "plan/project_roadmap.md",
-    "plan/risk_register.md"
+    "040_planning/vertical_slice_plan.md",
+    "040_planning/project_roadmap.md",
+    "040_planning/risk_register.md"
   ],
   "reference_artifacts_read": [
-    "design/contract_definitions.md",
-    "specification/bdd_features.md",
-    "discovery/domain_glossary.md"
+    "030_design/contract_definitions.md",
+    "020_specification/bdd_features.md",
+    "010_discovery/domain_glossary.md"
   ]
 }
 ```
@@ -435,25 +435,25 @@ ni con los inputs. Lenguaje ubicuo consistente.
 El 040 entrega al 050 los siguientes artefactos. El 050 no puede iniciarse sin ellos.
 
 ```
-/plan/
+/040_planning/
 ├── vertical_slice_plan.md   → Fuente de verdad: qué contiene cada slice (IC-xx + BDD + Done + esfuerzo)
 ├── project_roadmap.md       → Qué slice viene después de cuál y cuáles son los hitos
 └── risk_register.md         → Riesgos a considerar al planificar cada slice
 
-/design/                     → El 050 hereda los 5 artefactos del 030
+/030_design/                     → El 050 hereda los 5 artefactos del 030
 ├── technical_blueprint.md
 ├── contract_definitions.md
 ├── dependency_graph.md
 ├── architecture_decision_records.md
 └── test_strategy_map.md
 
-/specification/              → El 050 hereda los 4 artefactos del 020
+/020_specification/              → El 050 hereda los 4 artefactos del 020
 ├── bdd_features.md
 ├── data_contracts.md
 ├── acceptance_criteria.md
 └── error_exception_policy.md
 
-/discovery/                  → El 050 hereda los 4 artefactos del 010
+/010_discovery/                  → El 050 hereda los 4 artefactos del 010
 ├── shared_understanding.md
 ├── domain_glossary.md
 ├── scope_boundaries.md
@@ -485,7 +485,7 @@ Si no existe o el status del 030 es distinto de `"PHASE_COMPLETE"`: **detener fl
 
 **Ritual E10-A — Inicio:**
 1. Verificar directorio y ambiente
-2. Crear carpeta `/plan/` con verificación post-creación (ADJ-20):
+2. Crear carpeta `/040_planning/` con verificación post-creación (ADJ-20):
    ```powershell
    if (-not (Test-Path "plan")) { New-Item -ItemType Directory "plan" | Out-Null }
    if (-not (Test-Path "plan")) { # registrar error crítico y detener }
@@ -494,7 +494,7 @@ Si no existe o el status del 030 es distinto de `"PHASE_COMPLETE"`: **detener fl
    `"PENDING_CONTRACT"` sin modificar ninguna clave existente (raíz ni `"030_design"`).
    Fallback si JSON corrupto: `git restore persistence/harness-state.json`; si persiste, detener.
 4. Inicializar `persistence/execution-state.json` para el 040 con estructura mínima.
-5. Prueba básica de sanidad: escribir y leer archivo de prueba en `/plan/`.
+5. Prueba básica de sanidad: escribir y leer archivo de prueba en `/040_planning/`.
 6. Registrar arranque en `persistence/claude-progress.txt` con `Add-Content -Encoding utf8`.
 
 **Ritual E10-B — Continuación:**
@@ -542,7 +542,7 @@ Si no existe o el status del 030 es distinto de `"PHASE_COMPLETE"`: **detener fl
 
 3. **planning-analyst** (si starting_point == null):
    - Recibe paths a I-1..I-12 y el Demo Statement del orchestration_plan
-   - Lee los 12 inputs, produce `/plan/planning_analysis_report.md`
+   - Lee los 12 inputs, produce `/040_planning/planning_analysis_report.md`
    - Ejecuta self-checklist contra Demo Statement
    - Si COMPLETED: reporta path a A
    - Si INCOMPLETO: reporta razón a A; A registra WORKER_FAILED y escala al humano
@@ -584,7 +584,7 @@ artefactos finales + paths a I-4 (`contract_definitions.md`) y I-6 (`bdd_feature
   Extraer VS-xx de vertical_slice_plan; verificar que aparecen en risk_register.
   VS-xx sin ≥1 RK-xx → CRITICAL.
 
-Reviewer produce `plan/review_report.md` como PRIMER tool call (LL-01).
+Reviewer produce `040_planning/review_report.md` como PRIMER tool call (LL-01).
 Retorna: `REVIEW_COMPLETE, REVIEW_RESULT: CLEAN | HAS_ISSUES, CRITICAL_COUNT: <n>, MINOR_COUNT: <n>`.
 
 Si `CRITICAL_COUNT > 0`: A no presenta a CP-03. Re-spawea planning-writer con referencia al
@@ -594,7 +594,7 @@ review_report.md. Ciclo continúa desde paso 5 de 12.2.
 
 **Paso 1 — Gate intermedio (A):**
 - A verifica que `execution-state.json` tiene `EXECUTION_COMPLETE` y reviewer retornó `CLEAN`
-- A presenta los 3 artefactos de `/plan/` al cliente para revisión (CP-03)
+- A presenta los 3 artefactos de `/040_planning/` al cliente para revisión (CP-03)
 - **IMPORTANTE (ADJ-23):** Registrar `[CP-03 040]` en `claude-progress.txt` con `Add-Content -Encoding utf8`
   ANTES de presentar los artefactos. Aunque el cliente incluya aprobación en la misma respuesta del
   CP-03, presentar CP-04 como `AskUserQuestion` separado e independiente.
@@ -608,10 +608,10 @@ review_report.md. Ciclo continúa desde paso 5 de 12.2.
 
 **Paso 3 — Auditoría (C — planning-evaluator):**
 - C lee los 3 artefactos desde el filesystem (sin contexto de ejecución)
-- C lee `design/contract_definitions.md`, `specification/bdd_features.md`,
-  `discovery/domain_glossary.md` como referencia para D1, D3 y D5 (verificación independiente)
+- C lee `030_design/contract_definitions.md`, `020_specification/bdd_features.md`,
+  `010_discovery/domain_glossary.md` como referencia para D1, D3 y D5 (verificación independiente)
 - C evalúa contra rúbrica (Sección 4), aplica anclas de calibración — dos fases: análisis con citas → score (LL-07)
-- C escribe (PATHS DE SALIDA — OBLIGATORIO: solo en `eval/`, nunca en `/plan/`):
+- C escribe (PATHS DE SALIDA — OBLIGATORIO: solo en `eval/`, nunca en `/040_planning/`):
   - `eval/verdict.json` — append al array existente, entry con `"phase": "040_planning"`
   - `eval/metrics_summary.json` — append al array existente
 - C registra auditoría en `persistence/claude-progress.txt`
@@ -679,7 +679,7 @@ Registrar evento en `claude-progress.txt` en cualquier caso.
 ```
 .claude/agents/
 ├── planning-governor.md      — Instancia A (modos INIT/EXECUTE/POST_CP03/POST_CP04/CLOSE)
-├── planning-orchestrator.md  — Instancia B (modos PLAN/CHECKPOINT/WORKER_FAILED — sin Agent tool)
+├── planning-orchestrator.md  — Instancia B (modos 040_planning/CHECKPOINT/WORKER_FAILED — sin Agent tool)
 ├── planning-analyst.md       — Worker 1 (tools: Read, Write)
 ├── planning-writer.md        — Worker 2 (tools: Read, Write, Edit)
 ├── planning-reviewer.md      — Control pre-CP-03 (tools: Read, Write)
@@ -718,7 +718,7 @@ Registrar evento en `claude-progress.txt` en cualquier caso.
 | project_roadmap | Referencia a slice | VS-xx | VS-03 |
 | risk_register | Riesgo | RK-xx | RK-05 |
 
-Los VS-xx son los mismos que los definidos en `design/test_strategy_map.md` del 030.
+Los VS-xx son los mismos que los definidos en `030_design/test_strategy_map.md` del 030.
 Si se dividen slices sobredimensionadas, los IDs nuevos siguen la secuencia del último
 VS-xx existente (ej: si el draft tiene VS-01..VS-05 y VS-03 se divide, las nuevas son
 VS-03a/VS-03b o VS-06/VS-07 — el analyst decide y documenta la convención elegida).
@@ -736,7 +736,7 @@ Las 28 lecciones aplican íntegramente. Las más críticas para el 040:
 | LL-05 | Timestamps reales en governor y orchestrator |
 | LL-06 | Protocolo de 5 pasos para checkpoints (obligatorio en orchestrator) |
 | LL-07 | Evaluador: análisis con citas → score (dos fases, nunca invertir) |
-| LL-10 | planning-governor NUNCA escribe en `/plan/` |
+| LL-10 | planning-governor NUNCA escribe en `/040_planning/` |
 | LL-13 | Orchestrator verifica artefacto en disco antes de registrar checkpoint (Pending Verification ADJ-13) |
 | LL-17 | Si la rúbrica verifica alguna frase textual en un artefacto, el schema del writer debe especificarla exacta |
 | LL-20 | Cierre: verificación de eval/verdict.json como PRIMER tool call del Cierre |

@@ -1,4 +1,4 @@
----
+﻿---
 name: discovery-interview-protocol
 description: Protocolo socrático del 010 Discovery Harness. Define el arranque en frío, la identificación de stakeholders, los 3 bancos de preguntas por rol (negocio/técnico/usuario), las reglas de conducción del diálogo y el criterio de parada. Usar cuando discovery-dialoguer conduce la entrevista de descubrimiento.
 user-invocable: false
@@ -17,7 +17,7 @@ agent: discovery-dialoguer
 
 ## Fase -1 — Verificación de estado (siempre, al arrancar)
 
-Antes de cualquier otra acción, verificar si `/discovery/dialogue_transcript.md` ya existe:
+Antes de cualquier otra acción, verificar si `/010_discovery/dialogue_transcript.md` ya existe:
 
 **Si existe:**
 - Leer el bloque `## Estado de stakeholders` para identificar el estado de cada uno.
@@ -165,7 +165,7 @@ Este modo se activa cuando discovery-analyst encontró issues y B re-spawna disc
 Agregar las rondas de aclaración bajo una sección nueva:
 ```
 ### Aclaración — Iteración [N] — [fecha]
-Fuente: /discovery/analysis_report.md — Preguntas PA-xx a PA-xx
+Fuente: /010_discovery/analysis_report.md — Preguntas PA-xx a PA-xx
 
 #### Ronda 1
 **discovery-dialoguer:** [pregunta PA-01]

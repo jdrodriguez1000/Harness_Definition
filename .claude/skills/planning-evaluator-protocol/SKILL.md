@@ -1,4 +1,4 @@
----
+﻿---
 name: planning-evaluator-protocol
 description: Protocolo de verificación por dimensión del planning-evaluator en el 040 Planning Harness. Define los procedimientos de verificación para D1 (VS Coverage), D2 (Slice Definition Quality), D3 (Roadmap Coherence), D4 (Risk Completeness) y D5 (Consistency), con los checks cruzados de IDs entre los 3 artefactos. Usar cuando planning-evaluator ejecuta la evaluación de los 3 artefactos finales del 040.
 user-invocable: false
@@ -12,14 +12,14 @@ citada del artefacto y sección) → Fase 2 (score con anclas de `planning-rubri
 No asignar un score sin haber construido la lista de pros y contras con evidencia concreta.
 
 **Artefactos evaluados (leer directamente del filesystem — sin contexto de ejecución):**
-- `plan/vertical_slice_plan.md`
-- `plan/project_roadmap.md`
-- `plan/risk_register.md`
+- `040_planning/vertical_slice_plan.md`
+- `040_planning/project_roadmap.md`
+- `040_planning/risk_register.md`
 
 **Artefactos de referencia (fuentes de verdad independientes):**
-- `design/contract_definitions.md` — lista canónica de IC-xx (para D1 y D5)
-- `specification/bdd_features.md` — lista canónica de SC-xx/SE-xx (para D1 y D5)
-- `discovery/domain_glossary.md` — lenguaje ubicuo (para D5)
+- `030_design/contract_definitions.md` — lista canónica de IC-xx (para D1 y D5)
+- `020_specification/bdd_features.md` — lista canónica de SC-xx/SE-xx (para D1 y D5)
+- `010_discovery/domain_glossary.md` — lenguaje ubicuo (para D5)
 
 ---
 
@@ -28,8 +28,8 @@ No asignar un score sin haber construido la lista de pros y contras con evidenci
 **Pregunta:** ¿Todos los IC-xx de `contract_definitions.md` y todos los BDD scenarios de
 `bdd_features.md` están asignados a ≥1 slice en `vertical_slice_plan.md`? ¿Sin huérfanos?
 
-**Fuente de verificación independiente:** leer `design/contract_definitions.md` directamente
-para extraer la lista canónica de IC-xx. Leer `specification/bdd_features.md` para extraer
+**Fuente de verificación independiente:** leer `030_design/contract_definitions.md` directamente
+para extraer la lista canónica de IC-xx. Leer `020_specification/bdd_features.md` para extraer
 la lista canónica de SC-xx y SE-xx. No depender del `planning_analysis_report.md` — es un
 artefacto intermedio, no la fuente de verdad.
 
@@ -48,10 +48,10 @@ Contras (registrar con cita concreta — artefacto + campo + ID específico):
 - SC-xx/SE-xx referenciado en `vertical_slice_plan.md` que no existe en `bdd_features.md` → ID inventado.
 
 **Check cruzado obligatorio:**
-1. Extraer todos los IC-xx de `design/contract_definitions.md` (lista A).
+1. Extraer todos los IC-xx de `030_design/contract_definitions.md` (lista A).
 2. Extraer todos los IC-xx que aparecen en alguna slice de `vertical_slice_plan.md` (lista B).
 3. IC-xx en A no presentes en B → huérfanos → contra por cada uno.
-4. Extraer todos los SC-xx/SE-xx de `specification/bdd_features.md` (lista C).
+4. Extraer todos los SC-xx/SE-xx de `020_specification/bdd_features.md` (lista C).
 5. Extraer todos los SC-xx/SE-xx en slices de `vertical_slice_plan.md` (lista D).
 6. SC-xx/SE-xx en C no presentes en D → huérfanos → contra por cada uno.
 
@@ -185,9 +185,9 @@ scenarios en plan existen en bdd_features)? ¿Lenguaje ubicuo del glosario usado
 - Cualquier ID referenciado en un artefacto que no existe en el artefacto que lo define → contra directo.
 
 **Verificación 2 — IDs contra fuentes de verdad externas:**
-- Leer `design/contract_definitions.md`: extraer todos los IC-xx.
+- Leer `030_design/contract_definitions.md`: extraer todos los IC-xx.
 - Verificar que cada IC-xx mencionado en `vertical_slice_plan.md` existe en `contract_definitions.md`.
-- Leer `specification/bdd_features.md`: extraer todos los SC-xx y SE-xx.
+- Leer `020_specification/bdd_features.md`: extraer todos los SC-xx y SE-xx.
 - Verificar que cada SC-xx/SE-xx mencionado en `vertical_slice_plan.md` existe en `bdd_features.md`.
 - IC-xx o SC-xx/SE-xx en `vertical_slice_plan.md` sin correspondencia en los artefactos de referencia → ID inventado → contra directo.
 
@@ -197,7 +197,7 @@ scenarios en plan existen en bdd_features)? ¿Lenguaje ubicuo del glosario usado
 - Un VS-xx con tipo "Crecimiento" en `vertical_slice_plan.md` pero posicionado después del MVP en `project_roadmap.md` → inconsistencia de tipo/posición → contra.
 
 **Verificación 4 — Lenguaje ubicuo:**
-- Leer `discovery/domain_glossary.md`.
+- Leer `010_discovery/domain_glossary.md`.
 - Verificar que los nombres de slices, IC-xx (nombres completos) y categorías de riesgo usan términos del glosario cuando existe un término equivalente.
 - Un término de negocio usado con definición diferente a la del glosario → contra.
 - Un término nuevo sin `[GLOSARIO: pendiente — nombre]` → contra menor.
@@ -210,7 +210,7 @@ scenarios en plan existen en bdd_features)? ¿Lenguaje ubicuo del glosario usado
 - **Activa el veto (D5 = 0.0):** contradicción directa y silenciosa entre artefactos. Ejemplos:
   - `project_roadmap.md` lista VS-03 como tipo "Robustez" pero `vertical_slice_plan.md` la define como "MVP".
   - `risk_register.md` tiene RK-05 para VS-07 pero VS-07 no existe en `vertical_slice_plan.md`.
-  - `vertical_slice_plan.md` asigna IC-09 a VS-04 pero IC-09 no existe en `design/contract_definitions.md`.
+  - `vertical_slice_plan.md` asigna IC-09 a VS-04 pero IC-09 no existe en `030_design/contract_definitions.md`.
   - `project_roadmap.md` posiciona VS-03 antes de VS-01 (Tracer Bullet) cuando VS-03 tiene tipo "Crecimiento" y depende explícitamente de VS-01.
 - **No activa el veto:** inconsistencia documentada con marcador `[PENDIENTE]` o nota explícita.
   Es una advertencia, no una contradicción silenciosa.

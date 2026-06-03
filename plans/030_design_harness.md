@@ -1,4 +1,4 @@
-# Plan de Construcción — 030 Design Harness
+﻿# Plan de Construcción — 030 Design Harness
 
 ## Meta
 
@@ -46,14 +46,14 @@ detener el flujo y notificar al humano.
 
 | # | Input | Fuente | Descripción |
 |---|-------|--------|-------------|
-| I-1 | `bdd_features.md` | `/specification/` | Escenarios BDD — define qué debe soportar la arquitectura |
-| I-2 | `data_contracts.md` | `/specification/` | Entidades y contratos de datos que el diseño técnico debe implementar |
-| I-3 | `acceptance_criteria.md` | `/specification/` | Criterios de aceptación que el diseño debe garantizar desde la arquitectura |
-| I-4 | `error_exception_policy.md` | `/specification/` | Políticas de error que el diseño técnico debe implementar a nivel arquitectónico |
-| I-5 | `shared_understanding.md` | `/discovery/` | Contexto de dominio, restricciones tecnológicas y de calidad capturadas en el 010 |
-| I-6 | `domain_glossary.md` | `/discovery/` | Lenguaje ubicuo — todos los artefactos del 030 deben usar estos términos |
-| I-7 | `scope_boundaries.md` | `/discovery/` | Restricciones de plataforma, infraestructura y presupuesto que acotan la selección de stack |
-| I-8 | `failure_behavior.md` | `/discovery/` | Comportamientos de fallo ya resueltos — informan el diseño de manejo de errores |
+| I-1 | `bdd_features.md` | `/020_specification/` | Escenarios BDD — define qué debe soportar la arquitectura |
+| I-2 | `data_contracts.md` | `/020_specification/` | Entidades y contratos de datos que el diseño técnico debe implementar |
+| I-3 | `acceptance_criteria.md` | `/020_specification/` | Criterios de aceptación que el diseño debe garantizar desde la arquitectura |
+| I-4 | `error_exception_policy.md` | `/020_specification/` | Políticas de error que el diseño técnico debe implementar a nivel arquitectónico |
+| I-5 | `shared_understanding.md` | `/010_discovery/` | Contexto de dominio, restricciones tecnológicas y de calidad capturadas en el 010 |
+| I-6 | `domain_glossary.md` | `/010_discovery/` | Lenguaje ubicuo — todos los artefactos del 030 deben usar estos términos |
+| I-7 | `scope_boundaries.md` | `/010_discovery/` | Restricciones de plataforma, infraestructura y presupuesto que acotan la selección de stack |
+| I-8 | `failure_behavior.md` | `/010_discovery/` | Comportamientos de fallo ya resueltos — informan el diseño de manejo de errores |
 
 ### Proceso (7 pasos)
 
@@ -94,14 +94,14 @@ detener el flujo y notificar al humano.
 
 | Artefacto | Path | Descripción |
 |-----------|------|-------------|
-| Technical Blueprint | `/design/technical_blueprint.md` | Estructura de carpetas, definición de capas/módulos y skeleton de clases/interfaces principales |
-| Contract Definitions | `/design/contract_definitions.md` | Interfaces técnicas (IRepository, IService, etc.), DTOs con firmas de métodos por bounded context |
-| Dependency Graph | `/design/dependency_graph.md` | Cómo se relacionan los componentes; estrategia de inyección de dependencias; diagrama o descripción textual de la topología |
-| Architecture Decision Records | `/design/architecture_decision_records.md` | ADR-001: stack; ADR-N: patrones seleccionados, decisiones de desacoplamiento, trade-offs aceptados |
-| Test Strategy Map | `/design/test_strategy_map.md` | Qué se probará con unitarios/integración/contrato por interface; puntos de mock/stub; guía de Vertical Slices para el 040 |
+| Technical Blueprint | `/030_design/technical_blueprint.md` | Estructura de carpetas, definición de capas/módulos y skeleton de clases/interfaces principales |
+| Contract Definitions | `/030_design/contract_definitions.md` | Interfaces técnicas (IRepository, IService, etc.), DTOs con firmas de métodos por bounded context |
+| Dependency Graph | `/030_design/dependency_graph.md` | Cómo se relacionan los componentes; estrategia de inyección de dependencias; diagrama o descripción textual de la topología |
+| Architecture Decision Records | `/030_design/architecture_decision_records.md` | ADR-001: stack; ADR-N: patrones seleccionados, decisiones de desacoplamiento, trade-offs aceptados |
+| Test Strategy Map | `/030_design/test_strategy_map.md` | Qué se probará con unitarios/integración/contrato por interface; puntos de mock/stub; guía de Vertical Slices para el 040 |
 
 Artefacto intermedio (no entregado al 040):
-- `/design/design_analysis_report.md` — producido por design-analyst, consumido por design-architect
+- `/030_design/design_analysis_report.md` — producido por design-analyst, consumido por design-architect
 
 ### Criterio de Done
 
@@ -145,7 +145,7 @@ Jerarquía de llamadas (nunca se viola):
 **Nota arquitectónica (LL-21):** Los agentes spawneados no pueden a su vez spawear sub-agentes.
 Por este motivo, siguiendo el patrón del 020:
 - El governor spawea los Workers directamente (design-analyst, design-architect).
-- El orchestrator opera en modos PLAN/CHECKPOINT: persiste el estado pero no spawea Workers.
+- El orchestrator opera en modos 040_planning/CHECKPOINT: persiste el estado pero no spawea Workers.
 - El governor es quien llama al orchestrator para planificar (PLAN) y para registrar cada checkpoint (CHECKPOINT).
 
 **Todos los agentes son exclusivos del 030.** No comparten ni heredan instrucciones del 020 o del 010.
@@ -154,8 +154,8 @@ Por este motivo, siguiendo el patrón del 020:
 
 | Worker | Micro-tarea | Inputs que recibe | Output (path) |
 |--------|-------------|-------------------|---------------|
-| `design-analyst` | Lee los 8 inputs (I-1..I-8). Identifica bounded contexts, interfaces requeridas, patrones aplicables, restricciones tecnológicas. Produce design_analysis_report.md | Paths a I-1..I-8 | `/design/design_analysis_report.md` |
-| `design-architect` | Lee design_analysis_report.md + domain_glossary.md + scope_boundaries.md. Selecciona stack, produce los 5 artefactos finales en orden. | Path a design_analysis_report.md + paths a I-2, I-6, I-7 | `/design/technical_blueprint.md`, `/design/contract_definitions.md`, `/design/dependency_graph.md`, `/design/architecture_decision_records.md`, `/design/test_strategy_map.md` |
+| `design-analyst` | Lee los 8 inputs (I-1..I-8). Identifica bounded contexts, interfaces requeridas, patrones aplicables, restricciones tecnológicas. Produce design_analysis_report.md | Paths a I-1..I-8 | `/030_design/design_analysis_report.md` |
+| `design-architect` | Lee design_analysis_report.md + domain_glossary.md + scope_boundaries.md. Selecciona stack, produce los 5 artefactos finales en orden. | Path a design_analysis_report.md + paths a I-2, I-6, I-7 | `/030_design/technical_blueprint.md`, `/030_design/contract_definitions.md`, `/030_design/dependency_graph.md`, `/030_design/architecture_decision_records.md`, `/030_design/test_strategy_map.md` |
 
 **Secuenciación:** design-analyst → design-architect (dependencia estricta, no paralela).
 
@@ -168,7 +168,7 @@ El design-orchestrator (modo PLAN) escribe un Demo Statement por Worker en el `o
 antes de que el governor spawee ningún Worker. Formato:
 
 **Demo Statement para design-analyst:**
-> "Cuando design-analyst termine, podré observar que `design/design_analysis_report.md`
+> "Cuando design-analyst termine, podré observar que `030_design/design_analysis_report.md`
 > existe y contiene: ≥1 componente (CO-xx) por bounded context identificado en
 > `bdd_features.md`; ≥1 interface requerida (IF-xx) por entidad en `data_contracts.md`;
 > ≥1 patrón de diseño (PT-xx) con justificación; ≥1 restricción tecnológica (RT-xx)
@@ -200,11 +200,11 @@ El governor, al recibir `CHECKPOINT_FAILED`, no spawea el siguiente Worker. Regi
 
 | Agente | Herramientas permitidas | Restricciones |
 |--------|------------------------|---------------|
-| design-governor | Read, Write, Bash, Agent, AskUserQuestion | NUNCA escribe en `/design/` directamente |
-| design-orchestrator | Read, Write | NUNCA escribe en `/design/`; solo en `persistence/execution-state.json` |
-| design-analyst | Read, Write | Solo produce `/design/design_analysis_report.md` |
-| design-architect | Read, Write, Edit | Produce los 5 artefactos en `/design/`; puede editar para corregir antes del self-checklist |
-| design-evaluator | Read, Write | Lee de `/design/` y `/discovery/`; escribe solo en `eval/` |
+| design-governor | Read, Write, Bash, Agent, AskUserQuestion | NUNCA escribe en `/030_design/` directamente |
+| design-orchestrator | Read, Write | NUNCA escribe en `/030_design/`; solo en `persistence/execution-state.json` |
+| design-analyst | Read, Write | Solo produce `/030_design/design_analysis_report.md` |
+| design-architect | Read, Write, Edit | Produce los 5 artefactos en `/030_design/`; puede editar para corregir antes del self-checklist |
+| design-evaluator | Read, Write | Lee de `/030_design/` y `/010_discovery/`; escribe solo en `eval/` |
 
 Política de Fallback ante fallo de herramienta (3 niveles — E5):
 1. **Reintento** (hasta 2x): reintentar si falla por error transitorio.
@@ -230,7 +230,7 @@ notifica al humano con contexto completo.
 
 | ID | Momento | Qué persiste B |
 |----|---------|----------------|
-| CP-01 | Tras design-analyst | Path a `design/design_analysis_report.md` en execution-state.json |
+| CP-01 | Tras design-analyst | Path a `030_design/design_analysis_report.md` en execution-state.json |
 | CP-02 | Tras design-architect (draft) | Paths a los 5 artefactos en execution-state.json; marca `EXECUTION_COMPLETE` |
 | CP-03 | Cliente revisa draft | A presenta los 5 artefactos al cliente; registra feedback en `harness-state.json` |
 | CP-04 | Cliente aprueba formalmente | A registra aprobación en `harness-state.json`; spawea C para auditoría |
@@ -265,12 +265,12 @@ Modo        : [INICIO | CONTINUACIÓN]
 Precondición: 020 Specification — PHASE_COMPLETE ✓
 
 Inputs disponibles:
-  Desde /specification/:
+  Desde /020_specification/:
   - bdd_features.md          : [confirmado / path]
   - data_contracts.md        : [confirmado / path]
   - acceptance_criteria.md   : [confirmado / path]
   - error_exception_policy.md: [confirmado / path]
-  Desde /discovery/:
+  Desde /010_discovery/:
   - shared_understanding.md  : [confirmado / path — restricciones tecnológicas]
   - domain_glossary.md       : [confirmado / path — lenguaje ubicuo obligatorio]
   - scope_boundaries.md      : [confirmado / path — restricciones de stack]
@@ -280,12 +280,12 @@ Inputs disponibles:
     [lista de restricciones relevantes extraídas — lenguaje, plataforma, infraestructura]
 
 Workers activados:
-  - design-analyst  → /design/design_analysis_report.md
-  - design-architect → /design/technical_blueprint.md
-                       /design/contract_definitions.md
-                       /design/dependency_graph.md
-                       /design/architecture_decision_records.md
-                       /design/test_strategy_map.md
+  - design-analyst  → /030_design/design_analysis_report.md
+  - design-architect → /030_design/technical_blueprint.md
+                       /030_design/contract_definitions.md
+                       /030_design/dependency_graph.md
+                       /030_design/architecture_decision_records.md
+                       /030_design/test_strategy_map.md
 
 Checkpoints : CP-01, CP-02, CP-03, CP-04
 Criterio Done:
@@ -400,16 +400,16 @@ Bullet, MVP, Robustez). Lenguaje ubicuo usado consistentemente. Sin contradiccio
   "gate_passed": false,
   "findings": [],
   "artifacts_evaluated": [
-    "design/technical_blueprint.md",
-    "design/contract_definitions.md",
-    "design/dependency_graph.md",
-    "design/architecture_decision_records.md",
-    "design/test_strategy_map.md"
+    "030_design/technical_blueprint.md",
+    "030_design/contract_definitions.md",
+    "030_design/dependency_graph.md",
+    "030_design/architecture_decision_records.md",
+    "030_design/test_strategy_map.md"
   ],
   "reference_artifacts_read": [
-    "specification/bdd_features.md",
-    "specification/data_contracts.md",
-    "discovery/domain_glossary.md"
+    "020_specification/bdd_features.md",
+    "020_specification/data_contracts.md",
+    "010_discovery/domain_glossary.md"
   ]
 }
 ```
@@ -421,20 +421,20 @@ Bullet, MVP, Robustez). Lenguaje ubicuo usado consistentemente. Sin contradiccio
 Design entrega al 040 los siguientes artefactos. El 040 no puede iniciarse sin ellos.
 
 ```
-/design/
+/030_design/
 ├── technical_blueprint.md       → Base para el planning: qué módulos slicear en iteraciones
 ├── contract_definitions.md      → Interfaces que el planning debe asumir como contratos fijos
 ├── dependency_graph.md          → Dependencias que afectan el orden de implementación
 ├── architecture_decision_records.md → Decisiones ya tomadas; el 040 no las re-evalúa
 └── test_strategy_map.md         → Estrategia de test y guía de Vertical Slices → input directo para el 040
 
-/specification/                  → El 040 hereda los 4 artefactos del 020
+/020_specification/                  → El 040 hereda los 4 artefactos del 020
 ├── bdd_features.md
 ├── data_contracts.md
 ├── acceptance_criteria.md
 └── error_exception_policy.md
 
-/discovery/                      → El 040 hereda los 4 artefactos del 010
+/010_discovery/                      → El 040 hereda los 4 artefactos del 010
 ├── shared_understanding.md
 ├── domain_glossary.md
 └── scope_boundaries.md
@@ -466,7 +466,7 @@ Si no existe o el status del 020 es distinto de `"PHASE_COMPLETE"`: **detener fl
 
 **Ritual E10-A — Inicio:**
 1. Verificar directorio y ambiente
-2. Crear carpeta `/design/` con verificación post-creación (ADJ-20):
+2. Crear carpeta `/030_design/` con verificación post-creación (ADJ-20):
    ```powershell
    if (-not (Test-Path "design")) { New-Item -ItemType Directory "design" | Out-Null }
    if (-not (Test-Path "design")) { # registrar error crítico y detener }
@@ -475,7 +475,7 @@ Si no existe o el status del 020 es distinto de `"PHASE_COMPLETE"`: **detener fl
    `"PENDING_CONTRACT"` sin modificar ninguna clave existente (raíz ni `"020_specification"`).
    Fallback si JSON corrupto: `git restore persistence/harness-state.json`; si persiste, detener.
 4. Inicializar `persistence/execution-state.json` para el 030 con estructura mínima.
-5. Prueba básica de sanidad: escribir y leer archivo de prueba en `/design/`.
+5. Prueba básica de sanidad: escribir y leer archivo de prueba en `/030_design/`.
 6. Registrar arranque en `persistence/claude-progress.txt` con `Add-Content -Encoding utf8`.
 
 **Ritual E10-B — Continuación:**
@@ -523,7 +523,7 @@ Si no existe o el status del 020 es distinto de `"PHASE_COMPLETE"`: **detener fl
 
 3. **design-analyst** (si starting_point == null):
    - Recibe paths a I-1..I-8 y el Demo Statement del orchestration_plan
-   - Lee los 8 inputs, produce `/design/design_analysis_report.md`
+   - Lee los 8 inputs, produce `/030_design/design_analysis_report.md`
    - Ejecuta self-checklist contra Demo Statement
    - Si COMPLETED: reporta path a A
    - Si INCOMPLETO: reporta razón a A; A registra WORKER_FAILED y escala al humano
@@ -546,23 +546,23 @@ Si no existe o el status del 020 es distinto de `"PHASE_COMPLETE"`: **detener fl
 
 **Paso 1 — Gate intermedio (A):**
 - A verifica que `execution-state.json` tiene `EXECUTION_COMPLETE`
-- A presenta los 5 artefactos de `/design/` al cliente para revisión (CP-03)
+- A presenta los 5 artefactos de `/030_design/` al cliente para revisión (CP-03)
 - **IMPORTANTE (ADJ-23):** Registrar `[CP-03 030]` en `claude-progress.txt` con `Add-Content -Encoding utf8` ANTES de presentar los artefactos. Aunque el cliente incluya aprobación en la misma respuesta del CP-03, presentar CP-04 como `AskUserQuestion` separado e independiente.
 - A incorpora feedback del cliente si hay cambios menores
 - A presenta CP-04: `AskUserQuestion` independiente para aprobación formal
 
 **Paso 2 — Tras aprobación CP-04:**
-- A edita `/design/technical_blueprint.md` (o el artefacto que corresponda) para marcar aprobación si el schema lo requiere — ver `design-synthesis-schema` para la frase exacta que verifica D5.
+- A edita `/030_design/technical_blueprint.md` (o el artefacto que corresponda) para marcar aprobación si el schema lo requiere — ver `design-synthesis-schema` para la frase exacta que verifica D5.
 - A escribe `"030_design.status": "AUDIT_PENDING"` en `harness-state.json`
 - A registra `[AUDIT_PENDING 030]` en `claude-progress.txt`
 - A spawea design-evaluator pasando paths a los 5 artefactos + paths de referencia I-1, I-2, I-6
 
 **Paso 3 — Auditoría (C — design-evaluator):**
 - C lee los 5 artefactos desde el filesystem (sin contexto de ejecución)
-- C lee `specification/bdd_features.md`, `specification/data_contracts.md`,
-  `discovery/domain_glossary.md` como referencia para D1, D2 y D5 (verificación independiente)
+- C lee `020_specification/bdd_features.md`, `020_specification/data_contracts.md`,
+  `010_discovery/domain_glossary.md` como referencia para D1, D2 y D5 (verificación independiente)
 - C evalúa contra rúbrica (Sección 4), aplica anclas de calibración — dos fases: análisis con citas → score
-- C escribe (PATHS DE SALIDA — OBLIGATORIO: solo en `eval/`, nunca en `/design/`):
+- C escribe (PATHS DE SALIDA — OBLIGATORIO: solo en `eval/`, nunca en `/030_design/`):
   - `eval/verdict.json` — append al array existente, entry con `"phase": "030_design"`
   - `eval/metrics_summary.json` — append al array existente
 - C registra auditoría en `persistence/claude-progress.txt`
@@ -629,7 +629,7 @@ Registrar evento en `claude-progress.txt` en cualquier caso.
 ```
 .claude/agents/
 ├── design-governor.md      — Instancia A
-├── design-orchestrator.md  — Instancia B (modos PLAN/CHECKPOINT/WORKER_FAILED — sin Agent tool)
+├── design-orchestrator.md  — Instancia B (modos 040_planning/CHECKPOINT/WORKER_FAILED — sin Agent tool)
 ├── design-analyst.md       — Worker 1 (tools: Read, Write)
 ├── design-architect.md     — Worker 2 (tools: Read, Write, Edit)
 └── design-evaluator.md     — Instancia C (dos modos: Early Eval inline / Auditoría formal)
@@ -685,7 +685,7 @@ Las 23 lecciones aplican íntegramente. Las más críticas para el 030:
 | LL-05 | Timestamps reales en governor y orchestrator |
 | LL-06 | Protocolo de 5 pasos para checkpoints (obligatorio en orchestrator) |
 | LL-07 | Evaluador: análisis con citas → score (dos fases, nunca invertir) |
-| LL-10 | design-governor NUNCA escribe en `/design/` |
+| LL-10 | design-governor NUNCA escribe en `/030_design/` |
 | LL-13 | Orchestrator verifica artefacto en disco antes de registrar checkpoint (Pending Verification ADJ-13) |
 | LL-17 | Si la rúbrica verifica alguna frase textual en un artefacto, el schema del architect debe especificarla exacta |
 | LL-20 | Cierre: verificación de eval/verdict.json como PRIMER tool call del Cierre |

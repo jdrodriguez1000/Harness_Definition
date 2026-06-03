@@ -1,4 +1,4 @@
----
+﻿---
 name: discovery-verdict-schema
 description: Schema y formato de los dos archivos de salida de discovery-evaluator en el 010 Discovery Harness — verdict.json (veredicto y scores por dimensión) y metrics_summary.json (métricas objetivas, historial de versiones y timeline). Usar cuando discovery-evaluator escribe los resultados de la auditoría.
 user-invocable: false
@@ -46,10 +46,10 @@ Crear la carpeta `/eval/` si no existe antes de escribir.
       }
     ],
     "artifacts_evaluated": [
-      "/discovery/shared_understanding.md",
-      "/discovery/scope_boundaries.md",
-      "/discovery/domain_glossary.md",
-      "/discovery/failure_behavior.md"
+      "/010_discovery/shared_understanding.md",
+      "/010_discovery/scope_boundaries.md",
+      "/010_discovery/domain_glossary.md",
+      "/010_discovery/failure_behavior.md"
     ]
   }
 ]
@@ -106,23 +106,23 @@ Crear la carpeta `/eval/` si no existe antes de escribir.
 
   "artifacts": {
     "shared_understanding": {
-      "path": "/discovery/shared_understanding.md",
+      "path": "/010_discovery/shared_understanding.md",
       "final_version": 1,
       "revisions": 0,
       "approved_by_client_at": "2026-05-26T00:00:00Z | null"
     },
     "scope_boundaries": {
-      "path": "/discovery/scope_boundaries.md",
+      "path": "/010_discovery/scope_boundaries.md",
       "final_version": 1,
       "revisions": 0
     },
     "domain_glossary": {
-      "path": "/discovery/domain_glossary.md",
+      "path": "/010_discovery/domain_glossary.md",
       "final_version": 1,
       "revisions": 0
     },
     "failure_behavior": {
-      "path": "/discovery/failure_behavior.md",
+      "path": "/010_discovery/failure_behavior.md",
       "final_version": 1,
       "revisions": 0
     }
@@ -163,7 +163,7 @@ Crear la carpeta `/eval/` si no existe antes de escribir.
 2. Contar entradas con `"phase": "010_discovery"` → `evaluation_version = count + 1`.
 3. Construir nueva entrada con scores y veredicto. Agregar al array.
 4. Escribir el array completo en `eval/verdict.json`.
-5. Leer `discovery/analysis_report.md` para extraer métricas Tipo 1.
+5. Leer `010_discovery/analysis_report.md` para extraer métricas Tipo 1.
 6. Leer `persistence/execution-state.json` para timestamps de checkpoints y contadores.
 7. Leer `eval/metrics_summary.json` si existe → obtener array; si no → array vacío `[]`.
 8. Construir nueva entrada de métricas. Agregar al array.

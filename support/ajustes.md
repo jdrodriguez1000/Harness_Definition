@@ -19,7 +19,13 @@ Registro de ajustes identificados que aún no han sido implementados.
 | ADJ-08 | README.md del proyecto: incluirlo en `deploy-harness.ps1` para que se copie al cliente                     | MENOR         | PENDIENTE |
 | ADJ-12 | Meta-Harness: referencia académica para optimización automática de harnesses                                | MENOR         | PENDIENTE |
 | ADJ-24 | 010 Discovery: modelo de entrevista síncrona genera latencia y limita paralelismo — evaluar modelo async con cuestionario + ronda de gaps | SIGNIFICATIVA | PENDIENTE — evaluar antes de construir el 040 |
-| ADJ-25 | FORGE CLI: automatizar arranque de proyecto con forge-setup.ps1, forge.config.json y slash commands /forge-init + /forge-discovery | SIGNIFICATIVA | PENDIENTE |
+| ADJ-25 | FORGE CLI: automatizar arranque de proyecto con forge-setup.ps1, forge.config.json y slash commands /forge-init + /forge-discovery | SIGNIFICATIVA | IMPLEMENTADO |
+| ADJ-26 | Comando /forge-suspend: suspender tarea activa, persistir estado y dejar todo listo para reanudar | SIGNIFICATIVA | IMPLEMENTADO |
+| ADJ-27 | Comando /forge-continue: reanudar tarea suspendida desde el último estado persistido | SIGNIFICATIVA | IMPLEMENTADO |
+| ADJ-28 | Transición automática entre harnesses: al cerrar un harness, desplegar el siguiente sin pasos manuales | SIGNIFICATIVA | IMPLEMENTADO |
+| ADJ-29 | Comando /forge-override: registrar desacuerdo del usuario con una decisión del harness (ej. stack tecnológico) e inyectarla como restricción vinculante | SIGNIFICATIVA | IMPLEMENTADO |
+| ADJ-30 | Renombrar carpetas de output de harnesses: discovery/ → 010_discovery/, specification/ → 020_specification/, design/ → 030_design/, plan/ → 040_planning/ | SIGNIFICATIVA | IMPLEMENTADO |
+| ADJ-31 | Comando /forge-changes: permite al humano solicitar cambios sobre artefactos ya producidos en cualquier punto del harness activo | SIGNIFICATIVA | PENDIENTE |
 
 ---
 
@@ -221,3 +227,143 @@ Usar el cuestionario async para Fase 1 (cobertura amplia, todos los stakeholders
 - `ciclo_010_discovery.md` — expandir Paso C con el flujo de 3 fases y puntos de pausa para entrega de archivos.
 - Posible nuevo artefacto: `discovery/questionnaires/` con un archivo por stakeholder.
 - `discovery-interview-protocol/SKILL.md` — revisar si el banco de preguntas sirve como base para el cuestionario estático o si requiere adaptación.
+
+---
+
+### ADJ-26 — Comando /forge-suspend: suspender tarea activa — IMPLEMENTADO
+
+**Prioridad:** SIGNIFICATIVA
+
+**Descripción:**
+Cuando el usuario necesita interrumpir el trabajo en curso, escribe `/suspend` y el agente activo termina de forma ordenada: persiste el estado actual en los archivos de persistencia, registra el punto exacto de interrupción y confirma que todo está listo para reanudar. Equivale a un "checkpoint manual" iniciado por el usuario, no por el harness.
+
+**Impacto:**
+- `commands/suspend.md` — slash command global nuevo
+- Cada governor debe tener una sección "Modo SUSPEND" que describa qué escribir en `harness-state.json` y `execution-state.json` antes de detenerse
+- El ritual E10-B (reanudación) ya existe — `/suspend` es el complemento que garantiza que el estado quede limpio para ese ritual
+
+**Prerequisitos antes de implementar:**
+- Definir qué campos adicionales (si alguno) necesita `harness-state.json` para registrar el punto de suspensión
+- Revisar si el ritual E10-B cubre todos los casos de reanudación post-suspend o requiere ajuste
+
+---
+
+### ADJ-27 — Comando /forge-continue: reanudar tarea suspendida — IMPLEMENTADO
+
+**Prioridad:** SIGNIFICATIVA
+
+**Descripción:**
+Complemento de ADJ-26. Cuando el usuario regresa a un proyecto suspendido, escribe `/resume` y el governor lee el estado persistido y retoma desde el punto exacto de interrupción. Internamente equivale al ritual E10-B, pero iniciado explícitamente por el usuario con un comando en lugar de arrancar Claude y esperar que el governor detecte el estado.
+
+**Impacto:**
+- `commands/resume.md` — slash command global nuevo
+- Internamente invoca el governor del harness activo en modo CONTINUE (o equivale al E10-B existente)
+
+**Prerequisitos antes de implementar:**
+- ADJ-26 implementado primero (el estado debe quedar limpio para que /resume funcione)
+
+---
+
+### ADJ-28 — Transición automática entre harnesses — IMPLEMENTADO
+
+**Prioridad:** SIGNIFICATIVA
+
+**Solución implementada (Sesión 74):**
+- Los governors (010..040) ya tenían el Paso 6 del CLOSE con deploy del siguiente harness vía `$env:HARNESS_DEPLOY_SCRIPT` y retorno `HANDOFF_READY`. La brecha era el path `PENDING_HANDOFF` en `client-project-CLAUDE.md`, que desplegaba agentes e intentaba usarlos en la misma sesión — Claude no los reconocía porque se cargaron mid-session.
+- Corrección: los 3 casos `PENDING_HANDOFF` ahora despliegan → escriben `DEPLOYED` → notifican al usuario que reinicie → Fin. En la siguiente sesión el path `DEPLOYED` arranca el ciclo directamente con agentes cargados.
+- Creado `commands/forge-restart.md` — slash command `/forge-restart`: post-reinicio, lee `harness-state.json`, detecta el harness con `DEPLOYED` o el harness activo, y arranca el ciclo correspondiente. También sirve como comando universal "¿dónde estaba?" en cualquier momento.
+- Mensajes de reinicio actualizados en los 4 governors y 4 ciclos para instruir al usuario a ejecutar `/forge-restart`.
+
+**Archivos modificados:**
+- `templates/client-project-CLAUDE.md` — 3 casos PENDING_HANDOFF corregidos
+- `.claude/agents/discovery-governor.md`, `specification-governor.md`, `design-governor.md`, `planning-governor.md` — mensaje de reinicio actualizado
+- `templates/workflows/ciclo_010..040.md` — mensaje HANDOFF_READY actualizado
+- `commands/forge-restart.md` — nuevo slash command global
+
+---
+
+### ADJ-29 — Comando /forge-override: registrar desacuerdo del usuario con una decisión del harness — IMPLEMENTADO
+
+**Prioridad:** SIGNIFICATIVA
+
+**Solución implementada (Sesión 75):**
+
+**Diseño:**
+- Activación en los dos momentos de revisión: Sprint Contract (Paso B) y CP-03 (Paso D).
+- Texto del override pasado inline con el comando: `/forge-override "FastAPI, no Django. Razón: expertise del equipo."` (Opción A1).
+- Doble persistencia: campo `"overrides": []` en `harness-state.json` (para la máquina) + `persistence/overrides.md` (audit trail legible por humanos y por harnesses futuros).
+- Propagación a harnesses futuros: cada governor lee `persistence/overrides.md` en E10-A antes de construir el Sprint Contract e incorpora los overrides ACTIVE como constraints duros.
+
+**Archivos creados:**
+- `commands/forge-override.md` — slash command global `/forge-override`
+
+**Archivos modificados:**
+- `templates/workflows/ciclo_010..040.md` (×4) — caso `/forge-override` en Paso B y Paso D
+- `.claude/agents/discovery-governor.md` — E10-A.7 (leer overrides.md)
+- `.claude/agents/specification-governor.md` — E10-A.7 (leer overrides.md)
+- `.claude/agents/design-governor.md` — E10-A.8 (leer overrides.md)
+- `.claude/agents/planning-governor.md` — E10-A.8 (leer overrides.md)
+- `.claude/skills/discovery-state-schema/SKILL.md` — campo `"overrides"` documentado
+- `.claude/skills/specification-state-schema/SKILL.md` — campo `"overrides"` documentado
+- `.claude/skills/design-state-schema/SKILL.md` — campo `"overrides"` documentado
+- `.claude/skills/planning-state-schema/SKILL.md` — campo `"overrides"` documentado
+
+---
+
+### ADJ-30 — Renombrar carpetas de output de harnesses — PENDIENTE
+
+**Prioridad:** SIGNIFICATIVA
+
+**Problema:**
+Las carpetas de output actuales (`discovery/`, `specification/`, `design/`, `plan/`) no incluyen el número del harness, lo que dificulta la navegación y la trazabilidad cuando hay múltiples harnesses activos en el mismo proyecto.
+
+**Cambio requerido:**
+
+| Carpeta actual | Carpeta nueva |
+|----------------|---------------|
+| `discovery/`   | `010_discovery/` |
+| `specification/` | `020_specification/` |
+| `design/`      | `030_design/` |
+| `plan/`        | `040_planning/` |
+| `eval/`        | Sin cambio (carpeta compartida entre harnesses) |
+| `persistence/` | Sin cambio |
+
+**Impacto — archivos a modificar:**
+- `.claude/agents/` — todos los agentes que referencian rutas de carpetas de output (6 por harness × 4 harnesses = hasta 24 agentes)
+- `.claude/skills/` — todos los schemas de síntesis, análisis, estado y rúbrica que citan rutas
+- `templates/workflows/ciclo_010..040.md` (×4) — referencias a carpetas de output
+- `templates/client-project-CLAUDE.md` — referencias a carpetas de output
+- `Harnesses/010..040_*.md` (×4) — documentación de rutas
+- `plans/010..040_*.md` (×4) — blueprints con rutas
+- `deploy-harness.ps1` — si crea carpetas explícitamente
+
+**Prerequisitos antes de implementar:**
+- Ninguno — puede implementarse de forma independiente
+
+---
+
+### ADJ-31 — Comando /forge-changes + 100 Change Harness — PENDIENTE
+
+**Prioridad:** SIGNIFICATIVA
+
+**Decisión de diseño (Sesión 77):**
+`/forge-changes` es el entry point único para cualquier solicitud de cambio del cliente. Al ejecutarlo, activa el **100 Change Harness** — no es un comando standalone. El harness es quien clasifica el cambio, analiza el impacto, escala al humano y ejecuta el camino de re-ejecución correcto.
+
+**Diferencia semántica con `/forge-override`:**
+- `/forge-override` = restricción vinculante sobre una decisión de diseño (ej. stack tecnológico). Se registra y propaga a harnesses futuros.
+- `/forge-changes` = solicitud de cambio del cliente sobre features o artefactos. Activa un harness completo de gestión de cambios.
+
+**Casos que maneja el 100 Change Harness:**
+- **Caso 1 — Scope Addition:** Feature que nunca fue considerada. No existe en ningún artefacto.
+- **Caso 2 — CR pre-build:** Feature considerada en el plan, no construida aún. El cliente quiere modificarla.
+- **Caso 3 — CR post-build:** Feature ya construida. El cliente quiere modificarla.
+
+**Flujo de activación:**
+1. El usuario ejecuta `/forge-changes "Descripción del cambio"` en cualquier momento del proyecto.
+2. El comando registra el cambio con ID CH-xxx, timestamp y descripción.
+3. El comando activa el **100 Change Harness** pasándole el CH-xxx como input.
+4. El harness ejecuta su proceso: clasificación → impact analysis → escalamiento al humano → actualización de artefactos upstream → entrega slice lista al 050.
+
+**Prerequisitos antes de implementar:**
+- Construir el 100 Change Harness completo (agentes, skills, workflow, ciclo)
+- El comando `/forge-changes` se construye como parte del mismo ADJ-31, no por separado

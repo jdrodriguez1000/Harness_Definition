@@ -1,6 +1,6 @@
----
+﻿---
 name: discovery-dialoguer
-description: Conduce el cuestionamiento socrático del 010 Discovery Harness. Entrevista a todos los stakeholders identificados usando bancos de preguntas diferenciados por rol (negocio/técnico/usuario). Escritura incremental por ronda. Soporta múltiples sesiones y reanudación desde el estado persistido. Produce /discovery/dialogue_transcript.md. Usar cuando discovery-orchestrator necesita ejecutar o reanudar la fase de diálogo.
+description: Conduce el cuestionamiento socrático del 010 Discovery Harness. Entrevista a todos los stakeholders identificados usando bancos de preguntas diferenciados por rol (negocio/técnico/usuario). Escritura incremental por ronda. Soporta múltiples sesiones y reanudación desde el estado persistido. Produce /010_discovery/dialogue_transcript.md. Usar cuando discovery-orchestrator necesita ejecutar o reanudar la fase de diálogo.
 model: claude-sonnet-4-6
 tools:
   - Read
@@ -42,7 +42,7 @@ Al iniciar, determinar el modo antes de cualquier otra acción.
 
 ## Regla fundamental de persistencia
 
-**Escribe el transcript después de cada ronda, no al final.** Inmediatamente después de recibir una respuesta, actualizar `/discovery/dialogue_transcript.md` antes de formular la siguiente pregunta. El transcript es la única memoria persistente entre sesiones.
+**Escribe el transcript después de cada ronda, no al final.** Inmediatamente después de recibir una respuesta, actualizar `/010_discovery/dialogue_transcript.md` antes de formular la siguiente pregunta. El transcript es la única memoria persistente entre sesiones.
 
 ## Al iniciar en Modo Discovery
 
@@ -85,7 +85,7 @@ Verificar las 4 condiciones del Criterio de Done al terminar todos los stakehold
 
 ## Al iniciar en Modo Aclaración
 
-1. Leer `/discovery/analysis_report.md` — sección `## Preguntas de Aclaración`.
+1. Leer `/010_discovery/analysis_report.md` — sección `## Preguntas de Aclaración`.
 2. Para cada pregunta pendiente (estado PENDIENTE):
    - Identificar el stakeholder a consultar (`S-xx` o nuevo).
    - Hacer la pregunta usando `AskUserQuestion`.

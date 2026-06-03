@@ -1,4 +1,4 @@
----
+﻿---
 name: planning-verdict-schema
 description: Schema y formato de los dos archivos de salida de planning-evaluator en el 040 Planning Harness — verdict.json (veredicto y scores por dimensión) y metrics_summary.json (métricas objetivas, historial de versiones y timeline). Usar cuando planning-evaluator escribe los resultados de la auditoría.
 user-invocable: false
@@ -46,14 +46,14 @@ Escribir en la carpeta `/eval/`. El directorio fue creado por el governor en E10
       }
     ],
     "artifacts_evaluated": [
-      "plan/vertical_slice_plan.md",
-      "plan/project_roadmap.md",
-      "plan/risk_register.md"
+      "040_planning/vertical_slice_plan.md",
+      "040_planning/project_roadmap.md",
+      "040_planning/risk_register.md"
     ],
     "reference_artifacts_read": [
-      "design/contract_definitions.md",
-      "specification/bdd_features.md",
-      "discovery/domain_glossary.md"
+      "030_design/contract_definitions.md",
+      "020_specification/bdd_features.md",
+      "010_discovery/domain_glossary.md"
     ]
   }
 ]
@@ -66,8 +66,8 @@ Escribir en la carpeta `/eval/`. El directorio fue creado por el governor en E10
 - Si `veto_triggered: true`, agregar entry en `findings` para D5 con la contradicción específica
   encontrada y los dos artefactos que se contradicen.
 - `reference_artifacts_read` lista los artefactos del 010/020/030 que C leyó para verificar D1, D3 y D5
-  de forma independiente. Siempre incluye `design/contract_definitions.md` (D1, D3),
-  `specification/bdd_features.md` (D1, D3) y `discovery/domain_glossary.md` (D5).
+  de forma independiente. Siempre incluye `030_design/contract_definitions.md` (D1, D3),
+  `020_specification/bdd_features.md` (D1, D3) y `010_discovery/domain_glossary.md` (D5).
 - `evaluated_at` en formato ISO 8601.
 
 ---
@@ -122,17 +122,17 @@ Escribir en la carpeta `/eval/`. El directorio fue creado por el governor en E10
 
     "artifacts": {
       "vertical_slice_plan": {
-        "path": "plan/vertical_slice_plan.md",
+        "path": "040_planning/vertical_slice_plan.md",
         "final_version": 1,
         "revisions": 0
       },
       "project_roadmap": {
-        "path": "plan/project_roadmap.md",
+        "path": "040_planning/project_roadmap.md",
         "final_version": 1,
         "revisions": 0
       },
       "risk_register": {
-        "path": "plan/risk_register.md",
+        "path": "040_planning/risk_register.md",
         "final_version": 1,
         "revisions": 0
       }
@@ -159,13 +159,13 @@ Escribir en la carpeta `/eval/`. El directorio fue creado por el governor en E10
 **Reglas:**
 - `phase` siempre `"040_planning"` para entradas del 040.
 - `tipo1_metricas_objetivas` se obtiene leyendo los 3 artefactos directamente. No inferir — contar los IDs existentes.
-  - `ic_en_contract_definitions`: contar IDs IC-xx en `design/contract_definitions.md` (fuente independiente).
+  - `ic_en_contract_definitions`: contar IDs IC-xx en `030_design/contract_definitions.md` (fuente independiente).
   - `ic_asignados_en_vertical_slice_plan`: contar IC-xx únicos mencionados en todas las slices de `vertical_slice_plan.md`.
   - `ic_sin_slice`: `ic_en_contract_definitions` − `ic_asignados_en_vertical_slice_plan`.
-  - `bdd_scenarios_en_bdd_features`: contar IDs SC-xx y SE-xx en `specification/bdd_features.md` (fuente independiente).
+  - `bdd_scenarios_en_bdd_features`: contar IDs SC-xx y SE-xx en `020_specification/bdd_features.md` (fuente independiente).
   - `bdd_scenarios_asignados_en_vertical_slice_plan`: contar SC-xx/SE-xx únicos en `vertical_slice_plan.md`.
   - `bdd_scenarios_sin_slice`: `bdd_scenarios_en_bdd_features` − `bdd_scenarios_asignados_en_vertical_slice_plan`.
-  - `slices_totales_en_vertical_slice_plan`: contar secciones VS-xx en `plan/vertical_slice_plan.md`.
+  - `slices_totales_en_vertical_slice_plan`: contar secciones VS-xx en `040_planning/vertical_slice_plan.md`.
   - `slices_con_6_campos`: contar slices que tienen los 6 campos: nombre, tipo, IC-xx, BDD scenarios, Criterio de Done y esfuerzo.
   - `slices_sin_criterio_done_con_ids`: contar slices cuyo Criterio de Done no contiene referencias a IC-xx o SC-xx/SE-xx.
   - `hitos_marcados_en_roadmap`: contar hitos con ★ en `project_roadmap.md` (esperado: 3).
@@ -187,8 +187,8 @@ Escribir en la carpeta `/eval/`. El directorio fue creado por el governor en E10
 2. Contar entradas con `"phase": "040_planning"` → `evaluation_version = count + 1`.
 3. Construir nueva entrada con scores y veredicto. Agregar al array.
 4. Escribir el array completo en `eval/verdict.json`.
-5. Leer los 3 artefactos de `/plan/` para métricas Tipo 1 (contar IDs directamente).
-6. Leer `design/contract_definitions.md` y `specification/bdd_features.md` para métricas de cobertura independiente.
+5. Leer los 3 artefactos de `/040_planning/` para métricas Tipo 1 (contar IDs directamente).
+6. Leer `030_design/contract_definitions.md` y `020_specification/bdd_features.md` para métricas de cobertura independiente.
 7. Leer `persistence/execution-state.json` para timestamps de checkpoints y contadores.
 8. Leer `eval/metrics_summary.json` si existe → obtener array; si no → array vacío `[]`.
 9. Construir nueva entrada de métricas. Agregar al array.

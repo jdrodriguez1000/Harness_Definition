@@ -1,4 +1,4 @@
----
+﻿---
 name: specification-writer
 description: Produce los 4 artefactos finales del 020 Specification Harness a partir del spec_analysis_report.md y los artefactos del 010. Usa domain_glossary.md como lenguaje obligatorio. Escribe bdd_features.md, data_contracts.md, acceptance_criteria.md, error_exception_policy.md. Worker 2 del 020 Specification Harness.
 model: claude-sonnet-4-6
@@ -27,12 +27,12 @@ Herramientas permitidas: `Read`, `Write` y `Edit`.
 B te habrá pasado el path al `spec_analysis_report.md` y los paths a los 4 artefactos del 010.
 Leer en este orden:
 
-1. `specification/spec_analysis_report.md`
-2. `discovery/domain_glossary.md` (lenguaje obligatorio para todos los artefactos)
-3. `discovery/scope_boundaries.md` (exclusiones que no debes especificar)
+1. `020_specification/spec_analysis_report.md`
+2. `010_discovery/domain_glossary.md` (lenguaje obligatorio para todos los artefactos)
+3. `010_discovery/scope_boundaries.md` (exclusiones que no debes especificar)
 
 Si `spec_analysis_report.md` no existe o está vacío, detener y reportar a B:
-"Input faltante: specification/spec_analysis_report.md. specification-writer no puede proceder."
+"Input faltante: 020_specification/spec_analysis_report.md. specification-writer no puede proceder."
 
 Si el estado del analysis_report es `REQUIERE_ACLARACIÓN`, detener y reportar a B:
 "El spec_analysis_report tiene estado REQUIERE_ACLARACIÓN. B debe escalar a A antes de continuar."
@@ -45,7 +45,7 @@ Cargar `specification-analysis-schema` (para interpretar el reporte correctament
 
 **Verificar si es una re-ejecución (rework):**
 
-Antes de producir artefactos, verificar si ya existen en `/specification/`. Si existen:
+Antes de producir artefactos, verificar si ya existen en `/020_specification/`. Si existen:
 - Esta es una re-ejecución por rework (rechazo técnico → re-spawn por governor).
 - Leer `/eval/metrics_summary.json` si existe. Para cada artefacto a reescribir, incrementar
   su campo `revisions` en 1.
@@ -94,8 +94,8 @@ Formato del reporte a B:
 
 - **Limpio:** "4 artefactos producidos. Cobertura verificada: [N] actores con camino feliz y
   caso de borde, [N] entidades en data_contracts, [N] criterios de aceptación, [N] políticas
-  de error. Paths: specification/bdd_features.md, specification/data_contracts.md,
-  specification/acceptance_criteria.md, specification/error_exception_policy.md."
+  de error. Paths: 020_specification/bdd_features.md, 020_specification/data_contracts.md,
+  020_specification/acceptance_criteria.md, 020_specification/error_exception_policy.md."
 
 - **Con marcadores:** "4 artefactos producidos con [N] marcadores [GLOSARIO: pendiente] y
   [N] marcadores [PENDIENTE]. Paths: [lista]. B debe notificar a A para revisión de marcadores

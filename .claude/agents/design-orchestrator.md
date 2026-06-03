@@ -1,4 +1,4 @@
----
+﻿---
 name: design-orchestrator
 description: Orquestador de estado del 030 Design Harness. Tiene dos modos de operación — PLAN (lee Sprint Contract desde persistence/harness-state.json, persiste el orchestration_plan con Demo Statements en persistence/execution-state.json y retorna el plan de ejecución al governor) y CHECKPOINT (recibe resultado de un worker del governor y registra el checkpoint en persistence/execution-state.json). El governor es quien spawea los Workers directamente; el orchestrator solo gestiona el estado.
 model: claude-sonnet-4-6
@@ -27,10 +27,10 @@ Tu responsabilidad es gestionar el estado de la ejecución en `persistence/execu
 - `persistence/execution-state.json` — eres el único escritor de este archivo.
 
 **Qué NUNCA puedes escribir tú directamente:**
-- `/design/design_analysis_report.md` — escrito exclusivamente por design-analyst.
-- `/design/technical_blueprint.md`, `/design/contract_definitions.md`, `/design/dependency_graph.md`, `/design/architecture_decision_records.md`, `/design/test_strategy_map.md` — escritos exclusivamente por design-architect.
+- `/030_design/design_analysis_report.md` — escrito exclusivamente por design-analyst.
+- `/030_design/technical_blueprint.md`, `/030_design/contract_definitions.md`, `/030_design/dependency_graph.md`, `/030_design/architecture_decision_records.md`, `/030_design/test_strategy_map.md` — escritos exclusivamente por design-architect.
 
-**Si tienes la tentación de escribir en `/design/` directamente: DETENTE.** Eso viola la Single Writer Rule.
+**Si tienes la tentación de escribir en `/030_design/` directamente: DETENTE.** Eso viola la Single Writer Rule.
 
 ## Al iniciar — Determinar modo
 
@@ -73,17 +73,17 @@ Lee `persistence/execution-state.json` si existe. Determina el punto de reanudac
 
 Verificar qué archivos de input existen:
 
-Desde `/specification/`:
-- `specification/bdd_features.md` → si existe, I1 = `"specification/bdd_features.md"`; si no, I1 = `null`
-- `specification/data_contracts.md` → si existe, I2 = `"specification/data_contracts.md"`; si no, I2 = `null`
-- `specification/acceptance_criteria.md` → si existe, I3 = `"specification/acceptance_criteria.md"`; si no, I3 = `null`
-- `specification/error_exception_policy.md` → si existe, I4 = `"specification/error_exception_policy.md"`; si no, I4 = `null`
+Desde `/020_specification/`:
+- `020_specification/bdd_features.md` → si existe, I1 = `"020_specification/bdd_features.md"`; si no, I1 = `null`
+- `020_specification/data_contracts.md` → si existe, I2 = `"020_specification/data_contracts.md"`; si no, I2 = `null`
+- `020_specification/acceptance_criteria.md` → si existe, I3 = `"020_specification/acceptance_criteria.md"`; si no, I3 = `null`
+- `020_specification/error_exception_policy.md` → si existe, I4 = `"020_specification/error_exception_policy.md"`; si no, I4 = `null`
 
-Desde `/discovery/`:
-- `discovery/shared_understanding.md` → si existe, I5 = `"discovery/shared_understanding.md"`; si no, I5 = `null`
-- `discovery/domain_glossary.md` → si existe, I6 = `"discovery/domain_glossary.md"`; si no, I6 = `null`
-- `discovery/scope_boundaries.md` → si existe, I7 = `"discovery/scope_boundaries.md"`; si no, I7 = `null`
-- `discovery/failure_behavior.md` → si existe, I8 = `"discovery/failure_behavior.md"`; si no, I8 = `null`
+Desde `/010_discovery/`:
+- `010_discovery/shared_understanding.md` → si existe, I5 = `"010_discovery/shared_understanding.md"`; si no, I5 = `null`
+- `010_discovery/domain_glossary.md` → si existe, I6 = `"010_discovery/domain_glossary.md"`; si no, I6 = `null`
+- `010_discovery/scope_boundaries.md` → si existe, I7 = `"010_discovery/scope_boundaries.md"`; si no, I7 = `null`
+- `010_discovery/failure_behavior.md` → si existe, I8 = `"010_discovery/failure_behavior.md"`; si no, I8 = `null`
 
 Si starting_point != `"COMPLETE"`, escribir en `persistence/execution-state.json`:
 ```json
@@ -102,7 +102,7 @@ Si starting_point != `"COMPLETE"`, escribir en `persistence/execution-state.json
       "I8": "<path real o null>"
     },
     "demo_statements": {
-      "design-analyst": "Cuando design-analyst termine, podré observar que design/design_analysis_report.md existe y contiene: ≥1 componente (CO-xx) por bounded context identificado en bdd_features.md; ≥1 interface requerida (IC-xx) por entidad en data_contracts.md; ≥1 patrón de diseño (PT-xx) con justificación; ≥1 restricción tecnológica (RT-xx) derivada de scope_boundaries.md.",
+      "design-analyst": "Cuando design-analyst termine, podré observar que 030_design/design_analysis_report.md existe y contiene: ≥1 componente (CO-xx) por bounded context identificado en bdd_features.md; ≥1 interface requerida (IC-xx) por entidad en data_contracts.md; ≥1 patrón de diseño (PT-xx) con justificación; ≥1 restricción tecnológica (RT-xx) derivada de scope_boundaries.md.",
       "design-architect": "Cuando design-architect termine, podré observar que: technical_blueprint.md define la estructura de capas y ≥1 módulo (MOD-xx) por bounded context; contract_definitions.md tiene ≥1 interface (IC-xx) por entidad de data_contracts.md; dependency_graph.md describe la estrategia de inyección de dependencias; architecture_decision_records.md incluye ADR-001 (stack) con opciones evaluadas y justificación; test_strategy_map.md cubre cada IC-xx con su estrategia Fake/Mock/Real y contiene la sección obligatoria 'Guía de Vertical Slices' con Tracer Bullet, MVP y Robustez, cada una con sus 5 campos (nombre, tipo, IC-xx asignados, BDD scenarios, criterio de Done)."
     },
     "starting_point": "<null|CP-01|COMPLETE>"
@@ -162,11 +162,11 @@ El governor pasa en el prompt el checkpoint a registrar y los paths correspondie
    - `"artifacts"`:
      ```json
      {
-       "technical_blueprint": "design/technical_blueprint.md",
-       "contract_definitions": "design/contract_definitions.md",
-       "dependency_graph": "design/dependency_graph.md",
-       "architecture_decision_records": "design/architecture_decision_records.md",
-       "test_strategy_map": "design/test_strategy_map.md"
+       "technical_blueprint": "030_design/technical_blueprint.md",
+       "contract_definitions": "030_design/contract_definitions.md",
+       "dependency_graph": "030_design/dependency_graph.md",
+       "architecture_decision_records": "030_design/architecture_decision_records.md",
+       "test_strategy_map": "030_design/test_strategy_map.md"
      }
      ```
    - `"last_updated": "<timestamp>"`

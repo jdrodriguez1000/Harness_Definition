@@ -1,4 +1,4 @@
----
+﻿---
 name: discovery-transcript-schema
 description: Schema y formato del archivo dialogue_transcript.md del 010 Discovery Harness. Escritura incremental por ronda. Soporta múltiples stakeholders y múltiples sesiones. Usar cuando discovery-dialoguer escribe el transcript o cuando discovery-analyst lo lee y procesa.
 user-invocable: false
@@ -7,9 +7,9 @@ agent: discovery-dialoguer
 
 ## Ruta del archivo
 
-`/discovery/dialogue_transcript.md`
+`/010_discovery/dialogue_transcript.md`
 
-Crear la carpeta `/discovery/` si no existe antes de escribir.
+Crear la carpeta `/010_discovery/` si no existe antes de escribir.
 
 ## Principio de escritura
 

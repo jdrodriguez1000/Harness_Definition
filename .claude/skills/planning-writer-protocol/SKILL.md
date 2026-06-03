@@ -1,4 +1,4 @@
----
+﻿---
 name: planning-writer-protocol
 description: Protocolo de producción del planning-writer en el 040 Planning Harness. Define las reglas de transformación de planning_analysis_report a los 3 artefactos finales, el orden obligatorio de producción y el self-checklist cruzado. Usar cuando planning-writer produce los artefactos o verifica su consistencia antes de reportar.
 user-invocable: false
@@ -38,8 +38,8 @@ Sin excepción. No pasar al siguiente artefacto antes de haber escrito el actual
 ### vertical_slice_plan.md — Formalizar la lista final de VS-xx con los 6 campos
 
 **Fuente:** Secciones 1, 2, 3 y 4 del `planning_analysis_report.md`.
-**Referencia directa:** `design/contract_definitions.md` (verificar IC-xx), `specification/bdd_features.md`
-(verificar SC-xx/SE-xx), `discovery/domain_glossary.md` (lenguaje ubicuo).
+**Referencia directa:** `030_design/contract_definitions.md` (verificar IC-xx), `020_specification/bdd_features.md`
+(verificar SC-xx/SE-xx), `010_discovery/domain_glossary.md` (lenguaje ubicuo).
 
 La "lista final de VS-xx" es la lista del inventario (Sección 1) más las slices nuevas por división
 (Sección 2), menos ninguna (no se fusionan ni eliminan slices del draft).
@@ -83,7 +83,7 @@ El writer nunca escribe el valor `APROBADO POR CLIENTE` — esto es responsabili
 ### project_roadmap.md — Transformar dependencias y secuencia en roadmap formal
 
 **Fuente:** Sección 5 del `planning_analysis_report.md` (dependencias entre slices).
-**Referencia directa:** `vertical_slice_plan.md` (slices ya producido), `design/dependency_graph.md` (DEP-xx de respaldo).
+**Referencia directa:** `vertical_slice_plan.md` (slices ya producido), `030_design/dependency_graph.md` (DEP-xx de respaldo).
 
 **Secuencia de implementación:**
 - La posición de cada VS-xx en la tabla sigue este orden de tipo obligatorio:
@@ -171,13 +171,13 @@ de pasar al self-checklist del Demo Statement.
 - [ ] La secuencia en `project_roadmap.md` respeta Tracer Bullet → MVP → Robustez (con Crecimiento antes del MVP y Evolución entre MVP y Robustez)
 - [ ] Los 3 hitos obligatorios (★) están marcados en `project_roadmap.md`
 - [ ] No hay dependencias circulares en `project_roadmap.md`
-- [ ] Ningún IC-xx en `vertical_slice_plan.md` que no exista en `design/contract_definitions.md`
-- [ ] Ningún SC-xx/SE-xx en `vertical_slice_plan.md` que no exista en `specification/bdd_features.md`
+- [ ] Ningún IC-xx en `vertical_slice_plan.md` que no exista en `030_design/contract_definitions.md`
+- [ ] Ningún SC-xx/SE-xx en `vertical_slice_plan.md` que no exista en `020_specification/bdd_features.md`
 - [ ] Todos los RK-xx de `risk_register.md` referencian VS-xx que existen en `vertical_slice_plan.md`
 
 ### Consistencia de lenguaje (domain_glossary)
 
-- [ ] Los nombres de slices, IC-xx y RK-xx usan términos del `discovery/domain_glossary.md`
+- [ ] Los nombres de slices, IC-xx y RK-xx usan términos del `010_discovery/domain_glossary.md`
 - [ ] Si un término nuevo es necesario, marcarlo con `[GLOSARIO: pendiente — nombre]` donde aparece por primera vez
 
 ### Consistencia de Estado (LL-17)
@@ -202,15 +202,15 @@ Demo Statement de referencia (del orchestration_plan):
 
 Verificación del self-checklist:
 
-- [ ] `plan/vertical_slice_plan.md` existe en disco con contenido
+- [ ] `040_planning/vertical_slice_plan.md` existe en disco con contenido
 - [ ] Todas las VS-xx de la lista final tienen sección con los 6 campos obligatorios
-- [ ] Cada IC-xx referenciado existe en `design/contract_definitions.md`
-- [ ] Cada SC-xx/SE-xx referenciado existe en `specification/bdd_features.md`
-- [ ] `plan/project_roadmap.md` existe en disco con contenido
+- [ ] Cada IC-xx referenciado existe en `030_design/contract_definitions.md`
+- [ ] Cada SC-xx/SE-xx referenciado existe en `020_specification/bdd_features.md`
+- [ ] `040_planning/project_roadmap.md` existe en disco con contenido
 - [ ] Tabla de secuencia con posición, tipo, dependencias y duración por VS-xx
 - [ ] Los 3 hitos obligatorios marcados con ★ (Tracer Bullet, MVP, Robustez)
 - [ ] Sección de verificación de ausencia de ciclos con resultado explícito
-- [ ] `plan/risk_register.md` existe en disco con contenido
+- [ ] `040_planning/risk_register.md` existe en disco con contenido
 - [ ] ≥1 RK-xx por cada VS-xx de `vertical_slice_plan.md`
 - [ ] Cada RK-xx tiene probabilidad, impacto y mitigación concreta (no genérica)
 

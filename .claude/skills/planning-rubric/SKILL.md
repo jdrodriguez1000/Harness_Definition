@@ -1,4 +1,4 @@
----
+﻿---
 name: planning-rubric
 description: Rúbrica de evaluación del 040 Planning Harness. Define las 5 dimensiones de evaluación, las anclas de calibración (0.2/0.5/0.8/1.0), la regla de gate (≥0.75) y la regla de veto (D5=0.0). Usar cuando planning-evaluator evalúa los 3 artefactos finales del Planning.
 user-invocable: false
@@ -9,7 +9,7 @@ agent: planning-evaluator
 
 | ID | Dimensión | Pregunta central |
 |----|-----------|-----------------|
-| D1 | VS Coverage | ¿Todos los IC-xx de `design/contract_definitions.md` y todos los SC-xx/SE-xx de `specification/bdd_features.md` están asignados a ≥1 slice en `vertical_slice_plan.md`? ¿Sin huérfanos? |
+| D1 | VS Coverage | ¿Todos los IC-xx de `030_design/contract_definitions.md` y todos los SC-xx/SE-xx de `020_specification/bdd_features.md` están asignados a ≥1 slice en `vertical_slice_plan.md`? ¿Sin huérfanos? |
 | D2 | Slice Definition Quality | ¿Cada slice en `vertical_slice_plan.md` tiene los 6 campos obligatorios: nombre, tipo, IC-xx, BDD scenarios, Criterio de Done con referencias a IDs concretos, y estimación de esfuerzo? |
 | D3 | Roadmap Coherence | ¿La secuencia en `project_roadmap.md` respeta TB→Crecimiento→MVP→Evolución→Robustez? ¿Sin dependencias circulares? ¿Los 3 hitos obligatorios marcados? ¿Dependencias VS-xx → VS-xx explícitas y derivadas de DEP-xx? |
 | D4 | Risk Completeness | ¿`risk_register.md` tiene ≥1 RK-xx por slice? ¿Cada RK-xx tiene probabilidad (Alta/Media/Baja), impacto (Alto/Medio/Bajo) y mitigación concreta (no genérica)? |
@@ -115,10 +115,10 @@ que no exista en `contract_definitions.md` o `bdd_features.md`.
 D5 = 0.0 se asigna cuando existe una contradicción directa y no documentada entre artefactos.
 Ejemplos:
 
-- `vertical_slice_plan.md` asigna IC-07 a VS-03, pero IC-07 no existe en `design/contract_definitions.md` y no hay nota explicando la adición.
+- `vertical_slice_plan.md` asigna IC-07 a VS-03, pero IC-07 no existe en `030_design/contract_definitions.md` y no hay nota explicando la adición.
 - `project_roadmap.md` coloca VS-04 (Evolución) antes de VS-03 (MVP) sin documentar la excepción a la estructura obligatoria.
 - `risk_register.md` documenta RK-05 para VS-06, pero VS-06 no existe en `vertical_slice_plan.md`.
-- `vertical_slice_plan.md` lista SC-15 en VS-04, pero SC-15 no existe en `specification/bdd_features.md` y no hay nota de adición.
+- `vertical_slice_plan.md` lista SC-15 en VS-04, pero SC-15 no existe en `020_specification/bdd_features.md` y no hay nota de adición.
 - Un tipo de slice declarado como "Crecimiento" en `vertical_slice_plan.md` pero sin posición de Crecimiento en `project_roadmap.md` (aparece después del MVP sin justificación).
 
 Una inconsistencia documentada (marcada con `[PENDIENTE]` o en nota explícita) no activa el veto —

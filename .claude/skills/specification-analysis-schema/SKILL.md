@@ -1,4 +1,4 @@
----
+﻿---
 name: specification-analysis-schema
 description: Schema y formato del archivo spec_analysis_report.md del 020 Specification Harness. Usar cuando specification-analyst escribe el reporte o cuando specification-writer lo lee para producir los 4 artefactos finales.
 user-invocable: false
@@ -7,7 +7,7 @@ agent: specification-analyst
 
 ## Ruta del archivo
 
-`/specification/spec_analysis_report.md`
+`/020_specification/spec_analysis_report.md`
 
 ## Propósito del reporte
 
@@ -28,10 +28,10 @@ Iteración: [N]
 
 | Input | Path | Estado |
 |-------|------|--------|
-| shared_understanding.md | /discovery/shared_understanding.md | leído |
-| domain_glossary.md      | /discovery/domain_glossary.md      | leído |
-| scope_boundaries.md     | /discovery/scope_boundaries.md     | leído |
-| failure_behavior.md     | /discovery/failure_behavior.md     | leído |
+| shared_understanding.md | /010_discovery/shared_understanding.md | leído |
+| domain_glossary.md      | /010_discovery/domain_glossary.md      | leído |
+| scope_boundaries.md     | /010_discovery/scope_boundaries.md     | leído |
+| failure_behavior.md     | /010_discovery/failure_behavior.md     | leído |
 
 Resoluciones de PENDIENTE recibidas del governor: [N ítems / ninguna]
 

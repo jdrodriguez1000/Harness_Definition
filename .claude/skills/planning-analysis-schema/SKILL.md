@@ -1,4 +1,4 @@
----
+﻿---
 name: planning-analysis-schema
 description: Schema y formato del archivo planning_analysis_report.md del 040 Planning Harness. Usar cuando planning-analyst escribe el reporte o cuando planning-writer lo lee para producir los 3 artefactos finales.
 user-invocable: false
@@ -7,7 +7,7 @@ agent: planning-analyst
 
 ## Ruta del archivo
 
-`/plan/planning_analysis_report.md`
+`/040_planning/planning_analysis_report.md`
 
 ## Propósito del reporte
 
@@ -22,9 +22,9 @@ exclusivamente desde este reporte (más I-1, I-4, I-6 e I-12 para referencia dir
 | Prefijo | Concepto | Ejemplo |
 |---------|----------|---------|
 | VS-xx | Vertical Slice (tomados del draft del 030; nuevos si hay división) | VS-03 |
-| IC-xx | Interface de `design/contract_definitions.md` a asignar a slices | IC-05 |
-| SC-xx / SE-xx | Escenario BDD de `specification/bdd_features.md` a asignar a slices | SC-07 |
-| DEP-xx | Dependencia de `design/dependency_graph.md` que impone orden entre slices | DEP-02 |
+| IC-xx | Interface de `030_design/contract_definitions.md` a asignar a slices | IC-05 |
+| SC-xx / SE-xx | Escenario BDD de `020_specification/bdd_features.md` a asignar a slices | SC-07 |
+| DEP-xx | Dependencia de `030_design/dependency_graph.md` que impone orden entre slices | DEP-02 |
 | RK-xx | Riesgo preliminar identificado por slice | RK-03 |
 
 ## Estructura del reporte
@@ -39,18 +39,18 @@ Iteración: [N]
 
 | Input | Path | Estado |
 |-------|------|--------|
-| test_strategy_map.md           | /design/test_strategy_map.md           | leído |
-| architecture_decision_records.md | /design/architecture_decision_records.md | leído |
-| technical_blueprint.md         | /design/technical_blueprint.md         | leído |
-| contract_definitions.md        | /design/contract_definitions.md        | leído |
-| dependency_graph.md            | /design/dependency_graph.md            | leído |
-| bdd_features.md                | /specification/bdd_features.md         | leído |
-| data_contracts.md              | /specification/data_contracts.md       | leído |
-| acceptance_criteria.md         | /specification/acceptance_criteria.md  | leído |
-| error_exception_policy.md      | /specification/error_exception_policy.md | leído |
-| shared_understanding.md        | /discovery/shared_understanding.md     | leído |
-| scope_boundaries.md            | /discovery/scope_boundaries.md         | leído |
-| domain_glossary.md             | /discovery/domain_glossary.md          | leído |
+| test_strategy_map.md           | /030_design/test_strategy_map.md           | leído |
+| architecture_decision_records.md | /030_design/architecture_decision_records.md | leído |
+| technical_blueprint.md         | /030_design/technical_blueprint.md         | leído |
+| contract_definitions.md        | /030_design/contract_definitions.md        | leído |
+| dependency_graph.md            | /030_design/dependency_graph.md            | leído |
+| bdd_features.md                | /020_specification/bdd_features.md         | leído |
+| data_contracts.md              | /020_specification/data_contracts.md       | leído |
+| acceptance_criteria.md         | /020_specification/acceptance_criteria.md  | leído |
+| error_exception_policy.md      | /020_specification/error_exception_policy.md | leído |
+| shared_understanding.md        | /010_discovery/shared_understanding.md     | leído |
+| scope_boundaries.md            | /010_discovery/scope_boundaries.md         | leído |
+| domain_glossary.md             | /010_discovery/domain_glossary.md          | leído |
 
 ## Sección 1 — VS-xx del Draft del 030
 
@@ -179,7 +179,7 @@ para orientar al writer. Asignar IDs RK-xx provisionales.)
 
 Antes de reportar COMPLETED, verificar cada condición:
 
-- [ ] `plan/planning_analysis_report.md` existe en disco (Write ejecutado como primer tool call — LL-01)
+- [ ] `040_planning/planning_analysis_report.md` existe en disco (Write ejecutado como primer tool call — LL-01)
 - [ ] Tabla de validación de granularidad completa para cada VS-xx del draft del 030
 - [ ] Lista de IC-xx huérfanos completa (puede ser vacía — debe ser explícita)
 - [ ] Lista de BDD scenarios huérfanos completa (puede ser vacía — debe ser explícita)
@@ -214,7 +214,7 @@ Gaps de escalamiento: [N]
 
 ## Reglas de escritura
 
-- **El Write de `plan/planning_analysis_report.md` es el primer tool call** después de
+- **El Write de `040_planning/planning_analysis_report.md` es el primer tool call** después de
   completar el análisis. Sin excepción. No reportar COMPLETED antes de haber escrito el archivo.
 - Asignar IDs secuenciales: VS-xx de reutiliza del draft del 030 (no se reasignan); nuevas por
   división según la convención documentada en Sección 2; riesgos preliminares RK-xx; gaps GAP-01.

@@ -1,11 +1,11 @@
----
+﻿---
 name: design-synthesis-schema
 description: Schema y formato de los 5 artefactos finales del 030 Design Harness producidos por design-architect. Usar cuando design-architect escribe los artefactos o cuando design-evaluator los lee para auditar.
 user-invocable: false
 agent: design-architect
 ---
 
-Los 5 artefactos deben escribirse en la carpeta `/design/`. La carpeta ya existe (creada por el governor en E10-A).
+Los 5 artefactos deben escribirse en la carpeta `/030_design/`. La carpeta ya existe (creada por el governor en E10-A).
 
 **Orden de producción obligatorio:**
 
@@ -33,7 +33,7 @@ Las IDs que el architect asigna en los artefactos finales:
 
 ## Artefacto 1 — architecture_decision_records.md
 
-**Path:** `/design/architecture_decision_records.md`
+**Path:** `/030_design/architecture_decision_records.md`
 **Producir primero.** ADR-001 define el stack; sin él ningún otro artefacto puede mencionar tecnologías concretas.
 
 ```markdown
@@ -129,7 +129,7 @@ decisión arquitectónica relevante (no detalles de implementación).]
 
 ## Artefacto 2 — technical_blueprint.md
 
-**Path:** `/design/technical_blueprint.md`
+**Path:** `/030_design/technical_blueprint.md`
 **Producir segundo.** Requiere que ADR-001 esté completo para poder mencionar tecnologías concretas en los módulos.
 
 ```markdown
@@ -220,7 +220,7 @@ class Producto:
 
 ## Artefacto 3 — contract_definitions.md
 
-**Path:** `/design/contract_definitions.md`
+**Path:** `/030_design/contract_definitions.md`
 **Producir tercero.** Formaliza cada IC-xx del analysis_report con firmas completas de métodos y DTOs.
 
 ```markdown
@@ -301,7 +301,7 @@ class [EntidadErrorDTO]:      # DTO-xx — respuesta de error
 
 ## Artefacto 4 — dependency_graph.md
 
-**Path:** `/design/dependency_graph.md`
+**Path:** `/030_design/dependency_graph.md`
 **Producir cuarto.** Documenta cómo se conectan los módulos y cómo se gestiona la inyección de dependencias.
 
 ```markdown
@@ -378,7 +378,7 @@ Stack de referencia: ADR-001
 
 ## Artefacto 5 — test_strategy_map.md
 
-**Path:** `/design/test_strategy_map.md`
+**Path:** `/030_design/test_strategy_map.md`
 **Producir quinto.** Cubre cada IC-xx con su estrategia de mock/stub e incluye la Guía de Vertical Slices (ADJ-04).
 
 ```markdown
@@ -545,4 +545,4 @@ Antes de ejecutar el self-checklist del Demo Statement, verificar la consistenci
 - [ ] Ningún artefacto menciona una tecnología no definida en ADR-001
 - [ ] Todos los nombres de clases, interfaces y métodos usan términos del `domain_glossary.md`
 - [ ] `test_strategy_map.md` tiene sección "Guía de Vertical Slices" con Tracer Bullet, MVP y Robustez; cada slice tiene los 5 campos: nombre, tipo, IC-xx asignados, BDD scenarios (SC-xx/SE-xx), criterio de Done
-- [ ] Los 5 archivos existen en `/design/` con contenido (Write ejecutado para cada uno)
+- [ ] Los 5 archivos existen en `/030_design/` con contenido (Write ejecutado para cada uno)

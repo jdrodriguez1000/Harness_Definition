@@ -1,4 +1,4 @@
-## Ciclo 040 Planning
+﻿## Ciclo 040 Planning
 
 El ciclo completo de interacción para el 040 Planning Harness.
 
@@ -46,6 +46,13 @@ Usando el texto de `sprint_contract` del `GOVERNOR_RESULT`, presentar al usuario
 → El governor retornará un nuevo `SPRINT_CONTRACT_READY`.
 → Repetir hasta aprobación o cancelación.
 
+**Si el usuario usa `/forge-override "texto"`:**
+→ El comando habrá registrado el override y retornado `FORGE_OVERRIDE_RESULT`.
+→ Volver al Paso A incluyendo en el prompt:
+  `adjustment_request: <constraint_str del FORGE_OVERRIDE_RESULT>`
+→ El governor incorpora la restricción como constraint duro en el nuevo Sprint Contract.
+→ Repetir el loop hasta aprobación.
+
 **Si el usuario cancela:**
 → Notificar: "El harness 040 Planning ha sido cancelado. El estado queda en PENDING_CONTRACT."
 → Detener.
@@ -84,9 +91,9 @@ Preparar el mensaje de presentación. Si el `GOVERNOR_RESULT` incluye `review_st
 ```
 El 040 Planning Harness ha producido los siguientes documentos para tu revisión:
 
-- Vertical Slice Plan: /plan/vertical_slice_plan.md
-- Project Roadmap:     /plan/project_roadmap.md
-- Risk Register:       /plan/risk_register.md
+- Vertical Slice Plan: /040_planning/vertical_slice_plan.md
+- Project Roadmap:     /040_planning/project_roadmap.md
+- Risk Register:       /040_planning/risk_register.md
 
 [Si review_status == HAS_MINOR_ISSUES:]
 Nota: el revisor detectó los siguientes issues menores (no bloqueantes):
@@ -119,6 +126,17 @@ Los artefactos fueron actualizados con los cambios solicitados. Por favor revisa
 ¿Los apruebas ahora?
 ```
 → Repetir Paso D hasta aprobación.
+
+**Si el usuario usa `/forge-override "texto"`:**
+→ El comando habrá registrado el override y retornado `FORGE_OVERRIDE_RESULT`.
+→ Invocar `planning-governor` con:
+```
+[MODO: POST_CP03]
+cp03_decision: rework
+changes: <constraint_str del FORGE_OVERRIDE_RESULT>
+```
+→ El governor re-ejecuta el worker afectado con la restricción como constraint duro (no negociable).
+→ Si `REWORK_COMPLETE` → volver a presentar CP-03.
 
 ### Paso E — Gate CP-04 (aprobación formal) — SIEMPRE independiente de CP-03 (LL-25)
 
@@ -166,9 +184,9 @@ Resultado: <decision del verdict — APPROVED/REJECTED>
 Score: <score> (<dimensiones D1..D5>)
 
 Artefactos producidos:
-- plan/vertical_slice_plan.md
-- plan/project_roadmap.md
-- plan/risk_register.md
+- 040_planning/vertical_slice_plan.md
+- 040_planning/project_roadmap.md
+- 040_planning/risk_register.md
 
 ¿Deseas iniciar ahora el 050 Vertical Harness?
 ```
@@ -183,8 +201,7 @@ Leer `GOVERNOR_RESULT`:
 
 - **`HANDOFF_READY`**: Notificar al usuario:
   ```
-  Deploy del 050 completado. Para continuar, reinicia la sesión de Claude Code en este directorio.
-  El CLAUDE.md detectará automáticamente el estado y lanzará el governor del 050.
+  Deploy del 050 completado. Reinicia la sesión de Claude Code en este directorio y ejecuta /forge-restart para continuar.
   ```
   Fin de la sesión actual.
 

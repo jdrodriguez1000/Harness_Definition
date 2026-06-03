@@ -1,17 +1,17 @@
----
+﻿---
 name: discovery-synthesis-schema
 description: Schema y formato de los 4 artefactos finales del 010 Discovery Harness producidos por discovery-synthesizer. Usar cuando discovery-synthesizer escribe los artefactos o cuando discovery-evaluator los lee para auditar.
 user-invocable: false
 agent: discovery-synthesizer
 ---
 
-Los 4 artefactos deben escribirse en la carpeta `/discovery/`. Crear la carpeta si no existe.
+Los 4 artefactos deben escribirse en la carpeta `/010_discovery/`. Crear la carpeta si no existe.
 
 ---
 
 ## Artefacto 1 — shared_understanding.md
 
-**Path:** `/discovery/shared_understanding.md`
+**Path:** `/010_discovery/shared_understanding.md`
 
 ```
 # Shared Understanding Document — 010 Discovery
@@ -64,7 +64,7 @@ Registro: [cita textual de la aprobación o —]
 
 ## Artefacto 2 — scope_boundaries.md
 
-**Path:** `/discovery/scope_boundaries.md`
+**Path:** `/010_discovery/scope_boundaries.md`
 
 ```
 # Scope Boundaries — 010 Discovery
@@ -98,7 +98,7 @@ Fecha: [fecha]
 
 ## Artefacto 3 — domain_glossary.md
 
-**Path:** `/discovery/domain_glossary.md`
+**Path:** `/010_discovery/domain_glossary.md`
 
 ```
 # Domain Glossary — 010 Discovery
@@ -126,7 +126,7 @@ Fecha: [fecha]
 
 ## Artefacto 4 — failure_behavior.md
 
-**Path:** `/discovery/failure_behavior.md`
+**Path:** `/010_discovery/failure_behavior.md`
 
 ```
 # Failure Behavior — 010 Discovery
@@ -170,4 +170,4 @@ Antes de reportar a B, verificar:
 - [ ] `scope_boundaries.md` tiene ≥3 exclusiones
 - [ ] `domain_glossary.md` tiene ≥5 términos
 - [ ] `failure_behavior.md` tiene ≥1 escenario por actor principal
-- [ ] Los 4 archivos existen en `/discovery/`
+- [ ] Los 4 archivos existen en `/010_discovery/`

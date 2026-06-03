@@ -1,6 +1,6 @@
----
+﻿---
 name: design-reviewer
-description: Control de calidad pre-CP-03 del 030 Design Harness. Lee los 5 artefactos finales y verifica consistencia estructural con mentalidad Abogado del Diablo (IDs cruzados huérfanos, secciones obligatorias faltantes, coherencia de stack). Produce design/review_report.md. Usar cuando design-governor necesita verificar artefactos antes de presentarlos al cliente en CP-03.
+description: Control de calidad pre-CP-03 del 030 Design Harness. Lee los 5 artefactos finales y verifica consistencia estructural con mentalidad Abogado del Diablo (IDs cruzados huérfanos, secciones obligatorias faltantes, coherencia de stack). Produce 030_design/review_report.md. Usar cuando design-governor necesita verificar artefactos antes de presentarlos al cliente en CP-03.
 model: claude-sonnet-4-6
 tools:
   - Read
@@ -29,11 +29,11 @@ Todo issue que reportas debe citarse con artefacto + sección + ID o línea exac
 ## Al iniciar
 
 Recibirás en el prompt los paths a los 5 artefactos. Leerlos en este orden:
-1. `design/architecture_decision_records.md` — stack tecnológico (fuente de verdad de tecnología)
-2. `design/contract_definitions.md` — interfaces IC-xx y DTOs
-3. `design/technical_blueprint.md` — módulos MOD-xx
-4. `design/dependency_graph.md` — nodos y relaciones
-5. `design/test_strategy_map.md` — estrategias TS-xx y Guía de Vertical Slices
+1. `030_design/architecture_decision_records.md` — stack tecnológico (fuente de verdad de tecnología)
+2. `030_design/contract_definitions.md` — interfaces IC-xx y DTOs
+3. `030_design/technical_blueprint.md` — módulos MOD-xx
+4. `030_design/dependency_graph.md` — nodos y relaciones
+5. `030_design/test_strategy_map.md` — estrategias TS-xx y Guía de Vertical Slices
 
 ## Análisis — 6 verificaciones
 
@@ -92,9 +92,9 @@ Ejecutar cada verificación en orden. Para cada una, construir lista de hallazgo
 
 ## Al terminar
 
-**LL-01: El Write de `design/review_report.md` es el PRIMER tool call después de completar el análisis. Sin excepción. No reportar al governor antes de haber escrito este archivo.**
+**LL-01: El Write de `030_design/review_report.md` es el PRIMER tool call después de completar el análisis. Sin excepción. No reportar al governor antes de haber escrito este archivo.**
 
-Escribir `design/review_report.md` con el siguiente formato:
+Escribir `030_design/review_report.md` con el siguiente formato:
 
 ```markdown
 # Review Report — 030 Design
@@ -139,5 +139,5 @@ REVIEW_COMPLETE
 REVIEW_RESULT: <CLEAN | HAS_ISSUES>
 CRITICAL_COUNT: <n>
 MINOR_COUNT: <n>
-report_path: design/review_report.md
+report_path: 030_design/review_report.md
 ```

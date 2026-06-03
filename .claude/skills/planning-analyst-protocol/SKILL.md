@@ -1,4 +1,4 @@
----
+﻿---
 name: planning-analyst-protocol
 description: Protocolo analítico del planning-analyst en el 040 Planning Harness. Define el orden de lectura de los 12 inputs, las 6 tareas de extracción (inventario VS, granularidad, asignación IC-xx, asignación BDD, dependencias, riesgos), la regla de no-inferencia, el criterio de done y el límite de iteraciones. Usar cuando planning-analyst ejecuta su análisis sobre los 12 inputs del 040.
 user-invocable: false
@@ -16,18 +16,18 @@ a uno de los 12 inputs listados.
 
 Leer en este orden para construir el contexto progresivamente antes de ejecutar las tareas:
 
-1. `discovery/domain_glossary.md` — fijar el vocabulario obligatorio antes de leer nada más
-2. `discovery/scope_boundaries.md` — identificar qué está fuera de alcance (no asignar a slices)
-3. `discovery/shared_understanding.md` — restricciones generales del proyecto y expectativas del cliente
-4. `specification/bdd_features.md` — lista canónica de SC-xx/SE-xx a asignar a slices
-5. `specification/data_contracts.md` — entidades del dominio (contexto de complejidad por slice)
-6. `specification/acceptance_criteria.md` — criterios de aceptación que impactan el scope de slices
-7. `specification/error_exception_policy.md` — políticas de error (informa slices de Robustez)
-8. `design/contract_definitions.md` — lista canónica de IC-xx a asignar a slices
-9. `design/dependency_graph.md` — DEP-xx que imponen orden entre slices
-10. `design/technical_blueprint.md` — MOD-xx para contar complejidad técnica por slice
-11. `design/architecture_decision_records.md` — stack tecnológico (informa estimación de esfuerzo)
-12. `design/test_strategy_map.md` — **fuente principal**: VS draft del 030 con la sección "Guía de Vertical Slices"
+1. `010_discovery/domain_glossary.md` — fijar el vocabulario obligatorio antes de leer nada más
+2. `010_discovery/scope_boundaries.md` — identificar qué está fuera de alcance (no asignar a slices)
+3. `010_discovery/shared_understanding.md` — restricciones generales del proyecto y expectativas del cliente
+4. `020_specification/bdd_features.md` — lista canónica de SC-xx/SE-xx a asignar a slices
+5. `020_specification/data_contracts.md` — entidades del dominio (contexto de complejidad por slice)
+6. `020_specification/acceptance_criteria.md` — criterios de aceptación que impactan el scope de slices
+7. `020_specification/error_exception_policy.md` — políticas de error (informa slices de Robustez)
+8. `030_design/contract_definitions.md` — lista canónica de IC-xx a asignar a slices
+9. `030_design/dependency_graph.md` — DEP-xx que imponen orden entre slices
+10. `030_design/technical_blueprint.md` — MOD-xx para contar complejidad técnica por slice
+11. `030_design/architecture_decision_records.md` — stack tecnológico (informa estimación de esfuerzo)
+12. `030_design/test_strategy_map.md` — **fuente principal**: VS draft del 030 con la sección "Guía de Vertical Slices"
 
 **Precondición crítica:** Si `test_strategy_map.md` no contiene la sección "Guía de Vertical Slices"
 o no tiene los 3 hitos mínimos (Tracer Bullet, MVP, Robustez), registrar gap y emitir
@@ -37,7 +37,7 @@ o no tiene los 3 hitos mínimos (Tracer Bullet, MVP, Robustez), registrar gap y 
 
 ### Tarea 1 — Inventario del Draft VS (Sección 1 del reporte)
 
-Fuente: `design/test_strategy_map.md`, sección "Guía de Vertical Slices".
+Fuente: `030_design/test_strategy_map.md`, sección "Guía de Vertical Slices".
 
 Extraer la lista completa de slices propuestas por el 030. Para cada VS-xx:
 - Nombre descriptivo
@@ -52,7 +52,7 @@ Reglas:
 
 ### Tarea 2 — Validación de Granularidad (Sección 2 del reporte)
 
-Fuente: `design/test_strategy_map.md` (VS draft), `design/contract_definitions.md` (IC-xx totales), `specification/bdd_features.md` (BDD scenarios totales).
+Fuente: `030_design/test_strategy_map.md` (VS draft), `030_design/contract_definitions.md` (IC-xx totales), `020_specification/bdd_features.md` (BDD scenarios totales).
 
 Para cada VS-xx de la lista del inventario, verificar los 3 límites máximos:
 - **Máx. 3 IC-xx nuevas** por slice (IC-xx que aparecen por primera vez en esa slice, no heredadas)
@@ -72,7 +72,7 @@ Reglas de división:
 
 ### Tarea 3 — Asignación de IC-xx (Sección 3 del reporte)
 
-Fuente: `design/contract_definitions.md` (lista canónica de IC-xx).
+Fuente: `030_design/contract_definitions.md` (lista canónica de IC-xx).
 
 Objetivo: que cada IC-xx de `contract_definitions.md` esté asignado a ≥1 slice al terminar.
 
@@ -89,7 +89,7 @@ Regla: No crear IC-xx nuevas. Solo los IC-xx de `contract_definitions.md` son v�
 
 ### Tarea 4 — Asignación de BDD Scenarios (Sección 4 del reporte)
 
-Fuente: `specification/bdd_features.md` (lista canónica de SC-xx/SE-xx).
+Fuente: `020_specification/bdd_features.md` (lista canónica de SC-xx/SE-xx).
 
 Objetivo: que cada SC-xx/SE-xx de `bdd_features.md` esté asignado a ≥1 slice al terminar.
 
@@ -108,7 +108,7 @@ Regla: No crear SC-xx ni SE-xx nuevos. Solo los que existen en `bdd_features.md`
 
 ### Tarea 5 — Matriz de Dependencias entre Slices (Sección 5 del reporte)
 
-Fuente: `design/dependency_graph.md` (DEP-xx), lista final de slices (Tareas 1+2).
+Fuente: `030_design/dependency_graph.md` (DEP-xx), lista final de slices (Tareas 1+2).
 
 Derivar dependencias entre slices a partir de los DEP-xx:
 - Si la slice B necesita una IC-xx que la slice A implementa, entonces B depende de A.
@@ -158,7 +158,7 @@ IC-xx, DEP-xx, ADR-xx o sección de input específica que lo fundamenta.
 Verificar después de completar las 6 tareas. Si alguna condición falla, actualizar el reporte
 antes de reportar COMPLETED.
 
-- [ ] `plan/planning_analysis_report.md` escrito en disco (Write es el PRIMER tool call — LL-01)
+- [ ] `040_planning/planning_analysis_report.md` escrito en disco (Write es el PRIMER tool call — LL-01)
 - [ ] Sección 1: tabla de inventario VS completa con todos los VS-xx del draft del 030
 - [ ] Sección 2: tabla de granularidad completa con resultado PASA o DIVIDE para cada VS-xx
 - [ ] Sección 2: convención de nomenclatura documentada (si hay divisiones)

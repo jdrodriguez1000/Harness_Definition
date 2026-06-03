@@ -45,7 +45,34 @@ Los tres archivos de persistencia viven en la carpeta `persistence/` del directo
     "CP-04_formal_approval": null
   },
   "escalations": [],
-  "last_updated": "<timestamp ISO 8601>"
+  "overrides": [],
+  "last_updated": "<timestamp ISO 8601>",
+  "suspension": null
+}
+```
+
+El campo `"overrides"` es un array de objetos. Cada objeto representa un override registrado por el usuario vía `/forge-override`. Estructura de cada elemento:
+```json
+{
+  "id": "OV-001",
+  "timestamp": "<ISO 8601>",
+  "harness": "010_discovery",
+  "texto": "<texto del override tal como lo escribió el usuario>",
+  "status": "ACTIVE"
+}
+```
+- El campo `"overrides"` es escrito por el comando `/forge-override` (no por el governor).
+- El governor solo lo lee (en E10-A.7) para incorporar los constraints duros al Sprint Contract.
+
+El campo `suspension` es `null` cuando el harness no está suspendido. Cuando `/forge-suspend` es invocado, el governor escribe el bloque completo:
+```json
+"suspension": {
+  "timestamp": "<ISO 8601>",
+  "harness": "010_discovery",
+  "governor_mode": "INIT | EXECUTE | POST_CP03 | POST_CP04",
+  "last_checkpoint": "null | CP-01 | CP-02 | CP-03",
+  "context_note": "<descripción libre del estado al momento de suspender>",
+  "resume_instruction": "<qué hacer al reanudar — instrucción para E10-B o para el workflow>"
 }
 ```
 
@@ -53,6 +80,7 @@ Los tres archivos de persistencia viven en la carpeta `persistence/` del directo
 - `ACTIVE` — ejecución en curso (estado inicial tras aprobación del Sprint Contract)
 - `IN_REWORK` — rechazo técnico de C; discovery-governor re-spawnea discovery-orchestrator
 - `HOLD` — rechazo estratégico; requiere nueva aprobación humana antes de continuar
+- `SUSPENDED` — harness suspendido por `/forge-suspend`; esperando `/forge-resume` para continuar
 - `PHASE_COMPLETE` — C emitió APPROVED y discovery-governor cerró la fase; activa handoff al 020
 
 **Reglas de lectura para discovery-orchestrator:**
@@ -146,6 +174,7 @@ Los tres archivos de persistencia viven en la carpeta `persistence/` del directo
 | `RECHAZO TÉCNICO` | discovery-evaluator emitió REJECTED por razones técnicas |
 | `RECHAZO ESTRATÉGICO` | discovery-evaluator emitió REJECTED por razones estratégicas |
 | `CANCELADO` | Humano canceló el harness en gate del Sprint Contract |
+| `SUSPENSIÓN` | `/forge-suspend` fue invocado; estado de ejecución persistido en harness-state.json |
 | `CIERRE` | Fase 010 Discovery COMPLETA; artefactos listos para 020 |
 
 **Reglas:**

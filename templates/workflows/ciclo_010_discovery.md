@@ -1,4 +1,4 @@
-## Ciclo 010 Discovery
+﻿## Ciclo 010 Discovery
 
 El ciclo completo de interacción para el 010 Discovery Harness. Gestiona las invocaciones al governor y todas las interacciones con el usuario.
 
@@ -46,6 +46,13 @@ Usando el texto de `sprint_contract` del `GOVERNOR_RESULT`, presentar al usuario
 → El governor retornará un nuevo `SPRINT_CONTRACT_READY` con el contrato actualizado.
 → Repetir este loop hasta aprobación o cancelación.
 
+**Si el usuario usa `/forge-override "texto"`:**
+→ El comando habrá registrado el override y retornado `FORGE_OVERRIDE_RESULT`.
+→ Volver al Paso A incluyendo en el prompt:
+  `adjustment_request: <constraint_str del FORGE_OVERRIDE_RESULT>`
+→ El governor incorpora la restricción como constraint duro en el nuevo Sprint Contract.
+→ Repetir el loop hasta aprobación.
+
 **Si el usuario cancela:**
 → Notificar: "El harness 010 Discovery ha sido cancelado. El estado queda en PENDING_CONTRACT."
 → Detener.
@@ -78,7 +85,7 @@ Invocar `discovery-dialoguer` como subagente (`subagent_type: "discovery-dialogu
 Eres discovery-dialoguer. Directorio de trabajo: <path absoluto>.
 Brief del proyecto: <inputs del GOVERNOR_RESULT.inputs>
 Contexto: <context del GOVERNOR_RESULT.context>
-Conduce la entrevista socrática completa con el cliente y produce /discovery/dialogue_transcript.md.
+Conduce la entrevista socrática completa con el cliente y produce /010_discovery/dialogue_transcript.md.
 ```
 
 El dialoguer conduce las rondas de preguntas con el usuario usando AskUserQuestion. Esperar a que complete y retorne su reporte.
@@ -111,10 +118,10 @@ Presentar al usuario con `AskUserQuestion`:
 ```
 El 010 Discovery Harness ha producido los siguientes documentos para tu revisión:
 
-- Shared Understanding: /discovery/shared_understanding.md
-- Scope Boundaries: /discovery/scope_boundaries.md
-- Domain Glossary: /discovery/domain_glossary.md
-- Failure Behavior: /discovery/failure_behavior.md
+- Shared Understanding: /010_discovery/shared_understanding.md
+- Scope Boundaries: /010_discovery/scope_boundaries.md
+- Domain Glossary: /010_discovery/domain_glossary.md
+- Failure Behavior: /010_discovery/failure_behavior.md
 
 ¿Los apruebas tal como están, o necesitas cambios antes de la aprobación formal?
 ```
@@ -141,6 +148,17 @@ Los artefactos fueron actualizados con los cambios solicitados. Por favor revisa
 ¿Los apruebas ahora?
 ```
 → Repetir Paso D hasta aprobación.
+
+**Si el usuario usa `/forge-override "texto"`:**
+→ El comando habrá registrado el override y retornado `FORGE_OVERRIDE_RESULT`.
+→ Invocar `discovery-governor` con:
+```
+[MODO: POST_CP03]
+cp03_decision: rework
+changes: <constraint_str del FORGE_OVERRIDE_RESULT>
+```
+→ El governor re-ejecuta el worker afectado con la restricción como constraint duro (no negociable).
+→ Si `REWORK_COMPLETE` → volver a presentar CP-03.
 
 ### Paso E — Gate CP-04 (aprobación formal) — SIEMPRE independiente de CP-03 (ADJ-16 / LL-25)
 
@@ -188,10 +206,10 @@ Resultado: <decision del verdict — APPROVED/REJECTED>
 Score: <score> (<dimensiones D1..D5>)
 
 Artefactos producidos:
-- discovery/shared_understanding.md
-- discovery/scope_boundaries.md
-- discovery/domain_glossary.md
-- discovery/failure_behavior.md
+- 010_discovery/shared_understanding.md
+- 010_discovery/scope_boundaries.md
+- 010_discovery/domain_glossary.md
+- 010_discovery/failure_behavior.md
 
 ¿Deseas iniciar ahora el 020 Specification Harness?
 ```
@@ -206,8 +224,7 @@ Leer `GOVERNOR_RESULT`:
 
 - **`HANDOFF_READY`**: Notificar al usuario:
   ```
-  Deploy del 020 completado. Para continuar, reinicia la sesión de Claude Code en este directorio.
-  El CLAUDE.md detectará automáticamente el estado y lanzará specification-governor.
+  Deploy del 020 completado. Reinicia la sesión de Claude Code en este directorio y ejecuta /forge-restart para continuar.
   ```
   Fin de la sesión actual.
 

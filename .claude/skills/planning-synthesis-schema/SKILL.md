@@ -1,11 +1,11 @@
----
+﻿---
 name: planning-synthesis-schema
 description: Schema y formato de los 3 artefactos finales del 040 Planning Harness producidos por planning-writer. Usar cuando planning-writer escribe los artefactos o cuando planning-evaluator los lee para auditar.
 user-invocable: false
 agent: planning-writer
 ---
 
-Los 3 artefactos deben escribirse en la carpeta `/plan/`. La carpeta ya existe (creada por el governor en E10-A).
+Los 3 artefactos deben escribirse en la carpeta `/040_planning/`. La carpeta ya existe (creada por el governor en E10-A).
 
 **Orden de producción obligatorio:**
 
@@ -15,9 +15,9 @@ Los 3 artefactos deben escribirse en la carpeta `/plan/`. La carpeta ya existe (
 
 Las IDs que planning-writer recibe desde `planning_analysis_report.md` y debe usar:
 - `VS-xx` — slices del draft del 030 más las nuevas por división
-- `IC-xx` — interfaces de `design/contract_definitions.md` ya asignadas a slices
-- `SC-xx / SE-xx` — BDD scenarios de `specification/bdd_features.md` ya asignados a slices
-- `DEP-xx` — dependencias de `design/dependency_graph.md` que imponen orden entre slices
+- `IC-xx` — interfaces de `030_design/contract_definitions.md` ya asignadas a slices
+- `SC-xx / SE-xx` — BDD scenarios de `020_specification/bdd_features.md` ya asignados a slices
+- `DEP-xx` — dependencias de `030_design/dependency_graph.md` que imponen orden entre slices
 - `RK-xx` — riesgos preliminares del planning_analysis_report (el writer los formaliza)
 
 Las IDs que planning-writer asigna en los artefactos finales:
@@ -28,7 +28,7 @@ Las IDs que planning-writer asigna en los artefactos finales:
 
 ## Artefacto 1 — vertical_slice_plan.md
 
-**Path:** `/plan/vertical_slice_plan.md`
+**Path:** `/040_planning/vertical_slice_plan.md`
 **Producir primero.** Define las VS-xx formalmente con los 6 campos obligatorios cada una.
 
 ```markdown
@@ -88,8 +88,8 @@ Total slices: [N] | Tracer Bullet: 1 | Crecimiento: [N] | MVP: 1 | Evolución: [
 **6 campos obligatorios por slice (LL-24):**
 1. **Nombre** — identificador descriptivo en lenguaje ubicuo del domain_glossary.md
 2. **Tipo** — uno de: `Tracer Bullet`, `Crecimiento`, `MVP`, `Evolución`, `Robustez`
-3. **IC-xx asignados** — lista de IC-xx de `design/contract_definitions.md` asignados a esta slice (al menos uno)
-4. **BDD Scenarios asignados** — lista de SC-xx/SE-xx de `specification/bdd_features.md` asignados (al menos uno)
+3. **IC-xx asignados** — lista de IC-xx de `030_design/contract_definitions.md` asignados a esta slice (al menos uno)
+4. **BDD Scenarios asignados** — lista de SC-xx/SE-xx de `020_specification/bdd_features.md` asignados (al menos uno)
 5. **Criterio de Done** — condiciones verificables con referencias explícitas a IC-xx y SC-xx/SE-xx específicos. **La frase exacta del campo debe comenzar con los IC-xx concretos**, no con generalidades.
 6. **Estimación de esfuerzo** — una de: `XS`, `S`, `M`, `L`, `XL`, con justificación en términos de IC-xx count y complejidad del stack del ADR-001
 
@@ -103,7 +103,7 @@ Total slices: [N] | Tracer Bullet: 1 | Crecimiento: [N] | MVP: 1 | Evolución: [
 
 ## Artefacto 2 — project_roadmap.md
 
-**Path:** `/plan/project_roadmap.md`
+**Path:** `/040_planning/project_roadmap.md`
 **Producir segundo.** Requiere las slices de `vertical_slice_plan.md` para poder secuenciar.
 
 ```markdown
@@ -111,7 +111,7 @@ Total slices: [N] | Tracer Bullet: 1 | Crecimiento: [N] | MVP: 1 | Evolución: [
 Fecha: [fecha]
 Estado: DRAFT | APROBADO POR CLIENTE
 Producido por: planning-writer
-Fuente de dependencias: design/dependency_graph.md (DEP-xx)
+Fuente de dependencias: 030_design/dependency_graph.md (DEP-xx)
 
 ---
 
@@ -199,7 +199,7 @@ Resultado: SIN CICLOS | CICLO DETECTADO: [descripción]
 
 ## Artefacto 3 — risk_register.md
 
-**Path:** `/plan/risk_register.md`
+**Path:** `/040_planning/risk_register.md`
 **Producir tercero.** Requiere la lista final de VS-xx del vertical_slice_plan para garantizar ≥1 RK-xx por slice.
 
 ```markdown
@@ -254,8 +254,8 @@ Producido por: planning-writer
 
 Antes de ejecutar el self-checklist del Demo Statement, verificar la consistencia entre los 3 artefactos:
 
-- [ ] Cada IC-xx de `design/contract_definitions.md` aparece en ≥1 VS-xx de `vertical_slice_plan.md`
-- [ ] Cada SC-xx/SE-xx de `specification/bdd_features.md` aparece en ≥1 VS-xx de `vertical_slice_plan.md`
+- [ ] Cada IC-xx de `030_design/contract_definitions.md` aparece en ≥1 VS-xx de `vertical_slice_plan.md`
+- [ ] Cada SC-xx/SE-xx de `020_specification/bdd_features.md` aparece en ≥1 VS-xx de `vertical_slice_plan.md`
 - [ ] Cada VS-xx de `vertical_slice_plan.md` aparece en `project_roadmap.md`
 - [ ] Cada VS-xx de `vertical_slice_plan.md` tiene ≥1 RK-xx en `risk_register.md`
 - [ ] La secuencia en `project_roadmap.md` respeta Tracer Bullet → MVP → Robustez (con Crecimiento y Evolución en sus posiciones)
@@ -263,4 +263,4 @@ Antes de ejecutar el self-checklist del Demo Statement, verificar la consistenci
 - [ ] Los 3 hitos obligatorios (★) están marcados en `project_roadmap.md`
 - [ ] Ningún IC-xx ni SC-xx/SE-xx referenciado en `vertical_slice_plan.md` que no exista en `contract_definitions.md` o `bdd_features.md`
 - [ ] Todos los nombres de slices usan términos del `domain_glossary.md`
-- [ ] Los 3 archivos existen en `/plan/` con contenido (Write ejecutado para cada uno — LL-01)
+- [ ] Los 3 archivos existen en `/040_planning/` con contenido (Write ejecutado para cada uno — LL-01)
