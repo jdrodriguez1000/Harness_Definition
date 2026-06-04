@@ -246,8 +246,8 @@ Si `status == "AUDIT_PENDING"`:
 - **Si existe la entrada** (el evaluator ya terminó antes de la interrupción): ejecutar directamente el bloque **"Paso 4 — Leer resultado de auditoría"** del Modo POST_CP04 con los datos de esa entrada.
 - **Si NO existe la entrada** (el evaluator no llegó a escribir): re-spawear `vertical-evaluator` con el mismo prompt definido en el Paso 3 del Modo POST_CP04, luego ejecutar el Paso 4.
 
-**CHECK 3 — SLICE_COMPLETE desde el 070:**
-Si `active_slice != null` y `slices[active_slice] == "SLICE_COMPLETE"`:
+**CHECK 3 — PROD_READY desde el 080:**
+Si `active_slice != null` y `slices[active_slice] == "PROD_READY"`:
 - Buscar el primer VS-xx con estado `"PENDING"` en el dict `slices`.
 - **Si existe una slice PENDING:**
   - Verificar que sus predecesoras (según `project_roadmap.md`) están en `SLICE_COMPLETE`. Si alguna no lo está: retornar INIT_FAILED con bloqueo detallado.
@@ -287,7 +287,7 @@ GOVERNOR_RESULT:
 | `IN_REWORK` | — | — | `RESUME_AT_EXECUTE` con contexto de rework |
 | Cualquiera | — | `WORKER_FAILED` | `RESUME_AT_EXECUTE` con contexto de fallo |
 | `HOLD` | — | — | `RESUME_HOLD` |
-| `PHASE_COMPLETE` | — | — | `ALREADY_COMPLETE` |
+| `PHASE_COMPLETE` | — | — | `ALREADY_COMPLETE` — todas las VS-xx en PROD_READY |
 
 **RESUME_AT_EXECUTE:**
 ```
@@ -885,13 +885,13 @@ git commit -m "docs(050-vertical): <VS-xx> DOCS_READY — 5 artefactos producido
 
 ### Si close_type == TOTAL
 
-**Paso 1 — Verificar que todas las slices están SLICE_COMPLETE:**
-Leer `harness-state.json["050_vertical"]["slices"]`. Si alguna slice no está `"SLICE_COMPLETE"`:
+**Paso 1 — Verificar que todas las slices están PROD_READY:**
+Leer `harness-state.json["050_vertical"]["slices"]`. Si alguna slice no está `"PROD_READY"`:
 ```
 GOVERNOR_RESULT:
   mode: CLOSE
   status: CLOSE_BLOCKED
-  error: No todas las slices están SLICE_COMPLETE. Pendientes: [lista de VS-xx != SLICE_COMPLETE].
+  error: No todas las slices están PROD_READY. Pendientes: [lista de VS-xx != PROD_READY].
 ```
 
 **Paso 2 — Marcar PHASE_COMPLETE:**

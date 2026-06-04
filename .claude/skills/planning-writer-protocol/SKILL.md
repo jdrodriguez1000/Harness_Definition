@@ -106,6 +106,22 @@ El writer nunca escribe el valor `APROBADO POR CLIENTE` — esto es responsabili
 - Los valores acumulados de IC-xx y BDD Scenarios en MVP y Robustez deben ser consistentes con
   las slices anteriores en el roadmap (no inventar IC-xx cubiertas).
 
+**Grupos de Deploy (sección obligatoria):**
+Producir una sección `Deployment Groups` que define cómo se agrupan las slices para deploy al 090.
+
+- Identificar la agrupación natural a partir de las dependencias de la Sección 5 del analysis_report
+  y de la cohesión funcional de las slices (slices del mismo módulo de dominio → mismo grupo).
+- Si no emerge ninguna agrupación natural, crear un grupo único `DG-01` con todas las slices.
+- Por cada grupo `DG-xx` documentar:
+  - **Slices incluidas:** lista de VS-xx que lo componen.
+  - **Predecesores de deploy requeridos:** lista de DG-xx que deben estar en estado `DEPLOYED`
+    antes de que este grupo pueda desplegarse. Si es el primer grupo: "ninguno".
+  - **Justificación:** razón de la agrupación (cohesión funcional, módulo compartido, dependencia
+    contractual entre IC-xx, etc.). No escribir justificaciones genéricas.
+- Regla de deployabilidad: un grupo solo puede deployarse cuando **todas** sus VS-xx tienen estado
+  `PROD_READY` (completaron el ciclo 050→060→070→080) y sus predecesores de deploy están `DEPLOYED`.
+- Los IDs DG-xx son permanentes — no renumerar si se agrega o elimina un grupo.
+
 **Regla de campo Estado:**
 Siempre escribir `Estado: DRAFT`. El governor edita este campo tras CP-04.
 
@@ -167,6 +183,8 @@ de pasar al self-checklist del Demo Statement.
 ### Consistencia entre artefactos finales
 
 - [ ] Cada VS-xx de `vertical_slice_plan.md` aparece en la tabla de secuencia de `project_roadmap.md`
+- [ ] `project_roadmap.md` incluye sección `Deployment Groups` con ≥1 grupo DG-xx definido
+- [ ] Cada DG-xx lista sus VS-xx, sus predecesores de deploy y su justificación
 - [ ] Cada VS-xx de `vertical_slice_plan.md` tiene ≥1 RK-xx en `risk_register.md`
 - [ ] La secuencia en `project_roadmap.md` respeta Tracer Bullet → MVP → Robustez (con Crecimiento antes del MVP y Evolución entre MVP y Robustez)
 - [ ] Los 3 hitos obligatorios (★) están marcados en `project_roadmap.md`
@@ -210,6 +228,7 @@ Verificación del self-checklist:
 - [ ] Tabla de secuencia con posición, tipo, dependencias y duración por VS-xx
 - [ ] Los 3 hitos obligatorios marcados con ★ (Tracer Bullet, MVP, Robustez)
 - [ ] Sección de verificación de ausencia de ciclos con resultado explícito
+- [ ] Sección `Deployment Groups` presente con ≥1 DG-xx que incluye slices, predecesores y justificación
 - [ ] `040_planning/risk_register.md` existe en disco con contenido
 - [ ] ≥1 RK-xx por cada VS-xx de `vertical_slice_plan.md`
 - [ ] Cada RK-xx tiene probabilidad, impacto y mitigación concreta (no genérica)
