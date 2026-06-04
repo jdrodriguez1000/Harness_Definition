@@ -263,9 +263,12 @@ la estructura mínima en E10-A Paso 7 / E10-B Paso 7 antes de spawnear el orches
 | `persistence/harness-state.json` (entrada "050_vertical") | vertical-governor únicamente | vertical-orchestrator |
 | `persistence/harness-state.json` (slices[VS-xx] = "SLICE_COMPLETE") | vertical-governor (070 escribe la excepción cross-harness) | vertical-governor |
 | `persistence/execution-state.json` | vertical-orchestrator únicamente | vertical-governor |
+| `contract/050_vertical_VS-xx.md` (uno por slice) | vertical-governor únicamente | humanos (lectura) |
 
 Ningún Worker (vertical-analyst, vertical-writer, vertical-reviewer, vertical-evaluator) escribe
 ninguno de estos archivos. Los Workers solo reportan paths a quien los spawnea.
+
+`contract/050_vertical_VS-xx.md` es una copia legible del Sprint Contract aprobado para cada slice, escrita por el governor en el Paso 1 de EXECUTE. El nombre incluye el ID real de la slice (ej. `contract/050_vertical_VS-02.md`). No es un archivo de estado — no se lee programáticamente. La carpeta `contract/` la crea el governor si no existe.
 
 ---
 

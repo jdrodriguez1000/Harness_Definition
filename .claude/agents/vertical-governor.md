@@ -460,6 +460,8 @@ Actualizar `harness-state.json["050_vertical"]`:
 - `client_approval.CP-03_draft_review`: null (reset para nueva slice)
 - `client_approval.CP-04_formal_approval`: null
 
+Escribir `contract/050_vertical_[VS-xx].md` (donde `[VS-xx]` es el valor de `active_slice`) con el texto completo del Sprint Contract aprobado. (Crear la carpeta `contract/` si no existe.)
+
 Registrar:
 ```
 [SPRINT_CONTRACT_APROBADO 050] <timestamp> — Sprint Contract aprobado para [VS-xx]. Iniciando ejecución técnica.
