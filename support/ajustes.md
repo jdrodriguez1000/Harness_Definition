@@ -12,8 +12,8 @@ Registro de ajustes identificados que aún no han sido implementados.
 | ------ | ----------------------------------------------------------------------------------------------------------- | ------------- | --------- |
 | IMP-22 | No hay mecanismo de knowledge cross-project — aprendizajes no viajan entre proyectos                        | SIGNIFICATIVA | DISEÑADO — PENDIENTE IMPL. |
 | IMP-28 | No existe dashboard HTML en tiempo real para observar el progreso del harness                               | MENOR         | PENDIENTE |
-| ADJ-04 | Harness 040 Planning: rediseñar para trabajar bajo Vertical Slices con iteraciones                          | SIGNIFICATIVA | PARCIAL — impacto en 030 implementado (Sesión 49 + ADJ-32 Sesión 61); 040 pendiente de construir |
-| ADJ-05 | Harness 050 Iteration: renombrar a "050 Vertical Harness" y redefinir su scope                              | SIGNIFICATIVA | PARCIAL — blueprint plans/050_vertical_harness.md creado (Sesión 79); harness operativo pendiente de construir |
+| ADJ-04 | Harness 040 Planning: rediseñar para trabajar bajo Vertical Slices con iteraciones                          | SIGNIFICATIVA | IMPLEMENTADO — 040 completo (Sesiones 63-68): 6 agentes, 8 skills, ciclo y conectores |
+| ADJ-05 | Harness 050 Iteration: renombrar a "050 Vertical Harness" y redefinir su scope                              | SIGNIFICATIVA | IMPLEMENTADO — 050 completo (Sesiones 79-85): Fases 0-3, 6 agentes, 8 skills, ciclo y conectores |
 | ADJ-06 | Harness 060 Isolation: limitar ejecución a la vertical slice / iteración activa                             | MENOR         | DISEÑADO — documentado en blueprint del 050 (Sesión 79); pendiente de implementar en el 060 |
 | ADJ-07 | Harness 070 Execution: renombrar a "070 Development Harness" y reasignar numeración                         | MENOR         | DISEÑADO — nombre 070 Development Harness confirmado (Sesión 79); pendiente de construir el harness |
 | ADJ-08 | README.md del proyecto: incluirlo en `deploy-harness.ps1` para que se copie al cliente                     | MENOR         | PENDIENTE |
@@ -75,7 +75,7 @@ aprendidas y decisiones tomadas arranca vacío.
 
 ---
 
-### ADJ-04 — Harness 040 Planning: rediseñar para Vertical Slices — PARCIAL (impacto 030 implementado)
+### ADJ-04 — Harness 040 Planning: rediseñar para Vertical Slices — IMPLEMENTADO
 
 **Prioridad:** SIGNIFICATIVA
 
@@ -117,7 +117,7 @@ draft y lo consolida.
 
 ---
 
-### ADJ-05 — Harness 050: renombrar a "050 Vertical Harness" — PARCIAL
+### ADJ-05 — Harness 050: renombrar a "050 Vertical Harness" — IMPLEMENTADO
 
 **Prioridad:** SIGNIFICATIVA
 
@@ -132,13 +132,13 @@ El 050 Vertical Harness trabaja una slice a la vez tomando el plan maestro del 0
 - `execution_plan.md` — Features → Tickets → Tasks en orden TDD (Red→Green→Refactor)
 
 **Decisiones de diseño tomadas (Sesión 79):**
-- Opción B confirmada: iterativo slice a slice (050→060→070→050→...), no batch
+- Opción B confirmada: iterativo slice a slice (050→060→070→080→050→...), no batch
 - Output path: `/050_vertical/VS-xx/` — subcarpeta por slice
-- Estado por slice: PENDING → DOCS_READY → SLICE_COMPLETE
-- El 070 escribe `SLICE_COMPLETE` al cerrar (único handshake cross-harness)
+- Estado por slice: PENDING → DOCS_READY → SLICE_COMPLETE → PROD_READY
+- El 070 escribe `SLICE_COMPLETE` y el 080 escribe `PROD_READY` (handshakes cross-harness)
 - Blueprint creado: `plans/050_vertical_harness.md`
 
-**Pendiente:** construir el harness operativo (6 agentes + 8 skills + ciclo + conectores)
+**Implementado (Sesiones 79-86):** 6 agentes (vertical-analyst, vertical-writer, vertical-reviewer, vertical-evaluator, vertical-orchestrator, vertical-governor), 8 skills, ciclo `ciclo_050_vertical.md`, routing en `client-project-CLAUDE.md`, ciclo extendido 050→060→070→080 con estado PROD_READY.
 
 ---
 
@@ -331,7 +331,7 @@ Complemento de ADJ-26. Cuando el usuario regresa a un proyecto suspendido, escri
 
 ---
 
-### ADJ-30 — Renombrar carpetas de output de harnesses — PENDIENTE
+### ADJ-30 — Renombrar carpetas de output de harnesses — IMPLEMENTADO
 
 **Prioridad:** SIGNIFICATIVA
 

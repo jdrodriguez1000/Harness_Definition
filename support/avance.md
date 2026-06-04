@@ -8,9 +8,9 @@
 
 ## Estado General del Proyecto
 
-- **Fecha de última actualización:** 2026-06-04 (Sesión 86)
-- **Fase actual:** Harnesses 010, 020, 030 y 040 COMPLETOS. 050 Vertical Harness COMPLETO (Fases 0, 1, 2 y 3) con ciclo extendido a 050→060→070→080 por slice. FORGE CLI operativo. Próximo: construir el 060 Isolation Harness.
-- **Estado:** 29 lecciones registradas (LL-01..LL-29). Ciclo por slice extendido: se agrega el 080 al ciclo y PROD_READY como estado terminal de slice. Deployment Groups definidos en project_roadmap.md. 4 gaps corregidos en vertical-governor.
+- **Fecha de última actualización:** 2026-06-04 (Sesión 87)
+- **Fase actual:** Harnesses 010, 020, 030 y 040 COMPLETOS. 050 Vertical Harness COMPLETO (Fases 0, 1, 2 y 3) con ciclo extendido a 050→060→070→080 por slice. FORGE CLI operativo. ADJ-35 implementado: governors 010-050 escriben sprint contract en `contract/`. Próximo: construir el 060 Isolation Harness.
+- **Estado:** 29 lecciones registradas (LL-01..LL-29). Sprint contracts legibles en `contract/` (uno por harness, uno por slice en el 050). ADJ-04 y ADJ-05 cerrados como IMPLEMENTADOS en ajustes.md.
 
 ---
 
@@ -131,6 +131,30 @@ Harness_Definition/
 ---
 
 ## Historial de Sesiones
+
+### Sesión 87 — 2026-06-04
+
+**Objetivo:** Implementar ADJ-35 — persistir sprint contracts como archivos .md legibles en la carpeta `contract/`; actualizar ajustes.md cerrando los ajustes ya implementados (ADJ-04, ADJ-05, ADJ-30).
+
+**Trabajo realizado:**
+- ADJ-35 implementado en los 5 governors:
+  - `.claude/agents/discovery-governor.md` — Paso 1 de EXECUTE escribe `contract/010_discovery.md`
+  - `.claude/agents/specification-governor.md` — ídem `contract/020_specification.md`
+  - `.claude/agents/design-governor.md` — ídem `contract/030_design.md`
+  - `.claude/agents/planning-governor.md` — ídem `contract/040_planning.md`
+  - `.claude/agents/vertical-governor.md` — escribe `contract/050_vertical_[VS-xx].md` (uno por slice, nombre con ID real interpolado)
+- ADJ-35 documentado en los 5 state schemas (Single Writer Rule): `contract/<NNN>_<nombre>.md` agregado con nota de que no es archivo de estado y que el governor crea la carpeta si no existe.
+- `support/ajustes.md` — ADJ-04 y ADJ-05 marcados IMPLEMENTADO; encabezado de sección ADJ-30 corregido a IMPLEMENTADO; ADJ-05 actualizado con estado real del harness y ciclo extendido.
+- 2 commits y push a GitHub: `df1bff1` (050 Vertical Harness completo + ADJ-35 para 010-040) y `7e83039` (ADJ-35 para vertical-governor y vertical-state-schema).
+
+**Decisiones clave:**
+| Decisión | Detalle |
+|----------|---------|
+| Carpeta `contract/` en lugar de `sprint_contract/` | Nombre más corto, elegido por el usuario. El governor la crea en runtime si no existe — sin cambios en deploy-harness.ps1. |
+| `contract/050_vertical_VS-xx.md` con ID interpolado | El campo `sprint_contract` en harness-state.json rota con cada slice nueva — sin el archivo .md la auditoría de contratos anteriores sería imposible. Cada slice tiene su copia persistente. |
+| 050 fuera del scope original de ADJ-35, incluido a pedido | ADJ-35 solo mencionaba 010-040. Al explicar que el 050 sobreescribe el campo por slice, el usuario confirmó que quería cubrirlo también. |
+
+---
 
 ### Sesión 86 — 2026-06-04
 
@@ -837,9 +861,9 @@ y producir el **plan maestro completo** del proyecto.
 
 **Handoff del 040 → 050:** el plan maestro aprobado es la fuente de verdad para el 050 Vertical Harness, que trabaja una slice a la vez.
 
-### Ajustes pendientes que impactan el 040
-- **ADJ-04** — Ver `support/ajustes.md` para la estructura formal de VS y responsabilidades del 040
-- **ADJ-05** — El 050 se llamará "050 Vertical Harness" (a confirmar al construir el 040)
+### Ajustes implementados relacionados con el 040
+- **ADJ-04** — IMPLEMENTADO: 040 Planning Harness construido completo (Sesiones 63-68)
+- **ADJ-05** — IMPLEMENTADO: 050 Vertical Harness construido completo (Sesiones 79-85)
 
 ---
 
