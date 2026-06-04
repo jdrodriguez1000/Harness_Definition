@@ -13,9 +13,9 @@ Registro de ajustes identificados que aún no han sido implementados.
 | IMP-22 | No hay mecanismo de knowledge cross-project — aprendizajes no viajan entre proyectos                        | SIGNIFICATIVA | DISEÑADO — PENDIENTE IMPL. |
 | IMP-28 | No existe dashboard HTML en tiempo real para observar el progreso del harness                               | MENOR         | PENDIENTE |
 | ADJ-04 | Harness 040 Planning: rediseñar para trabajar bajo Vertical Slices con iteraciones                          | SIGNIFICATIVA | PARCIAL — impacto en 030 implementado (Sesión 49 + ADJ-32 Sesión 61); 040 pendiente de construir |
-| ADJ-05 | Harness 050 Iteration: renombrar a "050 Vertical Harness" y redefinir su scope                              | SIGNIFICATIVA | PENDIENTE |
-| ADJ-06 | Harness 060 Isolation: limitar ejecución a la vertical slice / iteración activa                             | MENOR         | PENDIENTE |
-| ADJ-07 | Harness 070 Execution: renombrar a "080 Development Harness" y reasignar numeración                         | MENOR         | PENDIENTE |
+| ADJ-05 | Harness 050 Iteration: renombrar a "050 Vertical Harness" y redefinir su scope                              | SIGNIFICATIVA | PARCIAL — blueprint plans/050_vertical_harness.md creado (Sesión 79); harness operativo pendiente de construir |
+| ADJ-06 | Harness 060 Isolation: limitar ejecución a la vertical slice / iteración activa                             | MENOR         | DISEÑADO — documentado en blueprint del 050 (Sesión 79); pendiente de implementar en el 060 |
+| ADJ-07 | Harness 070 Execution: renombrar a "070 Development Harness" y reasignar numeración                         | MENOR         | DISEÑADO — nombre 070 Development Harness confirmado (Sesión 79); pendiente de construir el harness |
 | ADJ-08 | README.md del proyecto: incluirlo en `deploy-harness.ps1` para que se copie al cliente                     | MENOR         | PENDIENTE |
 | ADJ-12 | Meta-Harness: referencia académica para optimización automática de harnesses                                | MENOR         | PENDIENTE |
 | ADJ-24 | 010 Discovery: modelo de entrevista síncrona genera latencia y limita paralelismo — evaluar modelo async con cuestionario + ronda de gaps | SIGNIFICATIVA | PENDIENTE — evaluar antes de construir el 040 |
@@ -29,7 +29,7 @@ Registro de ajustes identificados que aún no han sido implementados.
 | ADJ-32 | /forge-restart invoca governors via Agent tool con subagent_type nombrado en lugar de ejecutar el ciclo paso a paso | SIGNIFICATIVA | IMPLEMENTADO |
 | ADJ-33 | /forge-restart no maneja el estado PENDING_HANDOFF — modelo puede asumir DEPLOYED incorrectamente y fallar en runtime | CRÍTICA | IMPLEMENTADO |
 | ADJ-34 | Fallback inseguro cuando el governor no está disponible: el modelo ejecuta el protocolo inline en lugar de detenerse con error | CRÍTICA | IMPLEMENTADO |
-| ADJ-35 | Sprint contracts deben persistirse como archivos .md en carpeta sprint_contract/ (ej. sprint_contract/010_discovery.md) | MENOR | PENDIENTE |
+| ADJ-35 | Sprint contracts deben persistirse como archivos .md en carpeta contract/ (ej. contract/010_discovery.md) | MENOR | IMPLEMENTADO |
 | ADJ-36 | CLAUDE.md escribe handoff status DEPLOYED sin verificar que deploy-harness.ps1 tuvo éxito — estado inconsistente si el deploy falla | CRÍTICA | IMPLEMENTADO |
 | ADJ-37 | Discovery-governor pregunta si pasar al 020 antes de haber escrito los artefactos de eval/ y knowledge/ | CRÍTICA | IMPLEMENTADO |
 
@@ -117,38 +117,53 @@ draft y lo consolida.
 
 ---
 
-### ADJ-05 — Harness 050: renombrar a "050 Vertical Harness" — PENDIENTE
+### ADJ-05 — Harness 050: renombrar a "050 Vertical Harness" — PARCIAL
 
 **Prioridad:** SIGNIFICATIVA
 
 **Descripción:**
-El 050 Vertical Harness trabaja exclusivamente en la iteración activa definida en el 040.
+El 050 Vertical Harness trabaja una slice a la vez tomando el plan maestro del 040 como fuente de verdad. Corre N veces — una por cada VS-xx del `vertical_slice_plan.md`.
 
-**Artefactos que produce:**
-- `Proposal` — objetivo de la iteración
-- `SDS` (Software Design Specification) — arquitectura, interfaces y contratos
-- `SDD` (Software Design Document) — especificación técnica detallada
-- `testing_plan` — plan de pruebas
-- `execution_plan` — Feature → Tickets → Tasks bajo TDD
+**Artefactos que produce (confirmados en Sesión 79):**
+- `proposal.md` — valor de negocio, scope (IC-xx + BDD scenarios), dependencias y riesgos de la slice
+- `software_design_specification.md` (SDS) — QUÉ hace la slice: flujos BDD, AC verificables, comportamiento de errores
+- `software_design_document.md` (SDD) — CÓMO se implementa: módulos, IC-xx con firmas, DTOs, DI, orden
+- `testing_plan.md` — estrategia TDD: mock/stub por IC-xx, pirámide de tests, Red phase explícita
+- `execution_plan.md` — Features → Tickets → Tasks en orden TDD (Red→Green→Refactor)
+
+**Decisiones de diseño tomadas (Sesión 79):**
+- Opción B confirmada: iterativo slice a slice (050→060→070→050→...), no batch
+- Output path: `/050_vertical/VS-xx/` — subcarpeta por slice
+- Estado por slice: PENDING → DOCS_READY → SLICE_COMPLETE
+- El 070 escribe `SLICE_COMPLETE` al cerrar (único handshake cross-harness)
+- Blueprint creado: `plans/050_vertical_harness.md`
+
+**Pendiente:** construir el harness operativo (6 agentes + 8 skills + ciclo + conectores)
 
 ---
 
-### ADJ-06 — Harness 060 Isolation: limitar a la vertical slice activa — PENDIENTE
+### ADJ-06 — Harness 060 Isolation: limitar a la vertical slice activa — DISEÑADO
 
 **Prioridad:** MENOR
 
 **Descripción:**
-El 060 Isolation se ejecutará exclusivamente en el contexto de la vertical slice activa definida en el 040 y especificada en el 050. No opera sobre el proyecto completo.
+El 060 Isolation se ejecutará exclusivamente en el contexto de la vertical slice activa
+definida en el 040 y especificada en el 050. No opera sobre el proyecto completo.
+
+**Decisión documentada (Sesión 79):** condición de activación del 060: `harness-state.json`
+debe tener `"050_vertical.slices.VS-xx": "DOCS_READY"`. Pendiente de implementar al
+construir el harness 060.
 
 ---
 
-### ADJ-07 — Harness 070/080: renombrar y reasignar numeración — PENDIENTE
+### ADJ-07 — Harness 070/080: renombrar y reasignar numeración — DISEÑADO
 
 **Prioridad:** MENOR
 
 **Descripción:**
-- `070_execution_harness` pasa a llamarse **`070 Development Harness`**.
+- `070_execution_harness` pasa a llamarse **`070 Development Harness`** (confirmado en Sesión 79).
 - Revisar la numeración de todos los harnesses afectados para mantener coherencia en la secuencia 010–090.
+- El 070 es responsable de escribir `"050_vertical.slices.VS-xx": "SLICE_COMPLETE"` en `harness-state.json` al cerrar cada slice (único handshake cross-harness de FORGE).
 
 ---
 
@@ -431,33 +446,32 @@ Este comportamiento es peligroso porque: (a) el contexto del governor no está a
 
 ---
 
-### ADJ-35 — Sprint contracts persistidos como archivos .md en carpeta sprint_contract/ — PENDIENTE
+### ADJ-35 — Sprint contracts persistidos como archivos .md en carpeta contract/ — IMPLEMENTADO
 
 **Prioridad:** MENOR
 
 **Descripción:**
-Actualmente los sprint contracts se guardan únicamente como campos de texto dentro de `persistence/harness-state.json` (`sprint_contract` y `sprint_contract_draft`). Esto los hace difíciles de leer, revisar y comparar directamente. El ajuste propone que cada governor, al aprobar el Sprint Contract (transición a `ACTIVE`), escriba también el texto completo en un archivo `.md` independiente bajo una carpeta `sprint_contract/` en el directorio del proyecto cliente.
+Actualmente los sprint contracts se guardan únicamente como campos de texto dentro de `persistence/harness-state.json` (`sprint_contract` y `sprint_contract_draft`). Esto los hace difíciles de leer, revisar y comparar directamente. Cada governor, al aprobar el Sprint Contract (transición a `ACTIVE`), escribe también el texto completo en un archivo `.md` independiente bajo la carpeta `contract/` en el directorio del proyecto cliente.
 
 Convención de nombres:
 | Harness | Archivo |
 |---------|---------|
-| 010 Discovery | `sprint_contract/010_discovery.md` |
-| 020 Specification | `sprint_contract/020_specification.md` |
-| 030 Design | `sprint_contract/030_design.md` |
-| 040 Planning | `sprint_contract/040_planning.md` |
+| 010 Discovery | `contract/010_discovery.md` |
+| 020 Specification | `contract/020_specification.md` |
+| 030 Design | `contract/030_design.md` |
+| 040 Planning | `contract/040_planning.md` |
 
-El campo `sprint_contract` en `harness-state.json` se mantiene para compatibilidad con los rituals E10-A/E10-B que lo leen programáticamente. El archivo `.md` es una copia legible adicional, no el reemplazo.
+El campo `sprint_contract` en `harness-state.json` se mantiene para compatibilidad con los rituals E10-A/E10-B que lo leen programáticamente. El archivo `.md` es una copia legible adicional, no el reemplazo. La carpeta `contract/` la crea el governor en runtime si no existe.
 
-**Impacto:**
-- `.claude/agents/discovery-governor.md` — agregar paso en E10-A: tras escribir `sprint_contract` en `harness-state.json`, escribir `sprint_contract/010_discovery.md`
-- `.claude/agents/specification-governor.md` — ídem para `sprint_contract/020_specification.md`
-- `.claude/agents/design-governor.md` — ídem para `sprint_contract/030_design.md`
-- `.claude/agents/planning-governor.md` — ídem para `sprint_contract/040_planning.md`
-- `deploy-harness.ps1` — evaluar si debe crear la carpeta `sprint_contract/` al desplegar el harness (o dejarla a cargo del governor)
-- Los state schemas de cada harness (`discovery-state-schema`, etc.) — documentar el nuevo archivo como output del governor
-
-**Prerequisitos antes de implementar:**
-- Ninguno — puede implementarse de forma independiente en cada governor
+**Archivos modificados:**
+- `.claude/agents/discovery-governor.md` — Paso 1 de EXECUTE: escribe `contract/010_discovery.md` tras actualizar `harness-state.json`
+- `.claude/agents/specification-governor.md` — ídem para `contract/020_specification.md`
+- `.claude/agents/design-governor.md` — ídem para `contract/030_design.md`
+- `.claude/agents/planning-governor.md` — ídem para `contract/040_planning.md`
+- `.claude/skills/discovery-state-schema/SKILL.md` — `contract/010_discovery.md` documentado en Single Writer Rule
+- `.claude/skills/specification-state-schema/SKILL.md` — ídem para `contract/020_specification.md`
+- `.claude/skills/design-state-schema/SKILL.md` — ídem para `contract/030_design.md`
+- `.claude/skills/planning-state-schema/SKILL.md` — ídem para `contract/040_planning.md`
 
 ---
 

@@ -14,5 +14,28 @@
       "PowerShell($env:HARNESS_DEPLOY_SCRIPT)",
       "Bash(claude --dangerously-skip-permissions -p *)"
     ]
-  }
+  },
+  ,
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NonInteractive -WindowStyle Hidden -File \"C:\\Users\\USUARIO\\.claude\\ccnotify.ps1\" -Event Stop"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NonInteractive -WindowStyle Hidden -File \"C:\\Users\\USUARIO\\.claude\\ccnotify.ps1\" -Event Notification"
+          }
+        ]
+      }
+    ]
+  }  
 }

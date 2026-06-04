@@ -307,6 +307,8 @@ Escribir en `persistence/harness-state.json`:
 - sprint_contract: [texto completo del Sprint Contract aprobado]
 - approved_at: `<timestamp>`
 
+Escribir `contract/010_discovery.md` con el texto completo del Sprint Contract aprobado. (Crear la carpeta `contract/` si no existe.)
+
 Registrar en `persistence/claude-progress.txt`:
 ```
 [SPRINT_CONTRACT_APROBADO] [timestamp] — Sprint Contract aprobado. Iniciando ejecución técnica.

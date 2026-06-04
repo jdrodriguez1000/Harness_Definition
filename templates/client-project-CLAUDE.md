@@ -7,6 +7,7 @@ Al iniciar cualquier sesión, **antes de responder al usuario**, determinar qué
 - Ciclo 020 → `.claude/workflows/ciclo_020_specification.md`
 - Ciclo 030 → `.claude/workflows/ciclo_030_design.md`
 - Ciclo 040 → `.claude/workflows/ciclo_040_planning.md`
+- Ciclo 050 → `.claude/workflows/ciclo_050_vertical.md`
 
 **Paso 1 — Verificar si existe `persistence/harness-state.json`:**
 
@@ -109,6 +110,36 @@ Si  harness-state["030_design"]["status"] == "PHASE_COMPLETE"
 Si  harness-state["040_planning"] existe
     Y harness-state["040_planning"]["status"] != "PHASE_COMPLETE"
     → Leer `.claude/workflows/ciclo_040_planning.md` y ejecutar Ciclo 040 Planning
+
+Si  harness-state["040_planning"]["status"] == "PHASE_COMPLETE"
+    Y harness-state["050_vertical"] no existe:
+
+    Si  harness-state["handoff_050"]["status"] == "PENDING_HANDOFF":
+        → Preguntar al humano: "El 040 Planning está completo.
+          ¿Deseas continuar ahora con el 050 Vertical Harness?"
+        Si sí:
+          Ejecutar: & "$env:HARNESS_DEPLOY_SCRIPT" -Harness 050 -Destino (Get-Location).Path
+          Verificar que el deploy tuvo éxito: Test-Path ".claude/agents/vertical-governor.md"
+          Si la verificación pasa:
+            Actualizar harness-state["handoff_050"]["status"] = "DEPLOYED" en persistence/harness-state.json
+            Notificar: "Deploy del 050 completado. Reinicia la sesión de Claude Code en este directorio y ejecuta /forge-restart para continuar."
+          Si la verificación falla:
+            Notificar: "El script de deploy no copió los agentes del 050 correctamente (.claude/agents/vertical-governor.md no existe). El estado NO fue actualizado. Ejecuta manualmente: & '$env:HARNESS_DEPLOY_SCRIPT' -Harness 050 -Destino '<ruta del proyecto>' y luego reinicia."
+          Fin.
+        Si no:
+          Notificar: "Cuando quieras continuar, abre Claude Code aquí y te lo preguntaré."
+          Fin.
+
+    Si  harness-state["handoff_050"]["status"] == "DEPLOYED":
+        → El deploy ya se ejecutó. Leer `.claude/workflows/ciclo_050_vertical.md` y ejecutar Ciclo 050 Vertical directamente.
+
+    Si  harness-state["handoff_050"] no existe:
+        → El 040 cerró pero el handoff fue interrumpido. Leer `.claude/workflows/ciclo_040_planning.md` y ejecutar Ciclo 040 Planning
+          con INIT para que complete el cierre y ofrezca el handoff.
+
+Si  harness-state["050_vertical"] existe
+    Y harness-state["050_vertical"]["status"] != "PHASE_COMPLETE"
+    → Leer `.claude/workflows/ciclo_050_vertical.md` y ejecutar Ciclo 050 Vertical
 
 Si  todos los harnesses activos están en PHASE_COMPLETE
     → Notificar al usuario: "Todos los harnesses activos están completos."

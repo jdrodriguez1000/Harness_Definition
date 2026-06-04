@@ -222,9 +222,12 @@ fallo), crea la estructura mínima como fallback antes de escribir su `orchestra
 |---------|----------|----------|
 | `persistence/harness-state.json` (entrada "040_planning") | planning-governor únicamente | planning-orchestrator |
 | `persistence/execution-state.json` | planning-orchestrator únicamente | planning-governor |
+| `contract/040_planning.md` | planning-governor únicamente | humanos (lectura) |
 
 Ningún Worker (planning-analyst, planning-writer, planning-reviewer, planning-evaluator) escribe
 ninguno de estos archivos. Los Workers solo reportan paths a quien los spawnea.
+
+`contract/040_planning.md` es una copia legible del Sprint Contract aprobado, escrita por el governor en el Paso 1 de EXECUTE. No es un archivo de estado — no se lee programáticamente. La carpeta `contract/` la crea el governor si no existe.
 
 ---
 

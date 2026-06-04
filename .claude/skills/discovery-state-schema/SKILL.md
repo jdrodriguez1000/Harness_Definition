@@ -216,8 +216,11 @@ Estructura mínima inicial (escrita por governor):
 |---------|----------|----------|
 | `persistence/harness-state.json` | discovery-governor únicamente | discovery-orchestrator |
 | `persistence/execution-state.json` | discovery-orchestrator únicamente | discovery-governor |
+| `contract/010_discovery.md` | discovery-governor únicamente | humanos (lectura) |
 
 Ningún Worker (discovery-dialoguer, discovery-analyst, discovery-synthesizer, discovery-evaluator) escribe ninguno de estos archivos. Los Workers solo reportan paths a quien los spawnea.
+
+`contract/010_discovery.md` es una copia legible del Sprint Contract aprobado, escrita por el governor en el Paso 1 de EXECUTE (junto con la escritura en `harness-state.json`). No es un archivo de estado — no se lee programáticamente. La carpeta `contract/` la crea el governor si no existe.
 
 ---
 

@@ -212,8 +212,11 @@ El campo `suspension` es `null` cuando el harness no está suspendido. Cuando `/
 |---------|----------|----------|
 | `persistence/harness-state.json` (entrada "020_specification") | specification-governor únicamente | specification-orchestrator |
 | `persistence/execution-state.json` | specification-orchestrator únicamente | specification-governor |
+| `contract/020_specification.md` | specification-governor únicamente | humanos (lectura) |
 
 Ningún Worker (specification-analyst, specification-writer, specification-evaluator) escribe ninguno de estos archivos. Los Workers solo reportan paths a quien los spawnea.
+
+`contract/020_specification.md` es una copia legible del Sprint Contract aprobado, escrita por el governor en el Paso 1 de EXECUTE. No es un archivo de estado — no se lee programáticamente. La carpeta `contract/` la crea el governor si no existe.
 
 ---
 

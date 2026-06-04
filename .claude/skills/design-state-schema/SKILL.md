@@ -224,9 +224,12 @@ fallo), crea la estructura mínima como fallback antes de escribir su `orchestra
 |---------|----------|----------|
 | `persistence/harness-state.json` (entrada "030_design") | design-governor únicamente | design-orchestrator |
 | `persistence/execution-state.json` | design-orchestrator únicamente | design-governor |
+| `contract/030_design.md` | design-governor únicamente | humanos (lectura) |
 
 Ningún Worker (design-analyst, design-architect, design-evaluator) escribe ninguno de estos
 archivos. Los Workers solo reportan paths a quien los spawnea.
+
+`contract/030_design.md` es una copia legible del Sprint Contract aprobado, escrita por el governor en el Paso 1 de EXECUTE. No es un archivo de estado — no se lee programáticamente. La carpeta `contract/` la crea el governor si no existe.
 
 ---
 
