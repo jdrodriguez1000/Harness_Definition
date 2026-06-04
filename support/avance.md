@@ -8,9 +8,9 @@
 
 ## Estado General del Proyecto
 
-- **Fecha de última actualización:** 2026-06-04 (Sesión 87)
-- **Fase actual:** Harnesses 010, 020, 030 y 040 COMPLETOS. 050 Vertical Harness COMPLETO (Fases 0, 1, 2 y 3) con ciclo extendido a 050→060→070→080 por slice. FORGE CLI operativo. ADJ-35 implementado: governors 010-050 escriben sprint contract en `contract/`. Próximo: construir el 060 Isolation Harness.
-- **Estado:** 29 lecciones registradas (LL-01..LL-29). Sprint contracts legibles en `contract/` (uno por harness, uno por slice en el 050). ADJ-04 y ADJ-05 cerrados como IMPLEMENTADOS en ajustes.md.
+- **Fecha de última actualización:** 2026-06-04 (Sesión 88)
+- **Fase actual:** Harnesses 010, 020, 030 y 040 COMPLETOS. 050 Vertical Harness COMPLETO (Fases 0, 1, 2 y 3). FORGE CLI operativo. Próximo: ejecutar Test_Harness_003 (Estilo Urbano — peluquería) desde el 010 hasta el 050 VS-01 Tracer Bullet.
+- **Estado:** 29 lecciones registradas (LL-01..LL-29). Brief de Test_Harness_003 creado. Decisión: probar el sistema completo 010→050 antes de construir los harnesses 060, 070 y 080.
 
 ---
 
@@ -131,6 +131,25 @@ Harness_Definition/
 ---
 
 ## Historial de Sesiones
+
+### Sesión 88 — 2026-06-04
+
+**Objetivo:** Decidir la siguiente tarea de construcción (060/070/080 vs. prueba end-to-end) y preparar el proyecto de prueba Test_Harness_003.
+
+**Trabajo realizado:**
+- Análisis de opciones: construir harnesses 060/070/080 vs. ejecutar prueba end-to-end 010→050.
+- Decisión: ejecutar Test_Harness_003 primero, cubriendo el flujo completo desde el 010 hasta que el 050 produce y aprueba la VS-01 Tracer Bullet (CP-04 aprobado, `CLOSURE_READY`). El handoff al 060 no se ejecuta porque el harness no existe aún.
+- Selección del proyecto de prueba: **Estilo Urbano** — peluquería pequeña con sistema de citas online.
+- Creación del brief de Test_Harness_003 — brief completo con descripción del negocio, problema central, 3 stakeholders con nombre y rol, restricciones conocidas y alcance tentativo. (El proyecto de prueba vive fuera de este repositorio.)
+
+**Decisiones clave:**
+| Decisión | Detalle |
+|----------|---------|
+| Prueba antes de construir 060/070/080 | El 050 nunca ha corrido en producción real. Los bugs de prompts ambiguos, rutas incorrectas y governors confundidos con 17 inputs son más baratos de corregir ahora que después de construir 3 harnesses encima. |
+| Alcance del test: hasta VS-01 Tracer Bullet | El 050 termina con CLOSURE_READY para el primer slice. Sin el 060, el handoff no se ejecuta — pero los 5 artefactos, Sprint Contract, auditoría y CP-03/CP-04 se validan completamente. |
+| Proyecto: Estilo Urbano (peluquería) | Dominio distinto a La Terraza (restaurante), 3 stakeholders con perspectivas genuinamente distintas (dueño, estilista, cliente frecuente), restricciones reales (sin pagos, solo web responsive, horario fijo). |
+
+---
 
 ### Sesión 87 — 2026-06-04
 
@@ -758,17 +777,20 @@ completa del patrón establecido por los harnesses 010/020/030.
 
 ## Próximos Pasos
 
-### Tarea 1 — Construir el 050 Vertical Harness (harness operativo)
+### Tarea 1 — Ejecutar Test_Harness_003 (Estilo Urbano — peluquería)
 
-**050 Vertical Harness: COMPLETADO en Sesiones 80–85 ✓**
+**Estado:** Brief creado. Pendiente ejecutar.
 
-- Fase 0 (harness canónico): ✓ Sesión 80
-- Fase 1 (8 skills base): ✓ Sesiones 81-82
-- Fase 2 (6 agentes): ✓ Sesiones 83-84
-- Fase 3 (workflow y conectores): ✓ Sesión 85
-  - `templates/workflows/ciclo_050_vertical.md` ✓
-  - `templates/client-project-CLAUDE.md` actualizado (routing 050) ✓
-  - `deploy-harness.ps1` corregido (`'050' = 'vertical'`) ✓
+Correr el flujo completo 010 → 020 → 030 → 040 → 050 con el proyecto "Estilo Urbano"
+hasta que el 050 produce y aprueba la VS-01 Tracer Bullet (CP-04 + evaluator + CLOSURE_READY).
+
+**Proyecto:** Test_Harness_003 — sistema de citas online para peluquería (vive fuera de este repo).
+**Stakeholders:** Marco Ríos (dueño), Valentina Cruz (estilista), Diego Fontana (cliente).
+**Objetivo del test:** validar el flujo end-to-end, detectar bugs en los 17 inputs del 050,
+prompts ambiguos, rutas incorrectas y comportamiento del governor ante la primera slice real.
+
+**Al terminar el test:** registrar bugs encontrados como ADJ-xx, corregirlos y luego
+construir el 060 Isolation Harness.
 
 ### Tarea 2 — Construir el 060 Isolation Harness
 
