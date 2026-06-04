@@ -8,9 +8,9 @@
 
 ## Estado General del Proyecto
 
-- **Fecha de última actualización:** 2026-06-03 (Sesión 77)
-- **Fase actual:** Harnesses 010, 020, 030 y 040 COMPLETOS. FORGE CLI operativo. ADJ-25..ADJ-30 IMPLEMENTADOS. ADJ-31 rediseñado (entry point del 100 Change Harness). 100 Change Harness definido a alto nivel. Próximo: Test_Harness_002 (prueba end-to-end 010→040, proyecto restaurante "La Terraza").
-- **Estado:** 28 lecciones registradas (LL-01..LL-28). Harnesses/100_change_harness.md creado. Brief de prueba en Tests/Test_Harness_002/inputs/brief.md.
+- **Fecha de última actualización:** 2026-06-04 (Sesión 86)
+- **Fase actual:** Harnesses 010, 020, 030 y 040 COMPLETOS. 050 Vertical Harness COMPLETO (Fases 0, 1, 2 y 3) con ciclo extendido a 050→060→070→080 por slice. FORGE CLI operativo. Próximo: construir el 060 Isolation Harness.
+- **Estado:** 29 lecciones registradas (LL-01..LL-29). Ciclo por slice extendido: se agrega el 080 al ciclo y PROD_READY como estado terminal de slice. Deployment Groups definidos en project_roadmap.md. 4 gaps corregidos en vertical-governor.
 
 ---
 
@@ -73,7 +73,8 @@ Harness_Definition/
 │   ├── 010_discovery_harness.md   — Blueprint COMPLETO
 │   ├── 020_specification_harness.md — Blueprint COMPLETO
 │   ├── 030_design_harness.md      — Blueprint COMPLETO
-│   └── 040_planning_harness.md    — Blueprint COMPLETO (Sesión 63) ✓
+│   ├── 040_planning_harness.md    — Blueprint COMPLETO (Sesión 63) ✓
+│   └── 050_vertical_harness.md    — Blueprint COMPLETO (Sesión 79) ✓
 ├── templates/
 │   ├── client-project-CLAUDE.md   — Routing only (~82 líneas) ✓
 │   ├── client-project-settings.json — Permisos pre-autorizados ✓
@@ -82,11 +83,13 @@ Harness_Definition/
 │       ├── ciclo_010_discovery.md     — Pasos A–F del 010 ✓
 │       ├── ciclo_020_specification.md — Pasos A, B-extra, B–F del 020 ✓
 │       ├── ciclo_030_design.md        — Pasos A–F del 030 ✓
-│       └── ciclo_040_planning.md      — Pasos A–F del 040 ✓
+│       ├── ciclo_040_planning.md      — Pasos A–F del 040 ✓
+│       └── ciclo_050_vertical.md     — Pasos A–F del 050 ✓ (Sesión 85)
 ├── Harnesses/
 │   ├── 010_discovery_harness.md   — COMPLETO e IMPLEMENTADO
 │   ├── 020_specification_harness.md — COMPLETO e IMPLEMENTADO
 │   ├── 030_design_harness.md      — COMPLETO e IMPLEMENTADO
+│   ├── 050_vertical_harness.md    — COMPLETO (Fase 0) — Sesión 80 ✓
 │   └── 100_change_harness.md      — DESCRIPCIÓN DE ALTO NIVEL (pendiente construcción completa)
 └── .claude/
     ├── settings.local.json        — Hooks + env vars
@@ -109,16 +112,276 @@ Harness_Definition/
             planning-analyst-protocol/     — 040 Fase 2 ✓
             planning-writer-protocol/      — 040 Fase 2 ✓
             planning-evaluator-protocol/   — 040 Fase 2 ✓
+            vertical-state-schema/         — 050 Fase 1 ✓
+            vertical-analysis-schema/      — 050 Fase 1 ✓
+            vertical-synthesis-schema/     — 050 Fase 1 ✓
+            vertical-rubric/               — 050 Fase 1 ✓
+            vertical-verdict-schema/       — 050 Fase 1 ✓ (Sesión 82)
+            vertical-analyst-protocol/     — 050 Fase 1 ✓ (Sesión 82)
+            vertical-writer-protocol/      — 050 Fase 1 ✓ (Sesión 82)
+            vertical-evaluator-protocol/   — 050 Fase 1 ✓ (Sesión 82)
     └── agents/
         ├── discovery-governor / orchestrator / dialoguer / analyst / synthesizer / evaluator — 010 ✓
         ├── specification-governor / orchestrator / analyst / writer / reviewer / evaluator — 020 ✓
         ├── design-governor / orchestrator / analyst / architect / reviewer / evaluator — 030 ✓
-        └── planning-governor / orchestrator / analyst / writer / reviewer / evaluator — 040 ✓ (Sesión 67)
+        ├── planning-governor / orchestrator / analyst / writer / reviewer / evaluator — 040 ✓ (Sesión 67)
+        └── vertical-analyst / vertical-writer / vertical-reviewer / vertical-evaluator / vertical-orchestrator / vertical-governor — 050 Fase 2 COMPLETA ✓ (Sesiones 83-84)
 ```
 
 ---
 
 ## Historial de Sesiones
+
+### Sesión 86 — 2026-06-04
+
+**Objetivo:** Auditar y corregir el agente `vertical-governor.md`; extender el ciclo por slice de 050→060→070 a 050→060→070→080 con soporte de Deployment Groups y estado PROD_READY.
+
+**Trabajo realizado:**
+- Auditoría de `.claude/agents/vertical-governor.md` — identificados 4 gaps estructurales.
+- Corrección de los 4 gaps en `vertical-governor.md`:
+  - Gap 1: Removido `discovery-knowledge-schema` del frontmatter y del cuerpo; reemplazado por instrucción de leer el archivo existente y seguir su formato.
+  - Gap 2: Agregado límite de 3 ciclos al reviewer loop (Paso 6 de EXECUTE); al 4° ciclo escala con EXECUTION_FAILED.
+  - Gap 3: CHECK 2 (AUDIT_PENDING en E10-B.5) ahora verifica si `eval/verdict.json` ya tiene la entrada antes de re-spawnar el evaluator.
+  - Gap 4: Protocolo de Rechazo Técnico incluye paso de reviewer post-rework (con límite de 2 ciclos) antes de retornar a CP-03.
+- Decisión arquitectónica: extender el ciclo por slice de 050→060→070 a **050→060→070→080**.
+- Decisión: los Deployment Groups se definen en `project_roadmap.md` (no en un artefacto nuevo).
+- Modificación de `.claude/skills/planning-writer-protocol/SKILL.md`:
+  - Sección obligatoria `Deployment Groups` en las reglas de `project_roadmap.md` (DG-xx con slices, predecesores de deploy y justificación; regla de deployabilidad requiere PROD_READY en todas las slices del grupo).
+  - 2 nuevos checks en el checklist de consistencia y 1 en el self-checklist.
+- Modificación de `.claude/skills/vertical-state-schema/SKILL.md`:
+  - Estado `PROD_READY` agregado al dict de slices (escrito por el 080 governor).
+  - `SLICE_COMPLETE` redefinido como "esperando 080".
+  - `PHASE_COMPLETE` ahora requiere PROD_READY en todas las slices.
+  - Nota cross-harness actualizada: 070 escribe SLICE_COMPLETE, 080 escribe PROD_READY.
+- Modificación de `.claude/agents/vertical-governor.md`:
+  - CHECK 3 (E10-B.5) detecta `PROD_READY` en lugar de `SLICE_COMPLETE`.
+  - CLOSE TOTAL verifica `PROD_READY` en todas las slices.
+  - Tabla de reanudación E10-B.6 actualizada.
+- 2 commits y push a GitHub.
+
+**Decisiones clave:**
+| Decisión | Detalle |
+|----------|---------|
+| Ciclo extendido a 050→060→070→080 | Cada slice completa los 4 harnesses antes de estar disponible para el 090. PROD_READY es el único estado que habilita el deploy vía 090. |
+| Deployment Groups en project_roadmap.md | No se crea un artefacto nuevo. Los DG-xx se definen como sección dentro del roadmap existente del 040 — un único artefacto para secuencia + dependencias + grupos de deploy. |
+| Regla de deployabilidad: PROD_READY + predecesores DEPLOYED | Un grupo no se puede deployar si alguna de sus slices no completó el 080, o si sus grupos predecesores no están en DEPLOYED. La resolución es responsabilidad del 090 governor. |
+| Límite de 3 ciclos en reviewer loop | Después de 3 ciclos sin CLEAN, el harness escala con EXECUTION_FAILED. Sin este límite el loop era potencialmente infinito. |
+| Rechazo Técnico pasa por reviewer antes de CP-03 | El cliente no debe ver artefactos reworkeados que no pasaron la verificación de consistencia estructural. El reviewer actúa como gate interno también en el protocolo de rechazo. |
+
+---
+
+### Sesión 85 — 2026-06-04
+
+**Objetivo:** Construir la Fase 3 del 050 Vertical Harness — workflow de ciclo y conectores.
+
+**Trabajo realizado:**
+- Creación de `templates/workflows/ciclo_050_vertical.md` — ciclo completo de interacción con 6 pasos (A–F):
+  - **Paso A:** PRECONDICIÓN (ADJ-34), invoke governor INIT, ramificación completa de 10 GOVERNOR_RESULT posibles: SPRINT_CONTRACT_READY, RESUME_AT_EXECUTE, RESUME_AT_CP03, RESUME_AT_CP04, CLOSURE_READY, PHASE_COMPLETE_READY (nuevo — trigger del Cierre Total), RESUME_AT_060_HANDOFF (nuevo — handoff 060 pendiente con pregunta inline), SUSPEND_DETECTED (con instrucción /forge-continue), RESUME_HOLD, ALREADY_COMPLETE, INIT_FAILED.
+  - **Paso B:** Loop de Sprint Contract — mismo patrón que 040 pero con mención de los 17 inputs.
+  - **Paso C:** Ejecución técnica con EXECUTION_COMPLETE / EXECUTION_FAILED.
+  - **Paso D:** Gate CP-03 con los 5 artefactos de la slice activa. Rework + forge-override incluidos.
+  - **Paso E:** Gate CP-04 formal (LL-25). Ramificación de 5 GOVERNOR_RESULT posibles.
+  - **Paso F:** Bifurcado en dos sub-secciones:
+    - **Cierre de Slice** — presenta resultado de auditoría, pregunta sobre handoff 060, invoca CLOSE con close_type: SLICE. Maneja SLICE_DOCS_READY/DEPLOYED (reiniciar sesión) y PENDING_HANDOFF (diferido).
+    - **Cierre Total** — invoca CLOSE con close_type: TOTAL, maneja PHASE_COMPLETE.
+- Actualización de `templates/client-project-CLAUDE.md`:
+  - Agregado `ciclo_050_vertical.md` al índice de workflows al inicio.
+  - Bloque completo de routing del 050 después del bloque 040: PENDING_HANDOFF (ofrecer deploy + verificar `vertical-governor.md`), DEPLOYED (ejecutar ciclo_050 directamente), handoff interrumpido (volver al cierre del 040).
+  - Bloque `050_vertical` activo y no PHASE_COMPLETE → ejecutar ciclo_050.
+  - "Todos completos" movido al final del bloque del 050.
+- Corrección de `deploy-harness.ps1` — línea 14: `'050' = 'iteration'` → `'050' = 'vertical'`.
+
+**Decisiones clave:**
+| Decisión | Detalle |
+|----------|---------|
+| PHASE_COMPLETE_READY en Paso A → Cierre Total inline | El Paso A detecta esta señal (que viene de E10-B CHECK 3) y desvía directamente a la sub-sección Cierre Total del Paso F, sin pasar por B–E. Es el único camino al Cierre Total — limpio y sin ambigüedad. |
+| RESUME_AT_060_HANDOFF con pregunta inline en Paso A | En lugar de delegar al ciclo de Cierre de Slice, el Paso A presenta la pregunta directamente e invoca CLOSE si el usuario acepta. Evita tener que duplicar el gate de decisión en el Paso F. |
+| SUSPEND_DETECTED instrucción /forge-continue | Patrón consistente con la Sesión 73 — el ciclo informa y detiene; /forge-continue es el mecanismo de reanudación explícita, no el ciclo. |
+| Cierre de Slice reutilizable desde Paso A y Paso E | El bloque "Retorno de Cierre de Slice" en Paso F es referenciado desde dos puntos: POST_CP04→CLOSURE_READY (Paso E) y RESUME_AT_060_HANDOFF (Paso A). La nota de llegada en la sub-sección lo deja explícito. |
+| deploy-harness.ps1: 1 línea, sin otros cambios | El script ya era completamente genérico — solo el mapa de nombres necesitaba corrección. |
+
+---
+
+### Sesión 84 — 2026-06-04
+
+**Objetivo:** Completar la Fase 2 del 050 Vertical Harness — crear el último agente faltante: `vertical-governor.md`.
+
+**Trabajo realizado:**
+- Creación de `.claude/agents/vertical-governor.md` — Instancia A: governor del 050. 6 modos:
+  - **INIT**: Paso 0 verifica precondición del 040 (PHASE_COMPLETE). E10-A inicializa `050_vertical` en harness-state.json con el dict `slices` {VS-xx: PENDING} extraído del roadmap, crea `/050_vertical/`, selecciona primera slice activa, inicializa execution-state.json. E10-B con 4 verificaciones previas en orden obligatorio: SUSPENDED → AUDIT_PENDING → SLICE_COMPLETE del 070 (selecciona siguiente PENDING o retorna PHASE_COMPLETE_READY) → PENDING_HANDOFF al 060. Tabla de reanudación con 8 estados. Sprint Contract construcción por slice con los 17 inputs.
+  - **EXECUTE**: Registra aprobación, spawea orchestrator (PLAN), spawea vertical-analyst con los 17 inputs y el ID de slice activa, registra CP-01, spawea vertical-writer con 6 inputs de referencia, registra CP-02, spawea vertical-reviewer. Lógica de rework automático si CRITICAL_COUNT > 0.
+  - **POST_CP03**: Procesa approved/rework. En rework: spawea vertical-writer con los cambios + referencia a review_report.md.
+  - **POST_CP04**: Paso 1 obligatorio — edita `Estado: DRAFT → APROBADO POR CLIENTE` en los 5 artefactos antes de cualquier otro paso (LL-17/LL-23). Registra AUDIT_PENDING (LL-16). Spawea vertical-evaluator. Filtra verdict.json por `"phase": "050_vertical"` Y `"slice_id": "<VS-xx activa>"` — doble filtro obligatorio.
+  - **CLOSE**: Dos variantes por `close_type`. SLICE: PRECONDICIÓN ABSOLUTA LL-20 con doble check (phase + slice_id), marca DOCS_READY, actualiza knowledge, commit, handoff al 060 (DEPLOYED o PENDING_HANDOFF). TOTAL: verifica que todas las slices son SLICE_COMPLETE, marca PHASE_COMPLETE, knowledge cross-slice, commit.
+  - **SUSPEND**: Tabla de 5 estados, bloque suspension con 6 campos.
+- Decisión: en E10-B, el Cierre Total no se ejecuta inline — se retorna PHASE_COMPLETE_READY y el ciclo llama CLOSE con close_type: TOTAL. Patrón consistente con governors anteriores.
+
+**Decisiones clave:**
+| Decisión | Detalle |
+|----------|---------|
+| E10-B CHECK 3: SLICE_COMPLETE en orden antes de la tabla | La detección del handshake 070→050 se hace como verificación previa (igual que SUSPENDED y AUDIT_PENDING) antes de la tabla general, para garantizar que siempre se procesa. |
+| PHASE_COMPLETE_READY devuelto por E10-B, ejecutado por CLOSE TOTAL | La consistencia con el patrón de governors (E10-B solo retorna señales, no ejecuta trabajo) es más importante que evitar el round-trip. |
+| LL-20 verifica phase Y slice_id | En el CLOSE SLICE, la precondición absoluta verifica ambos campos de eval/verdict.json — `"phase": "050_vertical"` y `"slice_id": "<active_slice>"` — para no confundir auditorías de slices distintas. |
+| handoff_060 como campo único (no por slice) | Se sobreescribe en cada cierre de slice. El estado de cada slice individual está en el dict `slices[VS-xx]`. El campo `handoff_060` representa el último handoff iniciado. |
+| client_approval reseteado en EXECUTE | Al aprobar el Sprint Contract de una nueva slice, el governor limpia `client_approval` (CP-03 y CP-04 a null) para que la nueva slice comience con aprobaciones limpias. |
+
+---
+
+### Sesión 83 — 2026-06-04
+
+**Objetivo:** Construir la Fase 2 del 050 Vertical Harness — los primeros 5 de los 6 agentes.
+
+**Trabajo realizado:**
+- Creación de `.claude/agents/vertical-analyst.md` — Worker 1: lee los 17 inputs en el orden del protocolo (glosario primero → fuente principal I-1 → previas I-17), ejecuta las 6 tareas de extracción filtradas por la slice activa, self-checklist de 12 condiciones, Write de `050_vertical/VS-xx/slice_analysis_report.md` como primer tool call (LL-01). 3 estados de retorno: COMPLETED / INCOMPLETO / ESCALAMIENTO REQUERIDO.
+- Creación de `.claude/agents/vertical-writer.md` — Worker 2: lee 7 inputs en orden (glosario → listas canónicas → ADR-001 → test_strategy_map → vertical_slice_plan → slice_analysis_report), produce los 5 artefactos en orden obligatorio con Write inmediato tras cada uno (LL-01), verificación cruzada V1-V6 con Edit, self-checklist de 13 condiciones. La firma técnica del SDD es canónica y heredada por los demás artefactos.
+- Creación de `.claude/agents/vertical-reviewer.md` — Control pre-CP-03: mentalidad Abogado del Diablo, 4 verificaciones (V1: cobertura IC-xx; V2: cobertura BDD scenarios; V3: firma técnica canónica entre SDS/SDD/testing_plan/execution_plan; V4: TDD explícito — Red phase nombrada y TA-Red/Green/Refactor por Ticket). Clasificación CRITICAL/MINOR con cita obligatoria. Write de `review_report.md` como primer tool call (LL-01).
+- Creación de `.claude/agents/vertical-evaluator.md` — Auditor independiente (Instancia C): PATHS DE SALIDA (LL-03) al inicio, solo escribe en `eval/`. Fase 1 análisis pros + contras por D1-D5 antes de cualquier score (LL-07). D1 (Proposal & SDS Coverage), D2 (SDD Technical Depth), D3 (Testing Plan TDD Traceability), D4 (Execution Plan Actionability), D5 (Consistency). Regla de veto D5=0.0 con 5 ejemplos del dominio La Terraza. verdict.json con `"phase": "050_vertical"` Y `"slice_id": "VS-xx"` obligatorios.
+- Creación de `.claude/agents/vertical-orchestrator.md` — Instancia B (sin Agent tool): 4 modos (PLAN/CHECKPOINT-01/CHECKPOINT-02/WORKER_FAILED). Modo PLAN: lee `active_slice` de harness-state.json, determina starting_point comparando slice_activa con la activa actual, resuelve los 17 inputs en disco (LL-09) con I17 como path de slices previas completadas, construye Demo Statements canónicos con el ID real de la slice interpolado, persiste orchestration_plan completo. Modo CHECKPOINT: protocolo 5 pasos (LL-06).
+
+**Decisiones clave:**
+| Decisión | Detalle |
+|----------|---------|
+| vertical-reviewer: lógica inline sin protocol skill | A diferencia de analyst, writer y evaluator (que tienen skills de protocolo), el reviewer opera con lógica inline igual que planning-reviewer. Las 4 verificaciones (V1-V4) están directamente en el agente. |
+| V3 del reviewer: firma técnica canónica | La verificación más crítica: SDS, SDD, testing_plan y execution_plan deben usar los mismos nombres de interfaces y métodos. El SDD define los nombres canónicos — cualquier variante (ej. `getById` vs `findById`) es CRITICAL. |
+| evaluation_version en evaluator cuenta por phase+slice_id | En un proyecto con N slices, el array de verdict.json acumula N×M entradas. Contar solo las entradas con el mismo `slice_id` evita confundir versiones entre slices distintas. |
+| I17 en orchestrator resuelto como directorio de previas | I17 no es un archivo único sino el path de la carpeta de slices previas en SLICE_COMPLETE. Para VS-01 es `null`; para VS-N son los directorios de las slices anteriores completadas. |
+| Demo Statements con slice_activa interpolada | Los Demo Statements del orchestrator incluyen el ID real de la slice (ej. `VS-02`) en el texto. El governor puede verificar el artefacto correcto al recibir el resultado del worker. |
+
+---
+
+### Sesión 82 — 2026-06-04
+
+**Objetivo:** Completar la Fase 1 del 050 Vertical Harness — las 4 skills restantes de las 8 base.
+
+**Trabajo realizado:**
+- Verificación de `vertical-rubric` — correctamente escrita en Sesión 81 (punto de retoma cumplido).
+- Creación de `.claude/skills/vertical-verdict-schema/SKILL.md` — schema de `eval/verdict.json`
+  (con campos `"phase": "050_vertical"` y `"slice_id": "VS-xx"` obligatorios) y `eval/metrics_summary.json`
+  (entrada por slice con métricas objetivas: IC-xx en slice, BDD scenarios en slice, Red phase explícita,
+  IC-xx sin task, tasks sin referencia, etc.). Regla clave: `evaluation_version` cuenta entradas con
+  mismo `phase` Y `slice_id` — no el total del array. Nota sobre arrays multi-slice: siempre filtrar
+  por `slice_id` al leer la última entrada.
+- Creación de `.claude/skills/vertical-analyst-protocol/SKILL.md` — protocolo de extracción
+  enfocado en la slice activa. Orden de 17 inputs: domain context primero → 040 planning para scope
+  de la slice → 030 técnico → 020 BDD/AC/errores → slices previas (I-17). 6 tareas: definición de
+  slice (con precondición de dependencias predecesoras), IC-xx de la slice (de I-5 filtrados por I-1),
+  BDD scenarios (con AC de I-11 y políticas de I-12), riesgos (de I-3), dependencias con slices
+  previas (de I-2 + I-6 + I-17), restricciones y stack (de I-13..I-16 + I-7). Criterio de done y
+  límite de 2 iteraciones antes de escalamiento.
+- Creación de `.claude/skills/vertical-writer-protocol/SKILL.md` — protocolo de transformación
+  analysis→5 artefactos. Reglas por artefacto (proposal→SDS→SDD→testing_plan→execution_plan),
+  orden TDD obligatorio en execution_plan (TA-Red/TA-Green/TA-Refactor por Ticket), regla de firma
+  técnica canónica (el SDD define los nombres, todos los demás los heredan), 6 verificaciones cruzadas
+  (V1 firma canónica, V2-V3 cobertura IC-xx y BDD, V4 sin IDs inventados, V5 lenguaje ubicuo, V6 TDD
+  explícito), self-checklist del Demo Statement.
+- Creación de `.claude/skills/vertical-evaluator-protocol/SKILL.md` — protocolo D1-D5 con
+  procedimientos de verificación para los 5 artefactos de la slice activa. D1 (proposal + SDS:
+  check cruzado IC-xx y BDD scenarios vs. vertical_slice_plan.md), D2 (SDD: firma completa vs.
+  contract_definitions.md), D3 (testing_plan: mock/stub vs. test_strategy_map.md + Red phase
+  explícita), D4 (execution_plan: IC-xx en ≥1 Task + TDD order + Criterio de Done con IDs), D5
+  (consistency: firma canónica entre 5 artefactos + IDs vs. fuentes externas + scope de la slice +
+  lenguaje ubicuo). Bloque PATHS DE SALIDA — OBLIGATORIO (LL-03) al final.
+
+**Decisiones clave:**
+| Decisión | Detalle |
+|----------|---------|
+| evaluation_version por (phase + slice_id) | En un proyecto con N slices, el array de verdict.json acumula N×M entradas (N slices × M ciclos de rework cada una). Contar solo las entradas con el mismo slice_id evita confundir versiones entre slices distintas. |
+| Orden de inputs del analyst: 040 antes de 030 técnico | I-1 (vertical_slice_plan.md) debe leerse antes que I-5 (contract_definitions.md) para establecer el filtro de scope de la slice. Sin ese filtro, el analyst puede cargar todo el 030 sin saber cuáles IC-xx son relevantes. |
+| Firma técnica canónica en writer-protocol | El SDD es quien define los nombres de métodos e interfaces — no la SDS ni el execution_plan. Todos los artefactos posteriores heredan esos nombres del SDD. Esta regla previene el D5=0.0 por variantes de nombres entre artefactos. |
+| TA-Red/Green/Refactor en execution_plan | Cada Ticket tiene ≥3 Tasks en orden TDD explícito. TA-Refactor puede decir "Sin refactor en esta iteración" pero siempre debe estar documentado como decision consciente, no como omisión. |
+| vertical-evaluator-protocol incluye PATHS DE SALIDA | Sección explícita (LL-03) al final del protocolo — C nunca escribe en /050_vertical/, solo en eval/. Añadido a la luz de la experiencia con el evaluator del 010 que requirió corrección LL-03. |
+
+---
+
+### Sesión 81 — 2026-06-04
+
+**Objetivo:** Construir la Fase 1 del 050 Vertical Harness — 8 skills base.
+
+**Trabajo realizado:**
+- Creación de `.claude/skills/vertical-state-schema/SKILL.md` — schema de `harness-state.json` entrada `"050_vertical"` (con `slices` dict PENDING/DOCS_READY/SLICE_COMPLETE, `active_slice`, `sprint_contract` con 17 inputs I-1..I-17, `overrides`, `suspension`, `handoff_060`) + `execution-state.json` con `orchestration_plan` incluyendo `active_slice` en el plan, 5 `artifacts` (proposal, SDS, SDD, testing_plan, execution_plan), Single Writer Rule, nota de escritura cross-harness del 070.
+- Creación de `.claude/skills/vertical-analysis-schema/SKILL.md` — schema de `slice_analysis_report.md` con 6 secciones: Definición de la Slice, IC-xx completos (firma + DTOs + mock strategy), BDD Scenarios (AC + política de error), Riesgos RK-xx, Dependencias con slices previas, Restricciones y Stack. Incluye reglas de no-inferencia, verificaciones de cobertura y self-checklist.
+- Creación de `.claude/skills/vertical-synthesis-schema/SKILL.md` — schema de los 5 artefactos finales con bloque RUTA DE ESCRITURA OBLIGATORIO (LL-29), orden de producción obligatorio (proposal→SDS→SDD→testing_plan→execution_plan), LL-01 en proposal, estructura detallada de cada artefacto, verificación cruzada entre los 5 y reglas de escritura (firma técnica consistente entre artefactos, LL-17).
+- Creación de `.claude/skills/vertical-rubric/SKILL.md` — rúbrica D1-D5 con anclas 0.2/0.5/0.8/1.0 calibradas en dominio La Terraza/VS-02, regla de gate ≥0.75, regla de veto D5=0.0 con 5 ejemplos concretos del dominio La Terraza.
+
+**Pendiente (Fase 1 completa en Sesión 82):**
+- `vertical-verdict-schema` — verdict.json con `slice_id` + metrics_summary.json
+- `vertical-analyst-protocol` — protocolo de extracción por slice
+- `vertical-writer-protocol` — transformación analysis→5 artefactos
+- `vertical-evaluator-protocol` — verificación D1-D5 + cross-checks
+
+**NOTA PARA RETOMA:** Al iniciar la próxima sesión, verificar que `vertical-rubric` fue escrita correctamente antes de continuar con `vertical-verdict-schema`.
+
+---
+
+### Sesión 80 — 2026-06-04
+
+**Objetivo:** Construir la Fase 0 del 050 Vertical Harness — el harness canónico con estructura completa.
+
+**Trabajo realizado:**
+- Creación de `Harnesses/050_vertical_harness.md` — harness operativo completo con las 7 secciones canónicas: Fase 0 (propósito, precondición, naturaleza iterativa, 17 inputs, 5 pasos, 5+2 outputs, criterios de Done por slice y total, ciclo adaptado), Fase 1 (4 instancias con tabla de roles, 2 workers con Demo Statements y Pending Verification, política de herramientas, escalamiento, 5 checkpoints, trigger de context reset), Sprint Contract (plantilla por slice), Rúbrica D1-D5 (anclas 0.2/0.5/0.8/1.0 calibradas en dominio La Terraza / VS-02), Handoff al 060 (árbol de artefactos, ciclo de vida por slice), Flujo 12.1–12.5 (E10-A/E10-B con tabla por estado de slice, auditoría con verificación LL-20 por slice_id, cierre de slice + cierre total).
+
+**Decisiones clave:**
+| Decisión | Detalle |
+|----------|---------|
+| Patrón idéntico al 040 | Mismas 7 secciones, misma numeración 12.x, mismo estilo de tablas. La única diferencia estructural es el cierre de 12.5 en dos sub-secciones (Cierre de Slice + Cierre Total) debido a la naturaleza iterativa del 050. |
+| Reviewer incluido en 1.1 | Instancia D (vertical-reviewer) documentada en la tabla de instancias y en 1.5 (checkpoints), igual que el 040. |
+| Tabla de continuación E10-B para el 050 | 6 filas que cubren todos los estados posibles de la slice: SLICE_COMPLETE (llegada del 070), AUDIT_PENDING, CP-02/EXECUTION_COMPLETE, CP-01, ACTIVE sin CP, PENDING_CONTRACT. |
+| LL-20 extendida a slice_id | La verificación obligatoria pre-cierre requiere que eval/verdict.json tenga entrada con `"phase": "050_vertical"` Y `"slice_id": "[VS-xx activa]"` — ambos campos necesarios para no confundir auditorías de slices distintas. |
+
+---
+
+### Sesión 79 — 2026-06-04
+
+**Objetivo:** Analizar las dos opciones de diseño del 050 Vertical Harness (batch vs. iterativo) y construir el blueprint completo.
+
+**Trabajo realizado:**
+- Confirmación de decisiones de diseño: nombre "050 Vertical Harness", 5 artefactos (proposal, SDS, SDD, testing_plan, execution_plan), 060 Isolation limitado a slice activa, 070 Development Harness.
+- Análisis formal Opción A vs. Opción B: Opción B (iterativo slice a slice, 050→060→070→050→...) elegida por ser más resiliente a cambios del 100 Change Harness y alineada con el principio "una slice a la vez" del 040.
+- Creación de `plans/050_vertical_harness.md` — blueprint completo con 7 secciones: Fase 0 (17 inputs, 5 pasos, criterio de Done por slice y total), Fase 1 (6 sub-secciones incluyendo Demo Statements y Pending Verification), Sprint Contract (por slice), Rúbrica D1-D5 (con anclas 0.2/0.5/0.8/1.0 en dominio La Terraza), Handoff al 060, Flujo 12.1–12.5 (Cierre de Slice + Cierre Total).
+- `support/ajustes.md` — ADJ-05 actualizado a PARCIAL, ADJ-06 y ADJ-07 a DISEÑADO, con detalle de decisiones tomadas.
+- `support/avance.md` — actualizado con Sesión 79 y árbol del repositorio.
+
+**Decisiones clave:**
+| Decisión | Detalle |
+|----------|---------|
+| Opción B — iterativo slice a slice | El 100 Change Harness puede modificar slices futuras durante la construcción → producir docs de todas las slices por adelantado (Opción A) genera trabajo que puede quedar obsoleto. La Opción B produce just-in-time. |
+| `slices` dict en harness-state.json | `{ "VS-01": "PENDING", "VS-02": "DOCS_READY", ... }` — el governor conoce el estado de cada slice sin leer los artefactos. Estado más explícito que inferir desde archivos. |
+| Handshake 070→050 como única escritura cross-harness | El 070 Development Harness escribe `SLICE_COMPLETE` en `"050_vertical.slices.VS-xx"` al cerrar. Es la única escritura cross-harness permitida en FORGE — documentada explícitamente para ser prescrita en el blueprint del 070. |
+| Evaluador filtra por `slice_id` | `eval/verdict.json` acumula entradas de N slices; la verificación LL-20 busca `"phase": "050_vertical"` y `"slice_id": "VS-xx"` — ambos campos necesarios para no confundir auditorías de slices distintas. |
+| Output path `/050_vertical/VS-xx/` | Subcarpeta por slice evita colisiones de nombres entre artefactos (cada slice tiene su propio `proposal.md`). El governor crea la subcarpeta en E10-A/E10-B antes de spawear workers. |
+| IDs locales FT-xx, TK-xx, TA-xx | Nuevos en el 050 — Features, Tickets y Tasks del execution_plan. Locales a cada slice; se prefiján con el ID de slice (VS-02-FT-01) si necesitan referenciarse desde otras slices. |
+
+---
+
+### Sesión 78 — 2026-06-04
+
+**Objetivo:** Registrar e implementar los bugs críticos detectados durante Test_Harness_002: ADJ-37 (nuevo), ADJ-36, ADJ-33, ADJ-34 y ADJ-32.
+
+**Trabajo realizado:**
+- `support/ajustes.md` — ADJ-37 registrado: discovery-governor pregunta si pasar al 020 antes de haber escrito eval/ y knowledge/.
+- `.claude/agents/discovery-governor.md` — dos cambios:
+  - POST_CP04: verificación post-evaluador — si `eval/verdict.json` no existe tras spawear el evaluador, retorna `AUDIT_FAILED` en lugar de continuar silenciosamente.
+  - Modo CLOSE: restructurado en dos fases. Fase 1 (sin `handoff_decision`): escribe `knowledge/lessons_learned.md` y `knowledge/decisions_library.md`, hace el commit, retorna `CLOSE_READY` con el verdict completo. Fase 2 (con `handoff_decision`): verifica `PHASE_COMPLETE` y ejecuta el deploy.
+- `templates/workflows/ciclo_010_discovery.md` — Paso E: agrega manejo de `AUDIT_FAILED`. Paso F: restructurado en tres fases (Fase 1 invoca CLOSE sin decision → Fase 2 muestra AskUserQuestion con verdict real → Fase 3 invoca CLOSE con decision).
+- `templates/client-project-CLAUDE.md` (ADJ-36) — los 3 bloques PENDING_HANDOFF (020/030/040) ahora ejecutan `Test-Path` del governor correspondiente tras el deploy. Solo escriben `DEPLOYED` si la verificación pasa; si falla, notifican el comando manual sin actualizar el estado.
+- `commands/forge-restart.md` (ADJ-33) — Prioridad 1 dividida en 1a (DEPLOYED) y 1b (PENDING_HANDOFF nueva): pregunta al usuario, ejecuta deploy, verifica governor, escribe DEPLOYED solo si pasa.
+- `commands/forge-restart.md` (ADJ-34) — nuevo Paso 4 de verificación: antes de ejecutar el ciclo, comprueba que `.claude/agents/<governor>.md` existe; si no, detiene con mensaje exacto y comando de deploy.
+- `templates/workflows/ciclo_010..040.md` (×4) (ADJ-34) — precondición al inicio del Paso A en cada ciclo: `Test-Path` del governor, detención total si no existe.
+- `commands/forge-restart.md` (ADJ-32) — Paso 5 restructurado con bloques **OBLIGATORIO** (secuencia de 3 pasos) y **PROHIBIDO** (4 acciones explícitas que no puede hacer el modelo, incluyendo Agent tool directo y ejecución inline).
+- `.claude/agents/discovery-dialoguer.md` + `support/lessons_learned.md` — LL-29 registrada y bloque "RUTA DE ESCRITURA — OBLIGATORIO" agregado al dialoguer (hallazgo de Test_Harness_002: el dialoguer creó `persistence/transcript/transcript_S01.md` en lugar de `010_discovery/dialogue_transcript.md`).
+- `support/ajustes.md` — ADJ-32, ADJ-33, ADJ-34, ADJ-36, ADJ-37 marcados como IMPLEMENTADO.
+- Commit: `89404b4` — 10 archivos, 387 inserciones.
+
+**Decisiones clave:**
+| Decisión | Detalle |
+|----------|---------|
+| CLOSE en dos fases (ADJ-37) | La pregunta de handoff debe mostrarse después de que knowledge/ y eval/ existen y están commiteados, no antes. La Fase 1 hace todo el trabajo y retorna CLOSE_READY con el verdict; el ciclo muestra la pregunta; la Fase 2 solo ejecuta el deploy. |
+| forge-restart Prioridad 1a/1b (ADJ-33) | DEPLOYED y PENDING_HANDOFF son estados distintos que requieren flujos distintos. Separar en 1a y 1b es más claro que anidar condiciones. |
+| forge-continue no se modifica (ADJ-32) | forge-continue invoca el governor directamente con el modo conocido — ese comportamiento es correcto por diseño. Solo forge-restart tenía el problema de saltarse el ciclo. |
+| OBLIGATORIO + PROHIBIDO en lugar de una línea negativa (ADJ-32) | Cuatro prohibiciones concretas son más difíciles de ignorar que "No spawear el governor directamente". El modelo necesita instrucción afirmativa (qué hacer) y negativa (qué no hacer) separadas. |
+| Verificación doble para ADJ-34 | forge-restart Paso 4 detiene antes de leer el ciclo; Paso A del ciclo detiene antes de invocar el governor. Cobertura para cualquier ruta de entrada al ciclo. |
+
+---
 
 ### Sesión 77 — 2026-06-03
 
@@ -471,25 +734,46 @@ completa del patrón establecido por los harnesses 010/020/030.
 
 ## Próximos Pasos
 
-### Tarea 1 — Test_Harness_002: prueba end-to-end 010 → 040
+### Tarea 1 — Construir el 050 Vertical Harness (harness operativo)
 
-Ejecutar el ciclo completo de FORGE con el proyecto "La Terraza" (sistema de reservas para restaurante). El brief está en `Tests/Test_Harness_002/inputs/brief.md`.
+**050 Vertical Harness: COMPLETADO en Sesiones 80–85 ✓**
 
-**Flujo:**
-1. Abrir Claude en `C:\Users\USUARIO\Documents\Triple S\Tests\Test_Harness_002`
-2. Ejecutar `/forge-init` → `/forge-discovery`
-3. Completar los 4 harnesses (010 Discovery → 020 Specification → 030 Design → 040 Planning)
-4. Registrar hallazgos y bugs encontrados durante la prueba
+- Fase 0 (harness canónico): ✓ Sesión 80
+- Fase 1 (8 skills base): ✓ Sesiones 81-82
+- Fase 2 (6 agentes): ✓ Sesiones 83-84
+- Fase 3 (workflow y conectores): ✓ Sesión 85
+  - `templates/workflows/ciclo_050_vertical.md` ✓
+  - `templates/client-project-CLAUDE.md` actualizado (routing 050) ✓
+  - `deploy-harness.ps1` corregido (`'050' = 'vertical'`) ✓
 
-**Stakeholders a entrevistar:** Carlos Méndez (dueño), Ana Ríos (recepcionista), Miguel Torres (cliente frecuente).
+### Tarea 2 — Construir el 060 Isolation Harness
 
----
+El 060 Isolation Harness recibe una slice `DOCS_READY` del 050 y ejecuta el entorno de aislamiento
+para el desarrollo. Su diseño aún no está definido — requiere blueprinting antes de construir.
 
-### Tarea 2 — Construir el 050 Vertical Harness
+**Estado:** Sin blueprint. Pendiente diseño y construcción.
 
-El siguiente harness en la secuencia. Trabaja una slice a la vez tomando el plan maestro del 040 como fuente de verdad. Produce: Proposal, SDS, SDD, testing_plan y execution_plan para la slice activa.
+**Prerequisito:** El plan maestro del 050 está completo. El 060 se activa slice a slice,
+invocado por el governor del 050 cuando el usuario aprueba el handoff.
 
-Antes de iniciar, revisar `support/ajustes.md` — los ajustes ADJ-05, ADJ-06 y ADJ-07 impactan directamente la definición y numeración de los harnesses 050–070.
+### Tarea 3 — Diseñar y construir el 080 Harness
+
+El 080 Harness es el último eslabón del ciclo por slice (050→060→070→**080**). Cuando completa,
+escribe `PROD_READY` en `"050_vertical.slices.VS-xx"` de `harness-state.json` — habilitando
+al 090 para incluir esa slice en un deploy.
+
+**Estado:** Sin blueprint. Pendiente definición de qué hace exactamente el 080 (staging, acceptance testing, pre-prod review, u otro).
+
+**Prerequisito:** 060 y 070 deben estar diseñados primero para entender qué recibe el 080.
+
+### Tarea 4 — Diseñar y construir el 090 Production Harness
+
+El 090 gestiona el deploy a producción. Puede operar por slice individual, por grupo (DG-xx
+definidos en `project_roadmap.md`) o con todas las slices. Requiere leer los Deployment Groups
+del roadmap y verificar que cada grupo tiene todas sus slices en `PROD_READY` y sus predecesores
+en `DEPLOYED`.
+
+**Estado:** Sin blueprint. Pendiente construcción del 060, 070 y 080 primero.
 
 ---
 
