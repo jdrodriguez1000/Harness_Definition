@@ -26,6 +26,12 @@ Registro de ajustes identificados que aún no han sido implementados.
 | ADJ-29 | Comando /forge-override: registrar desacuerdo del usuario con una decisión del harness (ej. stack tecnológico) e inyectarla como restricción vinculante | SIGNIFICATIVA | IMPLEMENTADO |
 | ADJ-30 | Renombrar carpetas de output de harnesses: discovery/ → 010_discovery/, specification/ → 020_specification/, design/ → 030_design/, plan/ → 040_planning/ | SIGNIFICATIVA | IMPLEMENTADO |
 | ADJ-31 | Comando /forge-changes: permite al humano solicitar cambios sobre artefactos ya producidos en cualquier punto del harness activo | SIGNIFICATIVA | PENDIENTE |
+| ADJ-32 | /forge-restart invoca governors via Agent tool con subagent_type nombrado en lugar de ejecutar el ciclo paso a paso | SIGNIFICATIVA | IMPLEMENTADO |
+| ADJ-33 | /forge-restart no maneja el estado PENDING_HANDOFF — modelo puede asumir DEPLOYED incorrectamente y fallar en runtime | CRÍTICA | IMPLEMENTADO |
+| ADJ-34 | Fallback inseguro cuando el governor no está disponible: el modelo ejecuta el protocolo inline en lugar de detenerse con error | CRÍTICA | IMPLEMENTADO |
+| ADJ-35 | Sprint contracts deben persistirse como archivos .md en carpeta sprint_contract/ (ej. sprint_contract/010_discovery.md) | MENOR | PENDIENTE |
+| ADJ-36 | CLAUDE.md escribe handoff status DEPLOYED sin verificar que deploy-harness.ps1 tuvo éxito — estado inconsistente si el deploy falla | CRÍTICA | IMPLEMENTADO |
+| ADJ-37 | Discovery-governor pregunta si pasar al 020 antes de haber escrito los artefactos de eval/ y knowledge/ | CRÍTICA | IMPLEMENTADO |
 
 ---
 
@@ -342,6 +348,26 @@ Las carpetas de output actuales (`discovery/`, `specification/`, `design/`, `pla
 
 ---
 
+### ADJ-32 — /forge-restart invoca governors via Agent tool en lugar de ejecutar el ciclo — IMPLEMENTADO
+
+**Prioridad:** SIGNIFICATIVA
+
+**Descripción:**
+Al ejecutar `/forge-restart`, el comando detecta correctamente el harness a reanudar pero luego intenta invocar el governor como `Agent(subagent_type: 'specification-governor')`. Los agentes locales definidos en `.claude/agents/` no son subagent_types válidos del Agent tool — solo lo son los tipos del sistema (`claude`, `general-purpose`, `Explore`, etc.). El sistema se auto-recupera leyendo el archivo del governor e invocando `general-purpose` con su contenido completo, lo que produce el resultado funcional correcto, pero no es el flujo diseñado.
+
+**Causa raíz:**
+`forge-restart.md` instruye a leer el ciclo correspondiente y ejecutarlo desde el Paso A. Sin embargo, en la práctica Claude intenta spawear el governor directamente como sub-agente antes de seguir el ciclo. El ciclo es el punto de entrada correcto — si se ejecuta paso a paso, la invocación del governor ocurre naturalmente como parte de las instrucciones del ciclo.
+
+**Impacto:**
+- `commands/forge-restart.md` — las instrucciones deben dejar explícito que NO se debe usar el Agent tool para invocar governors; el ciclo se ejecuta inline, no como sub-agente
+- Potencialmente afecta también `commands/forge-continue.md` si sigue el mismo patrón de invocación
+
+**Prerequisitos antes de implementar:**
+- Verificar si `forge-continue.md` tiene el mismo problema
+- Revisar si el ciclo_020..040.md tiene instrucciones ambiguas que llevan a Claude a intentar spawear el governor en lugar de leerlo inline
+
+---
+
 ### ADJ-31 — Comando /forge-changes + 100 Change Harness — PENDIENTE
 
 **Prioridad:** SIGNIFICATIVA
@@ -367,3 +393,108 @@ Las carpetas de output actuales (`discovery/`, `specification/`, `design/`, `pla
 **Prerequisitos antes de implementar:**
 - Construir el 100 Change Harness completo (agentes, skills, workflow, ciclo)
 - El comando `/forge-changes` se construye como parte del mismo ADJ-31, no por separado
+
+---
+
+### ADJ-33 — /forge-restart no maneja el estado PENDING_HANDOFF — IMPLEMENTADO
+
+**Prioridad:** CRÍTICA
+
+**Descripción:**
+Cuando el usuario ejecuta `/forge-restart` con `handoff_0XX.status == "PENDING_HANDOFF"` (el siguiente harness aún no fue desplegado), el comando no tiene rama para ese estado. Su Prioridad 1 solo contempla `DEPLOYED` y su Prioridad 2 busca harnesses en progreso. Al no encontrar ningún caso aplicable, el modelo puede halucinar que el estado es `DEPLOYED` y avanzar hacia el ciclo del siguiente harness cuando en realidad los agentes no están disponibles. Detectado durante Test_Harness_002 al ejecutar `/forge-restart` tras el cierre del 020: el modelo reportó incorrectamente que `handoff_030.status == "DEPLOYED"` cuando el JSON contenía `PENDING_HANDOFF`.
+
+El flujo correcto requiere que el usuario pase primero por el CLAUDE.md auto-routing, que sí maneja `PENDING_HANDOFF` (pregunta, deploy, escribe `DEPLOYED`, pide reinicio). Pero el usuario puede llegar a `/forge-restart` directamente sin que ese routing haya ocurrido.
+
+**Impacto:**
+- `commands/forge-restart.md` — agregar rama en Prioridad 1 para `PENDING_HANDOFF`: ejecutar el mismo flujo de deploy del CLAUDE.md (preguntar al usuario, correr `deploy-harness.ps1`, actualizar estado a `DEPLOYED`, notificar reinicio) en lugar de ignorar el estado o derivar en comportamiento inesperado.
+
+**Prerequisitos antes de implementar:**
+- Ninguno — puede implementarse de forma independiente en `commands/forge-restart.md`
+
+---
+
+### ADJ-34 — Fallback inseguro cuando el governor no está disponible — IMPLEMENTADO
+
+**Prioridad:** CRÍTICA
+
+**Descripción:**
+Cuando el ciclo del harness intenta invocar un governor como subagente y el Agent tool retorna "not found" (porque los agentes del harness no fueron desplegados), el modelo no se detiene con un error claro. En su lugar, lee el archivo `.md` del governor e intenta ejecutar su protocolo inline como parte del agente principal. Detectado durante Test_Harness_002: tras el fallo de `Agent(subagent_type: 'design-governor')`, el modelo dijo "El tipo design-governor no existe como subagente. Necesito leer los protocolos disponibles para ejecutar el governor localmente" y procedió a hacerlo.
+
+Este comportamiento es peligroso porque: (a) el contexto del governor no está aislado, (b) las skills y sub-agentes del governor tampoco están disponibles, (c) el resultado puede ser estructuralmente incorrecto sin que el usuario lo sepa.
+
+**Impacto:**
+- `commands/forge-restart.md` — agregar verificación explícita: antes de leer el ciclo, comprobar que el archivo `.claude/agents/<governor>.md` existe en el directorio de trabajo. Si no existe, detenerse con mensaje: `"El agente <governor> no está disponible. El deploy del harness <N> no se completó. Ejecuta: & "$env:HARNESS_DEPLOY_SCRIPT" -Harness <N> -Destino <path> y luego reinicia."` No continuar bajo ninguna circunstancia.
+- `templates/workflows/ciclo_0XX_*.md` (×4) — agregar al Paso A una precondición idéntica: verificar que el archivo del governor existe antes de intentar invocarlo.
+
+**Prerequisitos antes de implementar:**
+- ADJ-33 implementado primero (el flujo de PENDING_HANDOFF debe resolverse antes para que el usuario llegue a /forge-restart con los agentes ya desplegados)
+
+---
+
+### ADJ-35 — Sprint contracts persistidos como archivos .md en carpeta sprint_contract/ — PENDIENTE
+
+**Prioridad:** MENOR
+
+**Descripción:**
+Actualmente los sprint contracts se guardan únicamente como campos de texto dentro de `persistence/harness-state.json` (`sprint_contract` y `sprint_contract_draft`). Esto los hace difíciles de leer, revisar y comparar directamente. El ajuste propone que cada governor, al aprobar el Sprint Contract (transición a `ACTIVE`), escriba también el texto completo en un archivo `.md` independiente bajo una carpeta `sprint_contract/` en el directorio del proyecto cliente.
+
+Convención de nombres:
+| Harness | Archivo |
+|---------|---------|
+| 010 Discovery | `sprint_contract/010_discovery.md` |
+| 020 Specification | `sprint_contract/020_specification.md` |
+| 030 Design | `sprint_contract/030_design.md` |
+| 040 Planning | `sprint_contract/040_planning.md` |
+
+El campo `sprint_contract` en `harness-state.json` se mantiene para compatibilidad con los rituals E10-A/E10-B que lo leen programáticamente. El archivo `.md` es una copia legible adicional, no el reemplazo.
+
+**Impacto:**
+- `.claude/agents/discovery-governor.md` — agregar paso en E10-A: tras escribir `sprint_contract` en `harness-state.json`, escribir `sprint_contract/010_discovery.md`
+- `.claude/agents/specification-governor.md` — ídem para `sprint_contract/020_specification.md`
+- `.claude/agents/design-governor.md` — ídem para `sprint_contract/030_design.md`
+- `.claude/agents/planning-governor.md` — ídem para `sprint_contract/040_planning.md`
+- `deploy-harness.ps1` — evaluar si debe crear la carpeta `sprint_contract/` al desplegar el harness (o dejarla a cargo del governor)
+- Los state schemas de cada harness (`discovery-state-schema`, etc.) — documentar el nuevo archivo como output del governor
+
+**Prerequisitos antes de implementar:**
+- Ninguno — puede implementarse de forma independiente en cada governor
+
+---
+
+### ADJ-37 — Discovery-governor pregunta si pasar al 020 antes de escribir eval/ y knowledge/ — IMPLEMENTADO
+
+**Prioridad:** CRÍTICA
+
+**Descripción:**
+Al cerrar el 010 Discovery Harness, el governor presenta la pregunta de transición al 020 sin haber escrito primero los artefactos de `eval/` (verdict.json, metrics_summary.json) ni los de `knowledge/` (lessons_learned.md, decisions_library.md). Viola LL-04: la precondición del cierre debe verificar que `eval/verdict.json` contiene la entrada del harness antes de cualquier paso del cierre. También viola el orden obligatorio del Paso CLOSE: los artefactos de conocimiento deben existir antes de que el governor escale al humano.
+
+**Impacto:**
+- `.claude/agents/discovery-governor.md` — el modo CLOSE debe verificar que `eval/verdict.json` y `knowledge/lessons_learned.md` existen y están completos antes de presentar la pregunta de handoff al usuario. Si no existen, el governor debe ejecutar primero los pasos de escritura correspondientes (o retornar error) en lugar de avanzar al handoff.
+
+**Prerequisitos antes de implementar:**
+- Ninguno — puede implementarse de forma independiente en `discovery-governor.md`
+
+---
+
+### ADJ-36 — CLAUDE.md escribe DEPLOYED sin verificar éxito del deploy — IMPLEMENTADO
+
+**Prioridad:** CRÍTICA
+
+**Descripción:**
+En el flujo de transición entre harnesses, `client-project-CLAUDE.md` ejecuta dos pasos secuenciales al responder "sí" a la pregunta de continuar con el siguiente harness:
+1. `& "$env:HARNESS_DEPLOY_SCRIPT" -Harness 0XX -Destino ...`
+2. Actualizar `handoff_0XX.status = "DEPLOYED"` en `persistence/harness-state.json`
+
+El paso 2 se ejecuta incondicionalmente, sin verificar si el paso 1 tuvo éxito. Si el script falla silenciosamente (error de ruta, permisos, PowerShell bloqueado), el JSON queda con `DEPLOYED` pero los archivos de agentes **no existen** en `.claude/agents/`. Detectado durante Test_Harness_002: `handoff_040.status == "DEPLOYED"` pero ningún agente `planning-*.md` presente en el proyecto.
+
+Esta inconsistencia bloquea la ejecución del ciclo siguiente (ADJ-34) y hace que `forge-restart` crea que el harness está listo cuando en realidad no lo está.
+
+**Impacto:**
+- `templates/client-project-CLAUDE.md` — los 3 bloques de transición (`handoff_020`, `handoff_030`, `handoff_040`) deben verificar el resultado del deploy antes de escribir `DEPLOYED`. Patrón correcto:
+  1. Ejecutar `deploy-harness.ps1`
+  2. Verificar que existe al menos un agente esperado (ej. `Test-Path ".claude/agents/<governor>.md"`)
+  3. Solo si la verificación pasa → escribir `DEPLOYED`
+  4. Si falla → notificar al usuario con el error, no actualizar el estado, sugerir correr el script manualmente
+
+**Prerequisitos antes de implementar:**
+- Ninguno — puede implementarse de forma independiente en `templates/client-project-CLAUDE.md`

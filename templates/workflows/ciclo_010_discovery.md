@@ -4,6 +4,16 @@ El ciclo completo de interacción para el 010 Discovery Harness. Gestiona las in
 
 ### Paso A — Orientación (siempre al inicio del ciclo)
 
+**PRECONDICIÓN — verificar governor disponible (ADJ-34):**
+Verificar que `.claude/agents/discovery-governor.md` existe en el directorio de trabajo:
+```powershell
+Test-Path ".claude/agents/discovery-governor.md"
+```
+Si no existe: detener con este mensaje exacto y no continuar bajo ninguna circunstancia:
+```
+El agente discovery-governor.md no está disponible en .claude/agents/. El harness 010 puede no estar correctamente desplegado en este directorio. Ejecuta: & "$env:HARNESS_DEPLOY_SCRIPT" -Harness 010 -Destino "<ruta del proyecto>" y luego reinicia la sesión.
+```
+
 Invocar `discovery-governor` como subagente (`subagent_type: "discovery-governor"`) con el prompt:
 ```
 [MODO: INIT]
@@ -190,6 +200,7 @@ cp04_citation: <cita textual de la respuesta de aprobación del usuario>
   - `ESCALATION_REQUIRED` → notificar: "La fase queda en HOLD. Se requiere intervención manual." Detener.
   - `REWORK_AFTER_REJECTION` → volver al Paso D (el evaluador rechazó, rework ejecutado).
   - `STRATEGIC_REJECTION` → volver al Paso B (Sprint Contract requiere revisión estratégica).
+  - `AUDIT_FAILED` → notificar: "El evaluador no pudo escribir el resultado de la auditoría. Revisar `persistence/claude-progress.txt`." Detener.
 
 **Si el usuario declina:**
 → Invocar governor con `cp04_approved: false`.
@@ -197,13 +208,28 @@ cp04_citation: <cita textual de la respuesta de aprobación del usuario>
 
 ### Paso F — Cierre y Handoff
 
-Presentar al usuario con `AskUserQuestion`:
+**Fase 1 — Cierre técnico (antes de preguntar al usuario):**
+
+Invocar `discovery-governor` con:
+```
+[MODO: CLOSE]
+Directorio de trabajo: <path absoluto>
+```
+(sin `handoff_decision`)
+
+Leer `GOVERNOR_RESULT`:
+- **`CLOSE_READY`** → continuar a Fase 2.
+- **`CLOSE_BLOCKED`** → notificar al usuario con el error y detener. Requiere intervención manual.
+
+**Fase 2 — Presentar resultado al usuario:**
+
+Usando los campos `verdict` y `artifacts` del `CLOSE_READY`, presentar con `AskUserQuestion`:
 
 ```
-La evaluación del 010 Discovery Harness está completa.
+El 010 Discovery Harness está completo.
 
-Resultado: <decision del verdict — APPROVED/REJECTED>
-Score: <score> (<dimensiones D1..D5>)
+Resultado : <verdict.decision>
+Score     : <verdict.score> (<verdict.dimensions>)
 
 Artefactos producidos:
 - 010_discovery/shared_understanding.md
@@ -211,12 +237,17 @@ Artefactos producidos:
 - 010_discovery/domain_glossary.md
 - 010_discovery/failure_behavior.md
 
+Los artefactos de knowledge/ y eval/ han sido escritos y commiteados.
+
 ¿Deseas iniciar ahora el 020 Specification Harness?
 ```
+
+**Fase 3 — Ejecutar handoff:**
 
 Invocar `discovery-governor` con:
 ```
 [MODO: CLOSE]
+Directorio de trabajo: <path absoluto>
 handoff_decision: yes | no
 ```
 
@@ -234,4 +265,4 @@ Leer `GOVERNOR_RESULT`:
   ```
   Fin.
 
-- **`CLOSE_BLOCKED`**: Notificar al usuario y detener. Requiere intervención manual.
+- **`CLOSE_BLOCKED`** → notificar al usuario con el error y detener. Requiere intervención manual.

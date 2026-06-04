@@ -4,6 +4,16 @@ El ciclo completo de interacción para el 040 Planning Harness.
 
 ### Paso A — Orientación
 
+**PRECONDICIÓN — verificar governor disponible (ADJ-34):**
+Verificar que `.claude/agents/planning-governor.md` existe en el directorio de trabajo:
+```powershell
+Test-Path ".claude/agents/planning-governor.md"
+```
+Si no existe: detener con este mensaje exacto y no continuar bajo ninguna circunstancia:
+```
+El agente planning-governor.md no está disponible en .claude/agents/. El harness 040 puede no estar correctamente desplegado en este directorio. Ejecuta: & "$env:HARNESS_DEPLOY_SCRIPT" -Harness 040 -Destino "<ruta del proyecto>" y luego reinicia la sesión.
+```
+
 Invocar `planning-governor` como subagente (`subagent_type: "planning-governor"`) con:
 ```
 [MODO: INIT]

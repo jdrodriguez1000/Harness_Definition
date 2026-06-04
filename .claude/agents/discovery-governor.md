@@ -609,6 +609,23 @@ Registrar:
 
 Spawear `discovery-evaluator` con `subagent_type: "discovery-evaluator"`, pasando los paths a los 4 artefactos desde `persistence/execution-state.json.artifacts`.
 
+**Verificación post-evaluador:**
+Verificar que `eval/verdict.json` existe:
+```powershell
+Test-Path "eval/verdict.json"
+```
+Si no existe: registrar en `persistence/claude-progress.txt`:
+```
+[AUDIT_FAILED] <timestamp> — discovery-evaluator terminó pero no escribió eval/verdict.json.
+```
+Retornar inmediatamente:
+```
+GOVERNOR_RESULT:
+  mode: POST_CP04
+  status: AUDIT_FAILED
+  error: El discovery-evaluator no escribió eval/verdict.json. El evaluador puede haber fallado silenciosamente. Revisar persistence/claude-progress.txt.
+```
+
 **Paso 4 — Leer resultado de auditoría:**
 Leer `eval/verdict.json`. Filtrar entradas con `"phase": "010_discovery"` y tomar la última (mayor `evaluation_version`).
 
@@ -630,7 +647,7 @@ Leer `eval/verdict.json`. Filtrar entradas con `"phase": "010_discovery"` y toma
 
 ## Modo CLOSE
 
-**Objetivo:** Ejecutar el cierre completo y registrar el handoff.
+**Objetivo:** Ejecutar el cierre en dos fases separadas: (1) escritura de artefactos de conocimiento y commit; (2) handoff al siguiente harness según decisión del usuario.
 
 **PRECONDICIÓN ABSOLUTA — primera acción del Cierre (ADJ-14 / LL-20):**
 Como PRIMERA acción, leer `eval/verdict.json`:
@@ -644,17 +661,24 @@ Como PRIMERA acción, leer `eval/verdict.json`:
 - Si existe pero no contiene ninguna entrada con `"phase": "010_discovery"` → **DETENER ABSOLUTAMENTE**. Mismo retorno.
 - Si existe con al menos una entrada de `"010_discovery"` → continuar.
 
-**Recibir del prompt:**
-- `handoff_decision`: `yes` | `no`
+**Sub-fase determinada por el prompt:**
+- Si el prompt **NO contiene** `handoff_decision` → ejecutar **Fase 1** (Pasos 1–5)
+- Si el prompt **contiene** `handoff_decision` → ejecutar **Fase 2** (Paso 6)
+
+---
+
+### Fase 1 — Cierre técnico (sin handoff_decision)
+
+Si `persistence/harness-state.json["status"]` ya es `PHASE_COMPLETE`: la Fase 1 ya se ejecutó en una invocación anterior. Leer `eval/verdict.json`, extraer verdict y retornar directamente `CLOSE_READY` (ver retorno al final de esta fase).
 
 ### Paso 1 — Marcar fase completa
 Actualizar `persistence/harness-state.json`: `status: PHASE_COMPLETE`.
 
 ### Paso 2 — Actualizar lessons_learned
-Registrar en `/knowledge/lessons_learned.md` los hallazgos del ciclo completo (qué funcionó, qué no, cuántas iteraciones tomó).
+Registrar en `knowledge/lessons_learned.md` los hallazgos del ciclo completo (qué funcionó, qué no, cuántas iteraciones tomó).
 
 ### Paso 3 — Actualizar decisions_library (ADJ-22)
-Registrar en `/knowledge/decisions_library.md` las decisiones tomadas. Capturar:
+Registrar en `knowledge/decisions_library.md` las decisiones tomadas. Capturar:
 1. **Resoluciones de contradicciones** — cada contradicción C-xx del transcript con su resolución
 2. **Exclusiones negociadas** — funcionalidades decididas fuera del scope v1, con la razón
 3. **Restricciones aceptadas** — limitaciones de v1 que los actores aceptaron
@@ -673,7 +697,40 @@ git add 010_discovery/ eval/ knowledge/ persistence/
 git commit -m "docs(010-discovery): phase complete — 4 artefactos producidos"
 ```
 
-### Paso 6 — Ejecutar handoff si corresponde
+**Leer verdict para retorno:**
+Leer `eval/verdict.json`, filtrar por `"phase": "010_discovery"`, tomar la última entrada (mayor `evaluation_version`).
+
+**Retornar:**
+```
+GOVERNOR_RESULT:
+  mode: CLOSE
+  status: CLOSE_READY
+  verdict:
+    decision: <decision desde eval/verdict.json>
+    score: <average score>
+    dimensions: D1=<> D2=<> D3=<> D4=<> D5=<>
+  artifacts:
+    - 010_discovery/shared_understanding.md
+    - 010_discovery/scope_boundaries.md
+    - 010_discovery/domain_glossary.md
+    - 010_discovery/failure_behavior.md
+```
+
+---
+
+### Fase 2 — Handoff (con handoff_decision)
+
+**Verificar precondición de Fase 2:**
+Leer `persistence/harness-state.json`. Si `status != "PHASE_COMPLETE"`: retornar:
+```
+GOVERNOR_RESULT:
+  mode: CLOSE
+  status: CLOSE_BLOCKED
+  error: La Fase 1 del cierre no se completó — status no es PHASE_COMPLETE. Invocar CLOSE sin handoff_decision primero.
+```
+
+**Recibir del prompt:**
+- `handoff_decision`: `yes` | `no`
 
 **Si handoff_decision == yes:**
 1. Obtener timestamp real.

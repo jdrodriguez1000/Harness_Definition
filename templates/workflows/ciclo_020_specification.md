@@ -4,6 +4,16 @@ El ciclo completo de interacción para el 020 Specification Harness.
 
 ### Paso A — Orientación
 
+**PRECONDICIÓN — verificar governor disponible (ADJ-34):**
+Verificar que `.claude/agents/specification-governor.md` existe en el directorio de trabajo:
+```powershell
+Test-Path ".claude/agents/specification-governor.md"
+```
+Si no existe: detener con este mensaje exacto y no continuar bajo ninguna circunstancia:
+```
+El agente specification-governor.md no está disponible en .claude/agents/. El harness 020 puede no estar correctamente desplegado en este directorio. Ejecuta: & "$env:HARNESS_DEPLOY_SCRIPT" -Harness 020 -Destino "<ruta del proyecto>" y luego reinicia la sesión.
+```
+
 Invocar `specification-governor` como subagente (`subagent_type: "specification-governor"`) con:
 ```
 [MODO: INIT]

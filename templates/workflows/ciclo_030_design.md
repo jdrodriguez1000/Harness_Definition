@@ -4,6 +4,16 @@ El ciclo completo de interacción para el 030 Design Harness.
 
 ### Paso A — Orientación
 
+**PRECONDICIÓN — verificar governor disponible (ADJ-34):**
+Verificar que `.claude/agents/design-governor.md` existe en el directorio de trabajo:
+```powershell
+Test-Path ".claude/agents/design-governor.md"
+```
+Si no existe: detener con este mensaje exacto y no continuar bajo ninguna circunstancia:
+```
+El agente design-governor.md no está disponible en .claude/agents/. El harness 030 puede no estar correctamente desplegado en este directorio. Ejecuta: & "$env:HARNESS_DEPLOY_SCRIPT" -Harness 030 -Destino "<ruta del proyecto>" y luego reinicia la sesión.
+```
+
 Invocar `design-governor` como subagente (`subagent_type: "design-governor"`) con:
 ```
 [MODO: INIT]

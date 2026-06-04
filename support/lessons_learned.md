@@ -697,3 +697,46 @@ usa `AskUserQuestion`. Si sí → el governor no puede spawearlo; debe delegar a
 
 **Origen:** Test e2e 010→020→030, Sesión 57 (2026-06-02). discovery-dialoguer fabricó
 el transcript completo sin preguntar al usuario.
+
+---
+
+## LL-29 — Ruta de escritura explícita al inicio del agente (Workers con archivo único acumulativo)
+
+**Regla:** Todo worker que produce un único archivo acumulativo a lo largo de toda la sesión
+(como `dialogue_transcript.md`) debe tener al inicio de su cuerpo un bloque
+"RUTA DE ESCRITURA — OBLIGATORIO" que declare:
+- La ruta exacta del archivo.
+- La carpeta esperada y la instrucción de crearla si no existe.
+- Una prohibición explícita de estructuras alternativas (carpetas por stakeholder, archivos por sesión, etc.).
+
+**Cómo implementar:**
+
+```
+## RUTA DE ESCRITURA — OBLIGATORIO
+
+Un único archivo. Una única ruta. Sin excepciones:
+
+`/010_discovery/dialogue_transcript.md`
+
+NO crear carpetas `transcript/`, `persistence/transcript/` ni archivos por stakeholder (ej. `transcript_S01.md`).
+Toda la sesión — todos los stakeholders, todas las rondas — vive en ese único archivo.
+Crear la carpeta `/010_discovery/` si no existe antes de escribir.
+```
+
+**Por qué:** En Test_Harness_002, el `discovery-dialoguer` ignoró tanto la referencia de ruta
+en la "Regla fundamental de persistencia" del agente como la ruta en la skill
+`discovery-transcript-schema`, y creó `persistence/transcript/transcript_S01.md` — una
+estructura plausible (un archivo por stakeholder dentro de persistence) pero incorrecta.
+El LLM construye rutas alternativas plausibles cuando la instrucción de ruta no es
+suficientemente prominente. Una referencia enterrada en texto narrativo no es suficiente.
+
+**Diferencia con LL-03:** LL-03 aplica a evaluadores (múltiples archivos de output en carpeta
+específica). LL-29 aplica a workers con un único archivo acumulativo donde el riesgo es
+inventar una estructura de carpetas, no escribir en la carpeta equivocada.
+
+**Workers donde aplica actualmente:** `discovery-dialoguer` (transcript acumulativo por sesión).
+**Workers donde NO aplica:** analyst, synthesizer, architect, reviewer, evaluator — estos
+producen un archivo por ejecución y LL-01 es suficiente.
+
+**Origen:** Test_Harness_002 (2026-06-03). discovery-dialoguer creó `persistence/transcript/transcript_S01.md`
+en lugar de `/010_discovery/dialogue_transcript.md`.
