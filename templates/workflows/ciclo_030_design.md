@@ -4,6 +4,10 @@ El ciclo completo de interacción para el 030 Design Harness.
 
 ### Paso A — Orientación
 
+**ADJ-40 — Ejecución inline:** Los governors NO se invocan vía `Agent(subagent_type)`. En proyectos cliente los agentes deployados no están registrados como subagent types, y los subagentes no pueden spawear otros subagentes. El mecanismo correcto:
+- **Governors**: leer `.claude/agents/X-governor.md` y ejecutar su protocolo **inline** en el contexto actual.
+- **Workers**: el governor los invoca vía `Bash(claude --agent X-worker --print --dangerously-skip-permissions)`.
+
 **PRECONDICIÓN — verificar governor disponible (ADJ-34):**
 Verificar que `.claude/agents/design-governor.md` existe en el directorio de trabajo:
 ```powershell
@@ -14,7 +18,7 @@ Si no existe: detener con este mensaje exacto y no continuar bajo ninguna circun
 El agente design-governor.md no está disponible en .claude/agents/. El harness 030 puede no estar correctamente desplegado en este directorio. Ejecuta: & "$env:HARNESS_DEPLOY_SCRIPT" -Harness 030 -Destino "<ruta del proyecto>" y luego reinicia la sesión.
 ```
 
-Invocar `design-governor` como subagente (`subagent_type: "design-governor"`) con:
+Leer `.claude/agents/design-governor.md` y ejecutar su protocolo inline con:
 ```
 [MODO: INIT]
 Directorio de trabajo: <path absoluto>
@@ -102,7 +106,10 @@ Preparar el mensaje de presentación. Si el `GOVERNOR_RESULT` incluye `review_st
 El 030 Design Harness ha producido los siguientes documentos para tu revisión:
 
 - Architecture Decision Records: /030_design/architecture_decision_records.md
+  (debe incluir ADR-001: stack, ADR-002: seguridad, ADR-003: escalabilidad,
+   ADR-004: despliegue, ADR-005: consistencia/CAP, ADR-N: patrones de diseño)
 - Technical Blueprint: /030_design/technical_blueprint.md
+  (debe incluir sección Protocolo de Comunicación y sección Principios de Diseño Aplicados)
 - Contract Definitions: /030_design/contract_definitions.md
 - Dependency Graph: /030_design/dependency_graph.md
 - Test Strategy Map: /030_design/test_strategy_map.md
