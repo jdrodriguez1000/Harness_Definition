@@ -52,10 +52,12 @@ Fuente de verdad independiente: `020_specification/bdd_features.md` (no el analy
 1. Extraer todos los Feature blocks de `bdd_features.md` → lista de bounded contexts esperados
 2. Verificar que en `technical_blueprint.md` existe ≥1 MOD-xx por cada bounded context
 3. Verificar coherencia entre escenarios BDD y la estructura de capas del blueprint
+4. Verificar que `technical_blueprint.md` contiene la sección "Protocolo de Comunicación" con decisión de protocolo justificada
+5. Verificar que `technical_blueprint.md` contiene la sección "Principios de Diseño Aplicados" con evaluación explícita de al menos SRP, OCP y DIP
 
 Construir:
-- **Pros:** por cada bounded context con ≥1 módulo correspondiente — citar el Feature block y el MOD-xx
-- **Contras:** por cada bounded context sin módulo correspondiente — citar el Feature block y la ausencia
+- **Pros:** por cada bounded context con ≥1 módulo correspondiente — citar el Feature block y el MOD-xx; secciones obligatorias presentes y con contenido sustantivo
+- **Contras:** por cada bounded context sin módulo correspondiente — citar el Feature block y la ausencia; secciones "Protocolo de Comunicación" o "Principios de Diseño Aplicados" ausentes o sin contenido sustantivo
 
 ### D2 — Contract Completeness
 
@@ -83,14 +85,18 @@ Construir:
 
 ### D4 — ADR Completeness
 
-1. Verificar que ADR-001 existe en `architecture_decision_records.md`
+1. Verificar que los 5 ADRs obligatorios existen en `architecture_decision_records.md`: ADR-001, ADR-002, ADR-003, ADR-004, ADR-005
 2. Verificar que ADR-001 incluye: contexto explícito, ≥2 opciones con pros/contras, criterios de decisión, decisión final con justificación, consecuencias aceptadas
-3. Verificar que existe ≥1 ADR por cada PT-xx identificable en el contexto del análisis
-4. Verificar que ADR-001 cita fuente de versión (`verificado via Context7` o `sin verificación — knowledge cutoff del modelo`) para cada tecnología del stack. Si ninguna tecnología cita fuente: contabilizar como gap en los contras.
+3. Verificar que ADR-002 incluye: modelo de auth/authz con ≥2 opciones evaluadas, ≥3 riesgos OWASP específicos al sistema con mitigación arquitectónica concreta
+4. Verificar que ADR-003 incluye: posicionamiento horizontal/vertical justificado, al menos un cuello de botella anticipado identificado
+5. Verificar que ADR-004 incluye: decisión de containerización con razón, etapas CI/CD definidas, estrategia de rollback
+6. Verificar que ADR-005 incluye: posicionamiento CP/AP/CA explícito, modelo de consistencia elegido con justificación basada en requerimientos del dominio
+7. Verificar que existe ≥1 ADR por cada PT-xx identificable en el contexto del análisis
+8. Verificar que ADR-001 cita fuente de versión (`verificado via Context7` o `sin verificación — knowledge cutoff del modelo`) para cada tecnología del stack. Si ninguna tecnología cita fuente: contabilizar como gap en los contras.
 
 Construir:
-- **Pros:** elementos del ADR-001 presentes y completos — citar sección y contenido
-- **Contras:** elementos del ADR-001 ausentes, ADR-001 sin opciones evaluadas, ADRs de patrones faltantes, tecnologías sin fuente de versión — citar el gap específico
+- **Pros:** ADRs obligatorios presentes y completos con sus secciones requeridas — citar ADR y sección evaluada
+- **Contras:** ADRs obligatorios ausentes, secciones faltantes dentro de cada ADR, ADR-002 sin OWASP específicos, ADR-003 sin cuellos de botella, ADRs de patrones faltantes, tecnologías sin fuente de versión — citar el gap específico
 
 ### D5 — Consistency
 

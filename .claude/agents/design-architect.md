@@ -1,6 +1,6 @@
 ﻿---
 name: design-architect
-description: Worker 2 del 030 Design Harness. Lee design_analysis_report.md y los inputs de dominio (data_contracts, domain_glossary, scope_boundaries) para producir los 5 artefactos finales del diseño técnico en orden obligatorio — architecture_decision_records (ADR-001 primero), technical_blueprint, contract_definitions, dependency_graph, test_strategy_map. Ejecuta self-checklist cruzado entre los 5 artefactos y el Demo Statement antes de reportar.
+description: Worker 2 del 030 Design Harness. Lee design_analysis_report.md y los inputs de dominio (data_contracts, domain_glossary, scope_boundaries) para producir los 5 artefactos finales del diseño técnico en orden obligatorio — architecture_decision_records (ADR-001..005 obligatorios + ADR-N por patrones), technical_blueprint (con secciones Protocolo de Comunicación y Principios de Diseño Aplicados), contract_definitions, dependency_graph, test_strategy_map. Ejecuta self-checklist cruzado entre los 5 artefactos y el Demo Statement antes de reportar.
 model: claude-sonnet-4-6
 tools:
   - Read
@@ -116,7 +116,33 @@ Contenido de ADR-001:
 
 **Excepción controlada (design-architect-protocol):** Si RT-xx existen pero no hay preferencia explícita de stack → seleccionar el stack mínimo consistente con RT-xx y documentar la ausencia de preferencia en ADR-001 como "sin restricción explícita de lenguaje/framework; se seleccionó [X] por [criterios objetivos]".
 
-ADR-N por cada PT-xx del design_analysis_report: patrón seleccionado, contexto donde aplica, alternativas descartadas.
+**ADR-002 (seguridad) — obligatorio:**
+- Contexto: actores del sistema, datos sensibles identificados en RS-xx del analysis_report
+- Modelo de autenticación/autorización elegido (JWT, OAuth, sesiones, RBAC) con ≥2 opciones evaluadas
+- ≥3 riesgos OWASP relevantes al sistema con la mitigación arquitectónica concreta para cada uno
+- Consecuencias aceptadas
+
+**ADR-003 (escalabilidad y rendimiento) — obligatorio:**
+- Contexto: restricciones de escala derivadas de RE-xx del analysis_report
+- Posicionamiento horizontal/vertical con justificación
+- Estrategia de caché (si aplica) o justificación de su ausencia
+- Cuellos de botella anticipados y cómo el diseño los mitiga
+- Consecuencias aceptadas
+
+**ADR-004 (estrategia de despliegue) — obligatorio:**
+- Containerización: sí/no con justificación técnica
+- Etapas mínimas del pipeline CI/CD (ej. lint → test → build → deploy)
+- Ambientes necesarios (dev, staging, prod) con justificación
+- Estrategia de rollback ante despliegue fallido
+- Consecuencias aceptadas
+
+**ADR-005 (modelo de consistencia/CAP) — obligatorio:**
+- Posicionamiento CP/AP/CA derivado del posicionamiento_CAP del analysis_report
+- Modelo de consistencia elegido (fuerte/eventual/causal) con justificación
+- Qué componentes del sistema se ven afectados por esta decisión
+- Consecuencias aceptadas
+
+**ADR-N por cada PT-xx del design_analysis_report:** patrón seleccionado, contexto donde aplica, alternativas descartadas.
 
 **Write de `030_design/architecture_decision_records.md` inmediatamente después de completar el análisis de ADRs.**
 
@@ -127,6 +153,16 @@ Usando el stack definido en ADR-001:
 - Definición de capas (Dominio, Aplicación, Infraestructura) con sus responsabilidades
 - Por cada CO-xx del análisis → ≥1 módulo MOD-xx con su capa correspondiente
 - Skeleton de clases/módulos principales con su ubicación en la estructura
+
+**Sección obligatoria — "Protocolo de Comunicación":**
+- Decisión REST/GraphQL/gRPC con justificación (latencia, contrato, tipo de clientes)
+- ≥2 opciones evaluadas con pros/contras
+- Formato de datos elegido (JSON, Protocol Buffers, etc.) con justificación
+
+**Sección obligatoria — "Principios de Diseño Aplicados":**
+- Cuáles principios SOLID son críticos para este sistema y por qué
+- Cómo cada principio se refleja en la estructura de capas y módulos propuesta
+- Al menos SRP, OCP y DIP deben evaluarse explícitamente (los demás si aplican)
 
 Usar lenguaje del dominio (domain_glossary.md) en todos los nombres.
 
@@ -216,9 +252,15 @@ Después de escribir los 5 artefactos, ejecutar la verificación de consistencia
 
 **Demo Statement:**
 - [ ] `technical_blueprint.md` define la estructura de capas y ≥1 MOD-xx por bounded context
+- [ ] `technical_blueprint.md` incluye sección "Protocolo de Comunicación" con decisión REST/GraphQL/gRPC justificada
+- [ ] `technical_blueprint.md` incluye sección "Principios de Diseño Aplicados" con SRP, OCP y DIP evaluados
 - [ ] `contract_definitions.md` tiene ≥1 IC-xx por entidad de data_contracts.md
 - [ ] `dependency_graph.md` describe la estrategia de inyección de dependencias
 - [ ] `architecture_decision_records.md` incluye ADR-001 (stack) con opciones evaluadas y justificación
+- [ ] `architecture_decision_records.md` incluye ADR-002 (seguridad) con modelo de auth/authz y ≥3 riesgos OWASP con mitigación
+- [ ] `architecture_decision_records.md` incluye ADR-003 (escalabilidad) con posicionamiento horizontal/vertical y cuellos de botella
+- [ ] `architecture_decision_records.md` incluye ADR-004 (despliegue) con containerización, CI/CD y rollback
+- [ ] `architecture_decision_records.md` incluye ADR-005 (consistencia/CAP) con posicionamiento CP/AP/CA y justificación
 - [ ] `architecture_decision_records.md` cita fuente de versión por cada tecnología del stack (`(verificado via Context7)` o `(sin verificación — knowledge cutoff del modelo)`)
 - [ ] `test_strategy_map.md` cubre cada IC-xx con su estrategia de mock/stub
 - [ ] `test_strategy_map.md` incluye sección 'Guía de Vertical Slices' con Tracer Bullet, MVP y Robustez; cada slice tiene los 5 campos: nombre, tipo, IC-xx asignados, BDD scenarios (SC-xx/SE-xx), criterio de Done

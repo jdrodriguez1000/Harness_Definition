@@ -23,7 +23,7 @@ Todo issue que reportas debe citarse con artefacto + sección + ID o línea exac
 
 ## Clasificación de issues
 
-- **CRITICAL:** El issue bloquea trazabilidad o implementación. Ejemplos: IC-xx en contract_definitions sin TS-xx en test_strategy_map, MOD-xx en blueprint sin nodo en dependency_graph, ADR-001 sin sección de opciones evaluadas, Guía de Vertical Slices ausente.
+- **CRITICAL:** El issue bloquea trazabilidad o implementación. Ejemplos: IC-xx en contract_definitions sin TS-xx en test_strategy_map, MOD-xx en blueprint sin nodo en dependency_graph, ADR-001 sin sección de opciones evaluadas, ADR-002/003/004/005 ausentes, secciones "Protocolo de Comunicación" o "Principios de Diseño Aplicados" ausentes en technical_blueprint, Guía de Vertical Slices ausente.
 - **MINOR:** Inconsistencia menor que no bloquea. Ejemplos: TS-xx con herramienta no especificada, ADR-001 con consecuencias descritas de forma incompleta.
 
 ## Al iniciar
@@ -70,18 +70,19 @@ Ejecutar cada verificación en orden. Para cada una, construir lista de hallazgo
 4. Sección presente pero con menos de 3 iteraciones → **CRITICAL**
    - Citar: ausencia de sección o iteraciones faltantes
 
-### V5 — ADR-001 secciones obligatorias
+### V5 — ADRs obligatorios (ADR-001..005)
 
-1. Verificar que `architecture_decision_records.md` contiene ADR-001
-2. Verificar que ADR-001 incluye las 4 secciones obligatorias:
-   - Contexto (descripción del problema de diseño)
-   - Opciones evaluadas (≥2 opciones con pros/contras)
-   - Criterios de decisión
-   - Consecuencias (lo que se acepta al tomar esta decisión)
-3. ADR-001 ausente → **CRITICAL**
-4. Sección faltante dentro de ADR-001 → **CRITICAL**
-5. Opciones evaluadas < 2 → **MINOR**
-   - Citar: sección faltante o deficiente con referencia al documento
+1. Verificar que `architecture_decision_records.md` contiene los 5 ADRs obligatorios: ADR-001, ADR-002, ADR-003, ADR-004, ADR-005
+2. Para ADR-001: verificar que incluye contexto, ≥2 opciones con pros/contras, criterios de decisión y consecuencias
+3. Para ADR-002: verificar que incluye modelo de auth/authz con ≥2 opciones evaluadas y ≥3 riesgos OWASP con mitigación
+4. Para ADR-003: verificar que incluye posicionamiento horizontal/vertical y al menos un cuello de botella anticipado
+5. Para ADR-004: verificar que incluye decisión de containerización, etapas CI/CD y estrategia de rollback
+6. Para ADR-005: verificar que incluye posicionamiento CP/AP/CA con justificación basada en requerimientos del dominio
+7. Cualquier ADR obligatorio ausente → **CRITICAL**
+8. Sección faltante dentro de ADR-001 → **CRITICAL**
+9. ADR-002 sin riesgos OWASP específicos, ADR-003 sin cuellos de botella, ADR-004 sin rollback → **MINOR**
+10. Opciones evaluadas < 2 en cualquier ADR obligatorio → **MINOR**
+    - Citar: ADR afectado, sección faltante o deficiente con referencia al documento
 
 ### V6 — Coherencia de stack ADR-001 vs. technical_blueprint
 
@@ -89,6 +90,18 @@ Ejecutar cada verificación en orden. Para cada una, construir lista de hallazgo
 2. Verificar que los skeletons de código en `technical_blueprint.md` usan la tecnología de ADR-001
 3. Si un skeleton usa un lenguaje o framework distinto al de ADR-001 sin justificación → **CRITICAL**
    - Citar: tecnología en ADR-001, tecnología diferente en skeleton del blueprint
+
+### V7 — Secciones obligatorias del technical_blueprint
+
+1. Verificar que `technical_blueprint.md` contiene una sección con el título "Protocolo de Comunicación"
+2. Verificar que esa sección menciona la decisión REST/GraphQL/gRPC con al menos una justificación
+3. Verificar que `technical_blueprint.md` contiene una sección con el título "Principios de Diseño Aplicados"
+4. Verificar que esa sección evalúa explícitamente al menos SRP, OCP y DIP
+5. Sección "Protocolo de Comunicación" ausente → **CRITICAL**
+6. Sección "Principios de Diseño Aplicados" ausente → **CRITICAL**
+7. Sección presente pero sin decisión de protocolo específica → **MINOR**
+8. Sección presente pero sin evaluación de los tres principios mínimos → **MINOR**
+   - Citar: sección ausente o principio faltante con referencia al documento
 
 ## Al terminar
 
@@ -129,6 +142,9 @@ MINOR_COUNT: <n>
 <hallazgos con citas, o "Sin issues.">
 
 ### V6 — Coherencia de stack
+<hallazgos con citas, o "Sin issues.">
+
+### V7 — Secciones obligatorias del blueprint
 <hallazgos con citas, o "Sin issues.">
 ```
 
