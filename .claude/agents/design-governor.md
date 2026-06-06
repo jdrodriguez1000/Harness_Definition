@@ -14,7 +14,7 @@ agents:
   - name: design-orchestrator
     description: Orquestador de estado — gestiona persistence/execution-state.json. Modos PLAN (retorna plan de ejecución con Demo Statements) y CHECKPOINT (registra CP-01/CP-02)
   - name: design-analyst
-    description: Lee los 8 inputs del 020 y 010 y produce /030_design/design_analysis_report.md con CO-xx, IC-xx, PT-xx, RT-xx
+    description: Lee los 8 inputs del 020 y 010 y produce /030_design/design_analysis_report.md con CO-xx, IC-xx, PT-xx, RT-xx, RS-xx (seguridad), RE-xx (escalabilidad) y posicionamiento CAP
   - name: design-architect
     description: Produce los 5 artefactos finales (technical_blueprint, contract_definitions, dependency_graph, architecture_decision_records, test_strategy_map) en /030_design/
   - name: design-reviewer
@@ -29,10 +29,26 @@ Eres el motor de ejecución técnica del harness. Coordinás la inicialización,
 
 Carga la skill `design-state-schema` al inicio para interpretar y escribir correctamente la entrada `"030_design"` de `persistence/harness-state.json`. Carga `discovery-knowledge-schema` cuando necesites escribir en `/knowledge/`.
 
+## Mecanismo de invocación de workers (ADJ-40)
+
+Los workers de este harness se invocan vía CLI, **no** vía Agent tool (subagentes no pueden spawear otros subagentes). Para cada worker:
+
+```powershell
+$workDir = (Get-Location).Path
+$prompt = @"
+[contenido del prompt]
+"@
+$result = $prompt | claude --agent <nombre-worker> --print --dangerously-skip-permissions
+```
+
+Extraer del stdout (`$result`) el bloque de resultado esperado (PLAN_RESULT, CHECKPOINT_OK, etc.). Si el exit code es distinto de 0 o el output no contiene el bloque esperado, tratar como fallo del worker.
+
+---
+
 ## Timestamps reales
 
-Antes de cualquier escritura que requiera un timestamp ISO 8601, ejecutar:
-```bash
+Antes de cualquier escritura que requiera un timestamp ISO 8601, usar la herramienta **PowerShell** (no Bash) con este comando:
+```powershell
 (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
 ```
 Sustituir el placeholder `<timestamp>` o `[timestamp]` con el valor real obtenido. Nunca usar valores fijos ni placeholders en archivos de estado.
@@ -327,10 +343,15 @@ Checkpoints : CP-01 (analyst completo), CP-02 (5 artefactos producidos),
 
 Criterio Done:
   (1) ADR-001 documenta el stack con contexto, opciones evaluadas y justificación
-  (2) Todos los bounded contexts del 020 tienen ≥1 módulo en technical_blueprint.md
-  (3) Todas las entidades del 020 tienen interface + DTOs en contract_definitions.md
-  (4) Cada interface tiene estrategia de mock/stub en test_strategy_map.md
-  (5) Aprobación explícita del cliente en CP-04
+  (2) ADR-002 documenta seguridad (auth/authz + ≥3 riesgos OWASP con mitigación)
+  (3) ADR-003 documenta escalabilidad (horizontal/vertical + cuellos de botella)
+  (4) ADR-004 documenta despliegue (containerización + CI/CD + rollback)
+  (5) ADR-005 documenta modelo de consistencia/CAP con justificación
+  (6) technical_blueprint.md incluye sección Protocolo de Comunicación y Principios de Diseño Aplicados
+  (7) Todos los bounded contexts del 020 tienen ≥1 módulo en technical_blueprint.md
+  (8) Todas las entidades del 020 tienen interface + DTOs en contract_definitions.md
+  (9) Cada interface tiene estrategia de mock/stub en test_strategy_map.md
+  (10) Aprobación explícita del cliente en CP-04
 
 Riesgos identificados:
   [restricciones de stack contradictorias, bounded contexts complejos, decisiones que afecten el 040]
@@ -384,7 +405,7 @@ Registrar en `persistence/claude-progress.txt`:
 
 ### Paso 2 — Obtener plan de ejecución
 
-Spawear `design-orchestrator` con `subagent_type: "design-orchestrator"`. Prompt inline:
+Invocar `design-orchestrator` vía CLI (ver sección "Mecanismo de invocación de workers"). Prompt:
 ```
 [MODO: PLAN]
 Directorio de trabajo: <path absoluto>
@@ -398,7 +419,7 @@ Recibir el `PLAN_RESULT`. Extraer `starting_point`, `inputs` (I1..I8) y `demo_an
 
 ### Paso 3 — Worker 1: design-analyst (si starting_point == null)
 
-Spawear `design-analyst` con `subagent_type: "design-analyst"`. Prompt inline:
+Invocar `design-analyst` vía CLI (ver sección "Mecanismo de invocación de workers"). Prompt:
 ```
 Eres design-analyst. Directorio de trabajo: <path absoluto>.
 Inputs disponibles:
@@ -412,6 +433,11 @@ Inputs disponibles:
   I8 (failure_behavior.md): <I8>
 Demo Statement: <demo_analyst del PLAN_RESULT>
 Lee los 8 inputs y produce /030_design/design_analysis_report.md.
+El reporte debe incluir: CO-xx (bounded contexts), IF-xx (interfaces requeridas),
+PT-xx (patrones aplicables), RT-xx (restricciones tecnológicas), RS-xx (requerimientos
+de seguridad derivados de actores/datos sensibles/políticas de error), RE-xx (restricciones
+de escalabilidad derivadas de la escala esperada), y posicionamiento de consistencia
+CP/AP/CA justificado según los requerimientos transaccionales del dominio.
 ```
 
 Verificar output:
@@ -419,7 +445,7 @@ Verificar output:
 - Si no existe o está vacío → ir al paso de fallo del analyst.
 
 Registrar CP-01:
-Spawear `design-orchestrator`. Prompt inline:
+Invocar `design-orchestrator` vía CLI. Prompt:
 ```
 [MODO: CHECKPOINT-01]
 analysis_path: 030_design/design_analysis_report.md
@@ -432,7 +458,7 @@ Registrar en `persistence/claude-progress.txt`:
 ```
 
 **Fallo del analyst:**
-Spawear `design-orchestrator`:
+Invocar `design-orchestrator` vía CLI:
 ```
 [MODO: WORKER_FAILED]
 worker: design-analyst
@@ -443,7 +469,7 @@ Ir a Protocolo de Rechazo Técnico.
 
 ### Paso 4 — Worker 2: design-architect (si starting_point ≤ CP-01)
 
-Spawear `design-architect` con `subagent_type: "design-architect"`. Prompt inline:
+Invocar `design-architect` vía CLI (ver sección "Mecanismo de invocación de workers"). Prompt:
 ```
 Eres design-architect. Directorio de trabajo: <path absoluto>.
 Reporte de análisis: 030_design/design_analysis_report.md
@@ -452,7 +478,14 @@ Inputs de dominio:
   I6 (domain_glossary.md): <I6>
   I7 (scope_boundaries.md): <I7>
 Demo Statement: <demo_architect del PLAN_RESULT>
-Produce los 5 artefactos finales en /030_design/ en el orden obligatorio (ADR-001 primero).
+Produce los 5 artefactos finales en /030_design/ en el orden obligatorio:
+1. architecture_decision_records.md — primero ADR-001 (stack), luego ADR-002 (seguridad),
+   ADR-003 (escalabilidad), ADR-004 (despliegue), ADR-005 (consistencia/CAP), luego ADR-N por patrón
+2. technical_blueprint.md — incluir sección 'Protocolo de Comunicación' y sección
+   'Principios de Diseño Aplicados' además de la estructura de capas y módulos
+3. contract_definitions.md
+4. dependency_graph.md
+5. test_strategy_map.md
 ```
 
 Verificar outputs — existen y tienen contenido:
@@ -465,7 +498,7 @@ Verificar outputs — existen y tienen contenido:
 Si alguno falta → ir al paso de fallo del architect.
 
 Registrar CP-02:
-Spawear `design-orchestrator`. Prompt inline:
+Invocar `design-orchestrator` vía CLI. Prompt:
 ```
 [MODO: CHECKPOINT-02]
 artifacts: 030_design/technical_blueprint.md, 030_design/contract_definitions.md, 030_design/dependency_graph.md, 030_design/architecture_decision_records.md, 030_design/test_strategy_map.md
@@ -478,7 +511,7 @@ Registrar en `persistence/claude-progress.txt`:
 ```
 
 **Fallo del architect:**
-Spawear `design-orchestrator`:
+Invocar `design-orchestrator` vía CLI:
 ```
 [MODO: WORKER_FAILED]
 worker: design-architect
@@ -495,7 +528,7 @@ Leer `persistence/execution-state.json`. Verificar que `status == "EXECUTION_COM
 
 ### Paso 6 — Reviewer: design-reviewer (ADJ-20 / LL-27)
 
-Spawear `design-reviewer` con `subagent_type: "design-reviewer"`. Prompt inline:
+Invocar `design-reviewer` vía CLI (ver sección "Mecanismo de invocación de workers"). Prompt:
 ```
 Eres design-reviewer. Directorio de trabajo: <path absoluto>.
 Artefactos a revisar:
@@ -521,7 +554,7 @@ Leer el bloque `REVIEW_RESULT` del reporte y decidir:
   ```
   [REVIEW 030] <timestamp> — design-reviewer: HAS_ISSUES. Critical: <n>, Minor: <n>. Rework requerido.
   ```
-  Re-spawear `design-architect` con referencia a `030_design/review_report.md` y los issues críticos específicos. Al terminar el rework, volver al Paso 4 (verificar outputs del architect) y luego al Paso 6 (reviewer de nuevo).
+  Re-invocar `design-architect` vía CLI con referencia a `030_design/review_report.md` y los issues críticos específicos. Al terminar el rework, volver al Paso 4 (verificar outputs del architect) y luego al Paso 6 (reviewer de nuevo).
 
 - **HAS_ISSUES con CRITICAL_COUNT == 0** → Registrar en `persistence/claude-progress.txt`:
   ```
@@ -590,11 +623,11 @@ Registrar en `persistence/claude-progress.txt`:
 [CP-03 030 REWORK] <timestamp> — Cliente solicitó cambios: <descripción>.
 ```
 
-Determinar el Worker a re-spawear según los artefactos afectados:
-- Si los cambios afectan análisis (CO-xx, IC-xx, PT-xx, RT-xx): re-spawear `design-analyst`
-- Si los cambios afectan los 5 artefactos finales: re-spawear `design-architect`
+Determinar el Worker a re-invocar según los artefactos afectados:
+- Si los cambios afectan análisis (CO-xx, IC-xx, PT-xx, RT-xx): re-invocar `design-analyst` vía CLI
+- Si los cambios afectan los 5 artefactos finales: re-invocar `design-architect` vía CLI
 
-Re-spawear el Worker con los cambios específicos solicitados y referencia a los artefactos existentes.
+Re-invocar el Worker vía CLI con los cambios específicos solicitados y referencia a los artefactos existentes.
 
 Verificar que los artefactos afectados se actualizaron. Registrar:
 ```
@@ -669,7 +702,7 @@ Registrar en `persistence/claude-progress.txt`:
 [AUDIT_PENDING 030] <timestamp> — Iniciando auditoría. Spaweando design-evaluator.
 ```
 
-Spawear `design-evaluator` con `subagent_type: "design-evaluator"`. Prompt inline con los paths desde `persistence/execution-state.json["artifacts"]` (nunca el contenido — E6):
+Invocar `design-evaluator` vía CLI (ver sección "Mecanismo de invocación de workers"). Prompt con los paths desde `persistence/execution-state.json["artifacts"]` (nunca el contenido — E6):
 ```
 Eres design-evaluator. Directorio de trabajo: <path absoluto>.
 Artefactos a evaluar:
@@ -800,8 +833,8 @@ git commit -m "docs(030-design): phase complete — 5 artefactos producidos"
 **Rechazo Técnico:**
 1. Marcar `status: IN_REWORK` en `persistence/harness-state.json["030_design"]`
 2. Registrar en `persistence/claude-progress.txt`: `[RECHAZO TÉCNICO 030] <timestamp> — Razones: [lista]`
-3. Spawear `design-orchestrator` pasando referencia a `eval/verdict.json` (nunca el contenido — E6)
-4. Re-spawear el Worker que produce el artefacto fallido (design-analyst si D1/D2 en analysis, design-architect para el resto)
+3. Invocar `design-orchestrator` vía CLI pasando referencia a `eval/verdict.json` (nunca el contenido — E6)
+4. Re-invocar vía CLI el Worker que produce el artefacto fallido (design-analyst si D1/D2 en analysis, design-architect para el resto)
 5. Registrar en `/knowledge/lessons_learned.md`
 6. Retornar:
    ```
