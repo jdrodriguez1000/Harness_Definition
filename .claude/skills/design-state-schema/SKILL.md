@@ -63,7 +63,12 @@ del 030.
         "Todos los bounded contexts del 020 tienen ≥1 módulo en technical_blueprint.md",
         "Todas las entidades del 020 tienen interface + DTOs en contract_definitions.md",
         "Cada interface tiene estrategia de mock/stub en test_strategy_map.md",
-        "Aprobación explícita del cliente en CP-04"
+        "Aprobación explícita del cliente en CP-04",
+        "ADR-002 documenta seguridad (auth/authz + ≥3 riesgos OWASP con mitigación)",
+        "ADR-003 documenta escalabilidad (horizontal/vertical + cuellos de botella)",
+        "ADR-004 documenta despliegue (containerización + CI/CD + rollback)",
+        "ADR-005 documenta modelo de consistencia/CAP con justificación",
+        "technical_blueprint.md incluye sección Protocolo de Comunicación y sección Principios de Diseño Aplicados"
       ]
     },
     "status": "PENDING_CONTRACT | ACTIVE | AUDIT_PENDING | IN_REWORK | HOLD | SUSPENDED | PHASE_COMPLETE",
@@ -148,8 +153,8 @@ El campo `suspension` es `null` cuando el harness no está suspendido. Cuando `/
       "I8": "<path a 010_discovery/failure_behavior.md o null>"
     },
     "demo_statements": {
-      "design-analyst": "Cuando design-analyst termine, podré observar que 030_design/design_analysis_report.md existe y contiene: ≥1 componente (CO-xx) por bounded context identificado en bdd_features.md; ≥1 interface requerida (IC-xx) por entidad en data_contracts.md; ≥1 patrón de diseño (PT-xx) con justificación; ≥1 restricción tecnológica (RT-xx) derivada de scope_boundaries.md.",
-      "design-architect": "Cuando design-architect termine, podré observar que: technical_blueprint.md define la estructura de capas y ≥1 módulo (MOD-xx) por bounded context; contract_definitions.md tiene ≥1 interface (IC-xx) por entidad de data_contracts.md; dependency_graph.md describe la estrategia de inyección de dependencias; architecture_decision_records.md incluye ADR-001 (stack) con opciones evaluadas y justificación; test_strategy_map.md cubre cada IC-xx con su estrategia de mock/stub."
+      "design-analyst": "Cuando design-analyst termine, podré observar que 030_design/design_analysis_report.md existe y contiene: ≥1 componente (CO-xx) por bounded context identificado en bdd_features.md; ≥1 interface requerida (IC-xx) por entidad en data_contracts.md; ≥1 patrón de diseño (PT-xx) con justificación; ≥1 restricción tecnológica (RT-xx) derivada de scope_boundaries.md; ≥1 requerimiento de seguridad (RS-xx) derivado de los inputs (actores, datos sensibles, políticas de error); ≥1 restricción de escalabilidad (RE-xx) derivada de la escala esperada del sistema; posicionamiento de consistencia (CP/AP/CA) justificado según los requerimientos transaccionales del dominio.",
+      "design-architect": "Cuando design-architect termine, podré observar que: technical_blueprint.md define la estructura de capas y ≥1 módulo (MOD-xx) por bounded context; contract_definitions.md tiene ≥1 interface (IC-xx) por entidad de data_contracts.md; dependency_graph.md describe la estrategia de inyección de dependencias; architecture_decision_records.md incluye ADR-001 (stack) con opciones evaluadas y justificación, ADR-002 (seguridad con ≥3 riesgos OWASP), ADR-003 (escalabilidad con cuellos de botella), ADR-004 (despliegue con CI/CD y rollback), ADR-005 (modelo CAP/consistencia); technical_blueprint.md incluye sección 'Protocolo de Comunicación' con decisión REST/GraphQL/gRPC justificada y sección 'Principios de Diseño Aplicados' con SRP, OCP y DIP evaluados; test_strategy_map.md cubre cada IC-xx con su estrategia Fake/Mock/Real y contiene la sección obligatoria 'Guía de Vertical Slices' con Tracer Bullet, MVP y Robustez, cada una con sus 5 campos (nombre, tipo, IC-xx asignados, BDD scenarios, criterio de Done)."
     },
     "starting_point": "null | CP-01 | COMPLETE"
   },
