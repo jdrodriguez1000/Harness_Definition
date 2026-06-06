@@ -38,11 +38,18 @@ iniciar el 030 Design. Estado actual: [valor encontrado]."
 
 ### Proceso (7 pasos)
 
-1. **Selección y Documentación del Stack (ADR-001)** — Antes de cualquier decisión
+1. **Selección y Documentación del Stack y ADRs Obligatorios** — Antes de cualquier decisión
    arquitectónica, definir el stack tecnológico usando las restricciones de I-5, I-7 y
    los requerimientos funcionales de I-1..I-4. El resultado (lenguajes, frameworks, librerías,
-   infraestructura) se documenta como el primer ADR y queda disponible para todos los pasos
+   infraestructura) se documenta como ADR-001 y queda disponible para todos los pasos
    siguientes. Sin ADR-001, ningún otro artefacto puede referirse a tecnologías concretas.
+   Además del stack, el 030 requiere cinco ADRs obligatorios en `architecture_decision_records.md`:
+   - **ADR-001**: Stack tecnológico — contexto, ≥2 opciones evaluadas con pros/contras, decisión y justificación técnica
+   - **ADR-002**: Estrategia de seguridad — modelo de auth/authz elegido; datos sensibles y cómo se protegen; ≥3 riesgos OWASP relevantes al sistema con su mitigación arquitectónica
+   - **ADR-003**: Escalabilidad y rendimiento — posicionamiento horizontal/vertical; estrategia de caché (si aplica); cuellos de botella anticipados; justificación del nivel de escala actual
+   - **ADR-004**: Estrategia de despliegue — containerización (sí/no con razón); etapas mínimas de CI/CD; ambientes necesarios; estrategia de rollback
+   - **ADR-005**: Modelo de consistencia/CAP — posicionamiento CP/AP/CA; modelo de consistencia elegido (fuerte/eventual/causal); justificación según los requerimientos de datos del sistema
+   - **ADR-N** (uno por patrón de diseño mayor): problema concreto que resuelve, justificación y consecuencias aceptadas
 
 2. **Modelado Arquitectónico (Decoupled Design)** — Definición de las capas del sistema
    (ej. Dominio, Aplicación, Infraestructura). Priorizar el desacoplamiento: la lógica de
@@ -81,10 +88,10 @@ iniciar el 030 Design. Estado actual: [valor encontrado]."
 
 | Artefacto | Path | Descripción |
 |-----------|------|-------------|
-| Technical Blueprint | `/030_design/technical_blueprint.md` | Estructura de carpetas, definición de capas/módulos y skeleton de clases/interfaces principales |
+| Technical Blueprint | `/030_design/technical_blueprint.md` | Estructura de carpetas, definición de capas/módulos y skeleton de clases/interfaces principales. Incluye sección **Protocolo de Comunicación** (decisión REST/GraphQL/gRPC con justificación) y sección **Principios de Diseño Aplicados** (cuáles principios SOLID son críticos para este sistema y cómo se reflejan en la estructura de capas) |
 | Contract Definitions | `/030_design/contract_definitions.md` | Interfaces técnicas (IRepository, IService, etc.), DTOs con firmas de métodos por bounded context |
 | Dependency Graph | `/030_design/dependency_graph.md` | Cómo se relacionan los componentes; estrategia de inyección de dependencias; diagrama o descripción textual de la topología |
-| Architecture Decision Records | `/030_design/architecture_decision_records.md` | ADR-001: stack; ADR-N: patrones seleccionados, decisiones de desacoplamiento, trade-offs aceptados |
+| Architecture Decision Records | `/030_design/architecture_decision_records.md` | ADR-001: stack; ADR-002: estrategia de seguridad; ADR-003: escalabilidad y rendimiento; ADR-004: estrategia de despliegue; ADR-005: modelo de consistencia/CAP; ADR-N: patrones de diseño seleccionados. Cada ADR incluye contexto, opciones evaluadas, decisión y consecuencias aceptadas |
 | Test Strategy Map | `/030_design/test_strategy_map.md` | Qué se probará con unitarios/integración/contrato por interface; puntos de mock/stub; Guía de Vertical Slices (TB → Crecimiento 0..N → MVP → Evolución 0..M → Robustez) con 5 campos por slice |
 
 Artefactos intermedios (no entregados al 040, no evaluados por la rúbrica):
@@ -96,10 +103,15 @@ Artefactos intermedios (no entregados al 040, no evaluados por la rúbrica):
 La fase se considera completa cuando se cumplen **todas** las siguientes condiciones:
 
 1. El stack tecnológico está documentado como ADR-001 con contexto, opciones evaluadas y justificación de la elección.
-2. Todos los bounded contexts identificados en `bdd_features.md` tienen ≥1 módulo/componente en `technical_blueprint.md`.
-3. Todas las entidades de `data_contracts.md` tienen interfaz técnica y DTOs en `contract_definitions.md`.
-4. Cada interface en `contract_definitions.md` tiene estrategia de mock/stub en `test_strategy_map.md`.
-5. El cliente ha aprobado explícitamente los artefactos en CP-04.
+2. ADR-002 documenta la estrategia de seguridad con modelo de auth/authz y ≥3 riesgos OWASP con mitigación arquitectónica.
+3. ADR-003 documenta la estrategia de escalabilidad con posicionamiento horizontal/vertical y cuellos de botella anticipados.
+4. ADR-004 documenta la estrategia de despliegue con decisión de containerización, etapas CI/CD y rollback.
+5. ADR-005 documenta el modelo de consistencia/CAP con posicionamiento CP/AP/CA y justificación.
+6. `technical_blueprint.md` incluye sección de Protocolo de Comunicación y sección de Principios de Diseño Aplicados.
+7. Todos los bounded contexts identificados en `bdd_features.md` tienen ≥1 módulo/componente en `technical_blueprint.md`.
+8. Todas las entidades de `data_contracts.md` tienen interfaz técnica y DTOs en `contract_definitions.md`.
+9. Cada interface en `contract_definitions.md` tiene estrategia de mock/stub en `test_strategy_map.md`.
+10. El cliente ha aprobado explícitamente los artefactos en CP-04.
 
 ### Tipo de artefacto y ciclo adaptado
 
@@ -145,7 +157,7 @@ Por este motivo, siguiendo el patrón del 020:
 
 | Worker | Micro-tarea | Inputs que recibe | Output (path) |
 |--------|-------------|-------------------|---------------|
-| `design-analyst` | Lee los 8 inputs (I-1..I-8). Identifica bounded contexts, interfaces requeridas, patrones aplicables, restricciones tecnológicas. Produce design_analysis_report.md. | Paths a I-1..I-8 + Demo Statement del orchestration_plan | `/030_design/design_analysis_report.md` |
+| `design-analyst` | Lee los 8 inputs (I-1..I-8). Identifica bounded contexts, interfaces requeridas, patrones aplicables, restricciones tecnológicas, requerimientos de seguridad, restricciones de escalabilidad y despliegue, y posicionamiento de consistencia/CAP requerido por el dominio. Produce design_analysis_report.md. | Paths a I-1..I-8 + Demo Statement del orchestration_plan | `/030_design/design_analysis_report.md` |
 | `design-architect` | Lee design_analysis_report.md + domain_glossary.md + scope_boundaries.md. Selecciona stack, produce los 5 artefactos finales en orden. | Path a design_analysis_report.md + paths a I-2, I-6, I-7 + Demo Statement | `/030_design/technical_blueprint.md`, `/030_design/contract_definitions.md`, `/030_design/dependency_graph.md`, `/030_design/architecture_decision_records.md`, `/030_design/test_strategy_map.md` |
 
 **Secuenciación:** design-analyst → design-architect (dependencia estricta, no paralela).
@@ -163,17 +175,24 @@ antes de que el governor spawee ningún Worker.
 > existe y contiene: ≥1 componente (CO-xx) por bounded context identificado en
 > `bdd_features.md`; ≥1 interface requerida (IF-xx) por entidad en `data_contracts.md`;
 > ≥1 patrón de diseño (PT-xx) con justificación; ≥1 restricción tecnológica (RT-xx)
-> derivada de `scope_boundaries.md`."
+> derivada de `scope_boundaries.md`; ≥1 requerimiento de seguridad (RS-xx) derivado de
+> los inputs (actores, datos sensibles, políticas de error); ≥1 restricción de escalabilidad
+> (RE-xx) derivada de la escala esperada del sistema; posicionamiento de consistencia (CP/AP/CA)
+> justificado según los requerimientos transaccionales del dominio."
 
 **Demo Statement para design-architect:**
 > "Cuando design-architect termine, podré observar que: `technical_blueprint.md` define
-> la estructura de capas y ≥1 módulo (MOD-xx) por bounded context; `contract_definitions.md`
+> la estructura de capas, ≥1 módulo (MOD-xx) por bounded context, una sección 'Protocolo
+> de Comunicación' con decisión REST/GraphQL/gRPC justificada, y una sección 'Principios
+> de Diseño Aplicados' con los principios SOLID críticos para este sistema; `contract_definitions.md`
 > tiene ≥1 interface (IC-xx) por entidad de data_contracts.md; `dependency_graph.md` describe
 > la estrategia de inyección de dependencias; `architecture_decision_records.md` incluye
-> ADR-001 (stack) con opciones evaluadas y justificación; `test_strategy_map.md` cubre
-> cada IC-xx con su estrategia de mock/stub y contiene la sección 'Guía de Vertical Slices'
-> con Tracer Bullet, MVP y Robustez, cada una con sus 5 campos (nombre, tipo, IC-xx asignados,
-> BDD scenarios, criterio de Done)."
+> ADR-001 (stack), ADR-002 (seguridad con ≥3 riesgos OWASP), ADR-003 (escalabilidad con
+> cuellos de botella), ADR-004 (despliegue con CI/CD y rollback), ADR-005 (modelo CAP/consistencia),
+> cada uno con opciones evaluadas y justificación; `test_strategy_map.md` cubre cada IC-xx
+> con su estrategia de mock/stub y contiene la sección 'Guía de Vertical Slices' con Tracer
+> Bullet, MVP y Robustez, cada una con sus 5 campos (nombre, tipo, IC-xx asignados, BDD
+> scenarios, criterio de Done)."
 
 Cada Worker, al terminar su producción, ejecuta un self-checklist contra su Demo Statement.
 - Si puede verificar todas las condiciones: reporta `COMPLETED`.
@@ -286,10 +305,15 @@ Workers activados:
 Checkpoints : CP-01, CP-02, CP-03, CP-04
 Criterio Done:
   (1) ADR-001 documenta el stack con contexto, opciones evaluadas y justificación
-  (2) Todos los bounded contexts del 020 tienen ≥1 módulo en technical_blueprint.md
-  (3) Todas las entidades del 020 tienen interface + DTOs en contract_definitions.md
-  (4) Cada interface tiene estrategia de mock/stub en test_strategy_map.md
-  (5) Aprobación explícita del cliente en CP-04
+  (2) ADR-002 documenta seguridad (auth/authz + ≥3 riesgos OWASP con mitigación)
+  (3) ADR-003 documenta escalabilidad (horizontal/vertical + cuellos de botella)
+  (4) ADR-004 documenta despliegue (containerización + CI/CD + rollback)
+  (5) ADR-005 documenta modelo de consistencia/CAP con justificación
+  (6) technical_blueprint.md incluye sección Protocolo de Comunicación y Principios de Diseño Aplicados
+  (7) Todos los bounded contexts del 020 tienen ≥1 módulo en technical_blueprint.md
+  (8) Todas las entidades del 020 tienen interface + DTOs en contract_definitions.md
+  (9) Cada interface tiene estrategia de mock/stub en test_strategy_map.md
+  (10) Aprobación explícita del cliente en CP-04
 
 Riesgos identificados:
   - [restricciones de stack contradictorias o insuficientes]
@@ -307,10 +331,10 @@ Próxima acción: spawear design-orchestrator en modo PLAN para persistir el orc
 
 | ID | Dimensión | Descripción | Score |
 |----|-----------|-------------|-------|
-| D1 | Blueprint Coverage | Todos los actores + bounded contexts de `bdd_features.md` tienen ≥1 módulo/componente en `technical_blueprint.md`. La estructura de capas es coherente con los escenarios BDD | 0.0–1.0 |
+| D1 | Blueprint Coverage | Todos los actores + bounded contexts de `bdd_features.md` tienen ≥1 módulo/componente en `technical_blueprint.md`. La estructura de capas es coherente con los escenarios BDD. El blueprint incluye sección de Protocolo de Comunicación y sección de Principios de Diseño Aplicados | 0.0–1.0 |
 | D2 | Contract Completeness | Todas las entidades de `data_contracts.md` tienen interface técnica (IC-xx) y DTOs en `contract_definitions.md`. Sin entidades huérfanas ni interfaces sin entidad correspondiente | 0.0–1.0 |
 | D3 | Testability | Cada interface (IC-xx) tiene punto de mock/stub documentado en `test_strategy_map.md`. La estrategia de DI en `dependency_graph.md` es coherente con la testabilidad requerida | 0.0–1.0 |
-| D4 | ADR Completeness | ADR-001 (stack) incluye: contexto, ≥2 opciones evaluadas con pros/contras, decisión final con justificación técnica. Cada patrón de diseño mayor tiene su ADR | 0.0–1.0 |
+| D4 | ADR Completeness | Los 5 ADRs obligatorios están presentes: ADR-001 (stack), ADR-002 (seguridad), ADR-003 (escalabilidad), ADR-004 (despliegue), ADR-005 (consistencia/CAP). Cada uno incluye contexto, ≥2 opciones evaluadas con pros/contras, decisión final con justificación técnica. Cada patrón de diseño mayor tiene su ADR adicional | 0.0–1.0 |
 | D5 | Consistency | Sin contradicciones entre los 5 artefactos. Sin contradicciones con los inputs del 020/010. Lenguaje ubicuo del glosario usado consistentemente | 0.0–1.0 |
 
 **Gate de paso:** Score promedio ≥ 0.75 en todas las dimensiones.
@@ -323,36 +347,47 @@ Próxima acción: spawear design-orchestrator en modo PLAN para persistir el orc
 
 **Score 0.2** — Technical Blueprint solo lista carpetas genéricas sin módulos por bounded
 context. Contract Definitions tiene interfaces sin métodos definidos. Dependency Graph
-ausente o genérico. ADR-001 lista el stack sin evaluar alternativas. Test Strategy Map
-vacío o menciona "escribir tests" sin estrategia de mock.
+ausente o genérico. ADR-001 lista el stack sin evaluar alternativas. ADR-002..005 ausentes
+o reducidos a una línea sin opciones evaluadas. Test Strategy Map vacío o menciona
+"escribir tests" sin estrategia de mock.
 
 > Ejemplo: Blueprint con `src/`, `tests/`, `lib/` sin módulos de dominio (Inventario, Alertas,
 > Compras). Contract Definitions tiene `IRepositorio` sin métodos. ADR-001 dice "usaremos
-> Python + FastAPI porque es popular". Sin mención de cómo mockear la base de datos.
+> Python + FastAPI porque es popular". ADR-002 dice "usaremos JWT". Sin ADR-003, ADR-004
+> ni ADR-005. Sin mención de cómo mockear la base de datos.
 
 **Score 0.5** — Technical Blueprint con capas definidas pero módulos incompletos (faltan
 bounded contexts secundarios). Contract Definitions define interfaces para entidades
 principales pero sin DTOs. Dependency Graph describe la DI pero sin estrategia clara.
-ADR-001 evalúa 2 opciones superficialmente. Test Strategy Map menciona mocks para ≥50%
-de interfaces.
+ADR-001 evalúa 2 opciones superficialmente. ADR-002 presente pero sin riesgos OWASP
+específicos. ADR-003 o ADR-004 ausentes. ADR-005 ausente o sin posicionamiento CAP
+explícito. Test Strategy Map menciona mocks para ≥50% de interfaces.
 
 > Ejemplo: Blueprint define Inventario y Compras como módulos pero omite el módulo de
 > Alertas. Contract Definitions tiene IInventarioRepository con sus métodos pero sin
 > DTOs para los requests/responses. ADR-001 compara Python vs Node.js con 1 argumento
-> por opción. Test Strategy Map documenta mock de DB pero no del servicio de alertas.
+> por opción. ADR-002 menciona "usaremos JWT y bcrypt" sin evaluar alternativas ni nombrar
+> riesgos OWASP. Sin ADR-003 ni ADR-005. Test Strategy Map documenta mock de DB pero no
+> del servicio de alertas.
 
 **Score 0.8** — Todos los bounded contexts con módulos. Contract Definitions completo
 para entidades principales pero con 1-2 DTOs faltantes. Dependency Graph coherente con
-DI documentada. ADR-001 con ≥2 opciones bien evaluadas pero faltando criterios de
-decisión explícitos. Test Strategy Map cubre ≥80% de interfaces con estrategia de mock.
-Guía de Vertical Slices presente pero incompleta.
+DI documentada. ADR-001..005 presentes pero con profundidad insuficiente en alguno
+(ej. ADR-002 sin riesgos OWASP específicos, o ADR-003 sin cuellos de botella concretos).
+Blueprint incluye las dos secciones nuevas pero una de ellas es superficial. Test Strategy
+Map cubre ≥80% de interfaces con estrategia de mock. Guía de Vertical Slices presente
+pero incompleta.
 
 > Ejemplo: Blueprint define Inventario, Alertas y Compras con submódulos correctos.
-> Contract Definitions completo excepto falta el DTO de respuesta del endpoint de
-> alertas. ADR-001 evalúa Python/FastAPI vs Node.js/Express con pros/contras pero
-> no menciona el criterio de rendimiento bajo carga. Test Strategy Map completo para
-> repositorios pero sin estrategia de mock para el servicio de notificaciones.
-> 1 inconsistencia menor: dependency_graph menciona un servicio no definido en contract_definitions.
+> Sección Protocolo de Comunicación presente (REST elegido) pero sin comparar alternativas.
+> Sección Principios de Diseño Aplicados lista SOLID genéricamente sin mapear cada principio
+> a un módulo concreto. Contract Definitions completo excepto falta el DTO de respuesta del
+> endpoint de alertas. ADR-001..005 todos presentes: ADR-002 menciona JWT + OWASP A01/A03
+> pero omite A07 (gestión de contraseñas). ADR-003 dice "escala baja, no se requiere caché"
+> sin identificar el cuello de botella del cálculo de stock. ADR-004 y ADR-005 completos.
+> Test Strategy Map completo para repositorios pero sin estrategia de mock para el servicio
+> de notificaciones. 1 inconsistencia menor: dependency_graph menciona un servicio no definido
+> en contract_definitions.
 
 **Score 1.0** — Todos los bounded contexts con módulos y submódulos. Contract Definitions
 100% completo: interfaces + DTOs para todas las entidades, incluyendo DTOs de error.
@@ -364,10 +399,19 @@ Bullet, MVP, Robustez). Lenguaje ubicuo usado consistentemente. Sin contradiccio
 
 > Ejemplo: Blueprint define Inventario (Producto, Movimiento, Stock), Alertas (Umbral,
 > Notificación), Compras (Orden, Proveedor) y capas de Dominio/Aplicación/Infraestructura.
+> Sección Protocolo de Comunicación: REST elegido sobre GraphQL por simplicidad de contrato
+> y clientes conocidos; sección Principios de Diseño Aplicados: SRP en cada repositorio,
+> OCP en AlertEvaluator vía Strategy, DIP en todas las capas vía interfaces.
 > Contract Definitions tiene IProductoRepository con 5 métodos + ProductoDTO + ProductoErrorDTO.
-> ADR-001: contexto = inventario con concurrencia baja (25 usuarios), opciones = Python/FastAPI
-> vs FastAPI+SQLAlchemy vs Node.js/Express, criterios = simplicidad + soporte de ORM + curva
-> del equipo, decisión = Python/FastAPI+SQLAlchemy con justificación para cada criterio.
+> ADR-001: stack Python/FastAPI+SQLAlchemy con opciones evaluadas y criterios explícitos.
+> ADR-002: auth JWT con refresh tokens; datos sensibles cifrados en reposo; OWASP mitigados:
+> A01 (RBAC por rol), A03 (SQLAlchemy ORM previene inyección), A07 (bcrypt para contraseñas).
+> ADR-003: escala horizontal no requerida (25 usuarios); caché de stock calculado en Redis
+> para evitar SUM en cada request; cuello de botella anticipado = cálculo de stock bajo carga.
+> ADR-004: Docker + docker-compose; CI/CD en 3 etapas (lint→test→deploy); rollback = imagen
+> anterior en registry.
+> ADR-005: sistema CP (Consistencia + Tolerancia a Particiones); consistencia fuerte requerida
+> para transacciones de movimiento+alerta en una sola BD PostgreSQL.
 > Test Strategy Map: IProductoRepository → mock con pytest-mock; IAlertaService → stub
 > con respuesta configurable; tests unitarios por método de dominio, integración por endpoint.
 > test_strategy_map sección "Vertical Slices": Tracer Bullet = endpoint GET /stock/{id},
